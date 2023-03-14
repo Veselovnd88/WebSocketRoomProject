@@ -1,4 +1,4 @@
 package ru.veselov.websocketroomproject.exception;
 
-public class NoRoomFoundException extends Exception{
+public class NoRoomFoundException extends RuntimeException{
 }

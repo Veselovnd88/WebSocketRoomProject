@@ -25,12 +25,8 @@ public class RoomService {
     }
 
     public RoomModel findRoomById(Integer id) throws NoRoomFoundException {
-        log.info("Получение комнаты {}", id);
-        Optional<RoomModel> optional = repository.findById(id);
-        if(optional.isEmpty()){
-            throw new NoRoomFoundException();
-        }
-        else return optional.get();
+        log.info("Retrieving room #{} from db", id);
+       return repository.findById(id).orElseThrow(NoRoomFoundException::new);
     }
 
 

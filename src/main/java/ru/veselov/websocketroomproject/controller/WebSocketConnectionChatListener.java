@@ -61,6 +61,8 @@ public class WebSocketConnectionChatListener {
          FIXME проверить еще раз когда подключим окончательно security, в любом случае нам нужен только индивидуальный юзернейм
          для отправки запроса на сервис с бд юзеров для получения информации
         */
+
+
         if(session.getUser()==null){
             log.error("No authenticated user in session");
             return;
