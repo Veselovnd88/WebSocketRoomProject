@@ -1,0 +1,26 @@
+server:
+  port: 9990
+
+
+socket:
+  chat-topic: "/topic/messages"
+  users-topic: "/topic/users"
+  video-topic: "/topic/video"
+  destination: "/app/chat"
+
+
+
+spring:
+  security:
+    user:
+      name: user1
+      password: secret
+      roles: USER
+
+
+
+
+
+logging:
+  level:
+    com.robo.harvex : TRACE
