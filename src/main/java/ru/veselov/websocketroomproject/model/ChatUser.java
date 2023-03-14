@@ -8,7 +8,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatUser {
-
     private Integer userId;
     private Integer roomId;
     private String session;

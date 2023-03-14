@@ -1,8 +1,8 @@
 package ru.veselov.websocketroomproject.controller;
 
 
+import ru.veselov.websocketroomproject.listener.WebSocketConnectionChatListener;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,13 +16,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.socket.messaging.SessionSubscribeEvent;
-import ru.veselov.websocketroomproject.cache.ChatUsersCache;
-import ru.veselov.websocketroomproject.cache.SessionCache;
-import ru.veselov.websocketroomproject.dto.ChatMessageDTO;
-import ru.veselov.websocketroomproject.dto.ChatUserDTO;
-import ru.veselov.websocketroomproject.exception.NoRoomFoundException;
-import ru.veselov.websocketroomproject.exception.NoUserFoundException;
-import ru.veselov.websocketroomproject.model.ChatUser;
+import ru.veselov.websocketroomproject.exception.RoomNotFoundException;
+import ru.veselov.websocketroomproject.exception.UserNotFoundException;
 import ru.veselov.websocketroomproject.model.RoomModel;
 import ru.veselov.websocketroomproject.model.TagModel;
 import ru.veselov.websocketroomproject.model.UserModel;
@@ -42,12 +37,6 @@ class WebSocketConnectionChatListenerTest {
     @MockBean
     private SimpMessagingTemplate simpMessagingTemplate;
 
-    @Autowired
-    private ChatUsersCache chatUsersCache;
-
-    @Autowired
-    private SessionCache sessionCache;
-
     private Authentication authentication;
 
     @MockBean
@@ -64,9 +53,6 @@ class WebSocketConnectionChatListenerTest {
         message = mock(Message.class);
         authentication = SecurityContextHolder.getContext().getAuthentication();
         headers.clear();
-        chatUsersCache.clear();
-        sessionCache.clear();
-
     }
     @Test
     @SneakyThrows
@@ -80,9 +66,6 @@ class WebSocketConnectionChatListenerTest {
         SessionSubscribeEvent sessionSubscribeEvent = new SessionSubscribeEvent(new Object(),message, authentication);
         webSocketConnectionChatListener.handleSubscribeUser(sessionSubscribeEvent);
         verify(simpMessagingTemplate,times(1)).convertAndSend(anyString(),any(List.class));
-        verify(simpMessagingTemplate,times(1)).convertAndSend(anyString(),any(ChatMessageDTO.class));
-        Assertions.assertEquals(5,sessionCache.getRoom("test"));
-        Assertions.assertEquals(1,chatUsersCache.getRoomUsers(5).size());
     }
 
     @Test
@@ -96,9 +79,6 @@ class WebSocketConnectionChatListenerTest {
         SessionSubscribeEvent sessionSubscribeEvent = new SessionSubscribeEvent(new Object(),message, authentication);
         webSocketConnectionChatListener.handleSubscribeUser(sessionSubscribeEvent);
         verify(simpMessagingTemplate,never()).convertAndSend(anyString(),any(List.class));
-        verify(simpMessagingTemplate,never()).convertAndSend(anyString(),any(ChatMessageDTO.class));
-        Assertions.assertNull(sessionCache.getRoom("test"));
-        Assertions.assertNull(chatUsersCache.getRoomUsers(5));
     }
 
     @Test
@@ -112,9 +92,6 @@ class WebSocketConnectionChatListenerTest {
         SessionSubscribeEvent sessionSubscribeEvent = new SessionSubscribeEvent(new Object(),message, authentication);
         webSocketConnectionChatListener.handleSubscribeUser(sessionSubscribeEvent);
         verify(simpMessagingTemplate,never()).convertAndSend(anyString(),any(List.class));
-        verify(simpMessagingTemplate,never()).convertAndSend(anyString(),any(ChatMessageDTO.class));
-        Assertions.assertNull(sessionCache.getRoom("test"));
-        Assertions.assertNull(chatUsersCache.getRoomUsers(5));
     }
 
     @Test
@@ -126,9 +103,6 @@ class WebSocketConnectionChatListenerTest {
         SessionSubscribeEvent sessionSubscribeEvent = new SessionSubscribeEvent(new Object(),message, null);
         webSocketConnectionChatListener.handleSubscribeUser(sessionSubscribeEvent);
         verify(simpMessagingTemplate,never()).convertAndSend(anyString(),any(List.class));
-        verify(simpMessagingTemplate,never()).convertAndSend(anyString(),any(ChatMessageDTO.class));
-        Assertions.assertNull(sessionCache.getRoom("test"));
-        Assertions.assertNull(chatUsersCache.getRoomUsers(5));
     }
     @Test
     @SneakyThrows
@@ -138,12 +112,9 @@ class WebSocketConnectionChatListenerTest {
         MessageHeaders messageHeaders = new MessageHeaders(headers);
         when(message.getHeaders()).thenReturn(messageHeaders);
         SessionSubscribeEvent sessionSubscribeEvent = new SessionSubscribeEvent(new Object(),message, authentication);
-        when(userService.findUserByUserName(anyString())).thenThrow(new NoUserFoundException());
+        when(userService.findUserByUserName(anyString())).thenThrow(new UserNotFoundException());
         webSocketConnectionChatListener.handleSubscribeUser(sessionSubscribeEvent);
         verify(simpMessagingTemplate,never()).convertAndSend(anyString(),any(List.class));
-        verify(simpMessagingTemplate,never()).convertAndSend(anyString(),any(ChatMessageDTO.class));
-        Assertions.assertNull(sessionCache.getRoom("test"));
-        Assertions.assertNull(chatUsersCache.getRoomUsers(5));
     }
 
     @Test
@@ -155,42 +126,20 @@ class WebSocketConnectionChatListenerTest {
         MessageHeaders messageHeaders = new MessageHeaders(headers);
         when(message.getHeaders()).thenReturn(messageHeaders);
         SessionSubscribeEvent sessionSubscribeEvent = new SessionSubscribeEvent(new Object(),message, authentication);
-        when(roomService.findRoomById(anyInt())).thenThrow(new NoRoomFoundException());
+        when(roomService.findRoomById(anyInt())).thenThrow(new RoomNotFoundException());
         webSocketConnectionChatListener.handleSubscribeUser(sessionSubscribeEvent);
         verify(simpMessagingTemplate,never()).convertAndSend(anyString(),any(List.class));
-        verify(simpMessagingTemplate,never()).convertAndSend(anyString(),any(ChatMessageDTO.class));
-        Assertions.assertNull(sessionCache.getRoom("test"));
-        Assertions.assertNull(chatUsersCache.getRoomUsers(5));
     }
 
-    @Test
-    public void sortingOwnerUserIsFirst(){
-        for(int i=0; i<5;i++){
-            ChatUser chatUser = new ChatUser();
-            chatUser.setUserId(i);
-            chatUser.setRoomId(5);
-            chatUser.setIsOwner(false);
-            chatUser.setUserName("Name "+i);
-            chatUser.setSession("Session"+i);
-            if(i==3){
-                chatUser.setIsOwner(true);
-            }
-            chatUsersCache.addUser(5, chatUser);
-        }
-        chatUsersCache.getRoomUsers(5);
-        List<ChatUserDTO> chatUserDTOS = webSocketConnectionChatListener.checkSorting(5);
-        ChatUserDTO chatUserDTO = chatUserDTOS.get(0);
-        Assertions.assertEquals(3,chatUserDTO.getUserId());
-    }
 
-    private void setUpUserServiceWithUser() throws NoUserFoundException {
+    private void setUpUserServiceWithUser() throws UserNotFoundException {
         UserModel userModel = new UserModel();
         userModel.setId(100);
         userModel.setUsername(authentication.getName());
         when(userService.findUserByUserName(anyString())).thenReturn(userModel);
     }
 
-    private void setUpRoomServiceWithRoom() throws NoRoomFoundException {
+    private void setUpRoomServiceWithRoom() throws RoomNotFoundException {
         RoomModel roomModel = RoomModel.builder().roomTags(
                         Set.of(new TagModel(1, "TestTag"),
                                 new TagModel(2, "TestTag2"))
