@@ -1,14 +1,12 @@
 server:
   port: 9990
 
-
 socket:
+  endpoint: "/api/room/chat"
   chat-topic: "/topic/messages"
   users-topic: "/topic/users"
   video-topic: "/topic/video"
   destination: "/app/chat"
-
-
 
 spring:
   security:
@@ -17,10 +15,6 @@ spring:
       password: secret
       roles: USER
 
-
-
-
-
 logging:
   level:
-    com.robo.harvex : TRACE
+    ru.veselov: INFO

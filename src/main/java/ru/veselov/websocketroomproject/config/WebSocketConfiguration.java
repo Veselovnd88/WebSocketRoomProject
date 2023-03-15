@@ -1,5 +1,6 @@
 package ru.veselov.websocketroomproject.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -12,10 +13,13 @@ import ru.veselov.websocketroomproject.mapper.ChatUserMapperImpl;
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer {
+    @Value("${socket.endpoint}")
+    private String endpoint;
+
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/api/room/chat").setAllowedOriginPatterns("*").withSockJS();
-        registry.addEndpoint("/api/room/chat").setAllowedOrigins("*");
+        registry.addEndpoint(endpoint).setAllowedOriginPatterns("*").withSockJS();
+        registry.addEndpoint(endpoint).setAllowedOrigins("*");
     }
 
     @Override

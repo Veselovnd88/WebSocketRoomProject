@@ -52,7 +52,8 @@ public class WebSocketConnectionChatListener {
         if (session.getUser() == null) {
             log.error("No authenticated user in session");
             return false;
-        } else return true;
+        }
+        return true;
     }
 
     private Boolean validateHeaders(StompHeaderAccessor accessor) {
