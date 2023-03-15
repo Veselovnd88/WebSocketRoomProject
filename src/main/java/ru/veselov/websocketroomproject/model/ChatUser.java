@@ -1,11 +1,9 @@
 package ru.veselov.websocketroomproject.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
-@Getter
-@Setter
-@EqualsAndHashCode
-@NoArgsConstructor
+@Data
 @AllArgsConstructor
 public class ChatUser {
     private Integer userId;

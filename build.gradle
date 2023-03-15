@@ -1,7 +1,7 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.0.4'
-	id 'io.spring.dependency-management' version '1.1.0'
+    id 'java'
+    id 'org.springframework.boot' version '3.0.4'
+    id 'io.spring.dependency-management' version '1.1.0'
 }
 
 group = 'ru.veselov'
@@ -9,39 +9,42 @@ version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '17'
 
 configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-security'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
     testImplementation 'org.projectlombok:lombok:1.18.22'
     compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
-	testAnnotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.springframework.security:spring-security-test'
-	testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.9.2'
-	testCompileOnly group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.9.2'
+    annotationProcessor 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+    implementation 'org.mapstruct:mapstruct:1.5.3.Final'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.3.Final'
 
-	implementation group: 'org.webjars', name: 'webjars-locator-core', version: '0.52'
-	// https://mvnrepository.com/artifact/org.webjars/sockjs-client
-	implementation group: 'org.webjars', name: 'sockjs-client', version: '1.5.1'
-	// https://mvnrepository.com/artifact/org.webjars/stomp-websocket
-	implementation group: 'org.webjars', name: 'stomp-websocket', version: '2.3.4'
-	// https://mvnrepository.com/artifact/org.webjars/bootstrap
-	implementation group: 'org.webjars', name: 'bootstrap', version: '5.2.3'
-	// https://mvnrepository.com/artifact/org.webjars/jquery
-	implementation group: 'org.webjars', name: 'jquery', version: '3.6.3'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.9.2'
+    testCompileOnly group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.9.2'
+
+    implementation group: 'org.webjars', name: 'webjars-locator-core', version: '0.52'
+    // https://mvnrepository.com/artifact/org.webjars/sockjs-client
+    implementation group: 'org.webjars', name: 'sockjs-client', version: '1.5.1'
+    // https://mvnrepository.com/artifact/org.webjars/stomp-websocket
+    implementation group: 'org.webjars', name: 'stomp-websocket', version: '2.3.4'
+    // https://mvnrepository.com/artifact/org.webjars/bootstrap
+    implementation group: 'org.webjars', name: 'bootstrap', version: '5.2.3'
+    // https://mvnrepository.com/artifact/org.webjars/jquery
+    implementation group: 'org.webjars', name: 'jquery', version: '3.6.3'
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }

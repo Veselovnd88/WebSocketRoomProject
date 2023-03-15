@@ -23,7 +23,7 @@ function connect() {
 
         });*/
         stompClient.subscribe('/topic/users/9', function (users){
-            showUsers(JSON.parse(users.body));
+            showUsers(JSON.parse(users.body).username);
         }, {roomId: 5});
     });
 }

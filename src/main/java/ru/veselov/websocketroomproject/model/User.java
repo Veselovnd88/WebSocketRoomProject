@@ -1,15 +1,13 @@
 package ru.veselov.websocketroomproject.model;
 
-import lombok.*;
 
-@Getter
-@Setter
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
 @AllArgsConstructor
-@NoArgsConstructor
-@EqualsAndHashCode
-public class UserModel {
+public class User {
     private Integer id;
     private String username;
     private String email;
-
 }
