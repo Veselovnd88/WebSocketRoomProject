@@ -1,9 +1,11 @@
-package ru.veselov.websocketroomproject.controller;
+package ru.veselov.websocketroomproject.listener;
 
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -18,7 +20,6 @@ import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 import ru.veselov.websocketroomproject.dto.ChatUserDTO;
 import ru.veselov.websocketroomproject.exception.RoomNotFoundException;
 import ru.veselov.websocketroomproject.exception.UserNotFoundException;
-import ru.veselov.websocketroomproject.listener.WebSocketConnectionChatListener;
 import ru.veselov.websocketroomproject.model.Room;
 import ru.veselov.websocketroomproject.model.User;
 import ru.veselov.websocketroomproject.service.RoomService;
@@ -27,8 +28,6 @@ import ru.veselov.websocketroomproject.service.UserService;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -49,51 +48,88 @@ class WebSocketConnectionChatListenerTest {
     @BeforeEach
     @SuppressWarnings("unchecked")
     void init() {
-        message = mock(Message.class);
+        message = Mockito.mock(Message.class);
         authentication = SecurityContextHolder.getContext().getAuthentication();
         headers.clear();
     }
 
     @Test
-    @SneakyThrows
-    public void connectionToTopicTest() {
-        setUpUserServiceWithUser();
-        setUpRoomServiceWithRoom();
+    public void shouldConnectToTopic() {
+        User user = new User(100, authentication.getName(), "email");
+        Mockito.when(userService.findUserByUserName(ArgumentMatchers.anyString())).thenReturn(user);
+        Room room = new Room(
+                5,
+                "testRoom",
+                true,
+                "url",
+                "token",
+                new Date(),
+                new User(100, "Vasya", "email"));
+        Mockito.when(roomService.findRoomById(ArgumentMatchers.anyInt())).thenReturn(room);
+        Map<String, Object> headers = new HashMap<>();
         headers.put("simpDestination", "/topic/users/5");
         headers.put("simpSessionId", "test");
         headers.put("roomId", "5");
         MessageHeaders messageHeaders = new MessageHeaders(headers);
-        when(message.getHeaders()).thenReturn(messageHeaders);
+        Mockito.when(message.getHeaders()).thenReturn(messageHeaders);
         SessionSubscribeEvent sessionSubscribeEvent = new SessionSubscribeEvent(new Object(), message, authentication);
+
         webSocketConnectionChatListener.handleSubscribeUser(sessionSubscribeEvent);
-        verify(simpMessagingTemplate, times(1)).convertAndSend(anyString(), any(ChatUserDTO.class));
+
+        Mockito.verify(simpMessagingTemplate, Mockito.times(1))
+                .convertAndSend(ArgumentMatchers.anyString(), ArgumentMatchers.any(ChatUserDTO.class));
     }
 
     @Test
-    @SneakyThrows
-    public void subscriptionToIncorrectRoomNumberTest() {
-        setUpUserServiceWithUser();
+    public void shouldInterruptAndLogErrorRoomIdIsNotInt() {
+        User user = new User(100, authentication.getName(), "email");
+        Mockito.when(userService.findUserByUserName(ArgumentMatchers.anyString())).thenReturn(user);
         headers.put("simpDestination", "/topic/users/fasdfasdf");
         headers.put("simpSessionId", "test");
         headers.put("roomId", "fasdfasdf");
+        Map<String, Object> headers = new HashMap<>();
         MessageHeaders messageHeaders = new MessageHeaders(headers);
-        when(message.getHeaders()).thenReturn(messageHeaders);
+        Mockito.when(message.getHeaders()).thenReturn(messageHeaders);
         SessionSubscribeEvent sessionSubscribeEvent = new SessionSubscribeEvent(new Object(), message, authentication);
+
         webSocketConnectionChatListener.handleSubscribeUser(sessionSubscribeEvent);
-        verify(simpMessagingTemplate, never()).convertAndSend(anyString(), any(ChatUserDTO.class));
+
+        Mockito.verify(simpMessagingTemplate, Mockito.never())
+                .convertAndSend(ArgumentMatchers.anyString(), ArgumentMatchers.any(ChatUserDTO.class));
+    }
+
+    @Test
+    public void shouldInterruptAndLogErrorRoomIdIsNull() {
+        User user = new User(100, authentication.getName(), "email");
+        Mockito.when(userService.findUserByUserName(ArgumentMatchers.anyString())).thenReturn(user);
+        headers.put("simpDestination", "/topic/users/5");
+        headers.put("simpSessionId", "test");
+        Map<String, Object> headers = new HashMap<>();
+        MessageHeaders messageHeaders = new MessageHeaders(headers);
+        Mockito.when(message.getHeaders()).thenReturn(messageHeaders);
+        SessionSubscribeEvent sessionSubscribeEvent = new SessionSubscribeEvent(new Object(), message, authentication);
+
+        webSocketConnectionChatListener.handleSubscribeUser(sessionSubscribeEvent);
+
+        Mockito.verify(simpMessagingTemplate, Mockito.never())
+                .convertAndSend(ArgumentMatchers.anyString(), ArgumentMatchers.any(ChatUserDTO.class));
     }
 
     @Test
     @SneakyThrows
-    public void subscriptionToIncorrectTopicNameTest() {
-        setUpUserServiceWithUser();
-        headers.put("simpDestination", "/topic/us");
+    public void shouldInterruptAndLogErrorWithTopicIsNull() {
+        User user = new User(100, authentication.getName(), "email");
+        Mockito.when(userService.findUserByUserName(ArgumentMatchers.anyString())).thenReturn(user);
+        Map<String, Object> headers = new HashMap<>();
         headers.put("simpSessionId", "test");
         MessageHeaders messageHeaders = new MessageHeaders(headers);
-        when(message.getHeaders()).thenReturn(messageHeaders);
+        Mockito.when(message.getHeaders()).thenReturn(messageHeaders);
         SessionSubscribeEvent sessionSubscribeEvent = new SessionSubscribeEvent(new Object(), message, authentication);
+
         webSocketConnectionChatListener.handleSubscribeUser(sessionSubscribeEvent);
-        verify(simpMessagingTemplate, never()).convertAndSend(anyString(), any(ChatUserDTO.class));
+
+        Mockito.verify(simpMessagingTemplate, Mockito.never())
+                .convertAndSend(ArgumentMatchers.anyString(), ArgumentMatchers.any(ChatUserDTO.class));
     }
 
     @Test
@@ -101,49 +137,38 @@ class WebSocketConnectionChatListenerTest {
         headers.put("simpDestination", "/topic/us");
         headers.put("simpSessionId", "test");
         MessageHeaders messageHeaders = new MessageHeaders(headers);
-        when(message.getHeaders()).thenReturn(messageHeaders);
+        Mockito.when(message.getHeaders()).thenReturn(messageHeaders);
         SessionSubscribeEvent sessionSubscribeEvent = new SessionSubscribeEvent(new Object(), message, null);
         webSocketConnectionChatListener.handleSubscribeUser(sessionSubscribeEvent);
-        verify(simpMessagingTemplate, never()).convertAndSend(anyString(), any(ChatUserDTO.class));
+        Mockito.verify(simpMessagingTemplate, Mockito.never())
+                .convertAndSend(ArgumentMatchers.anyString(), ArgumentMatchers.any(ChatUserDTO.class));
     }
 
     @Test
-    @SneakyThrows
     public void subscriptionNoUserFoundTest() {
         headers.put("simpDestination", "/topic/users/5");
         headers.put("simpSessionId", "test");
         headers.put("roomId", "5");
         MessageHeaders messageHeaders = new MessageHeaders(headers);
-        when(message.getHeaders()).thenReturn(messageHeaders);
+        Mockito.when(message.getHeaders()).thenReturn(messageHeaders);
         SessionSubscribeEvent sessionSubscribeEvent = new SessionSubscribeEvent(new Object(), message, authentication);
-        when(userService.findUserByUserName(anyString())).thenThrow(new UserNotFoundException());
+        Mockito.when(userService.findUserByUserName(ArgumentMatchers.anyString())).thenThrow(new UserNotFoundException());
         Assertions.assertThrows(UserNotFoundException.class, () -> webSocketConnectionChatListener.handleSubscribeUser(sessionSubscribeEvent));
-        verify(simpMessagingTemplate, never()).convertAndSend(anyString(), any(ChatUserDTO.class));
+        Mockito.verify(simpMessagingTemplate, Mockito.never())
+                .convertAndSend(ArgumentMatchers.anyString(), ArgumentMatchers.any(ChatUserDTO.class));
     }
 
     @Test
-    @SneakyThrows
     public void subscriptionNoRoomFoundTest() {
-        setUpUserServiceWithUser();
         headers.put("simpDestination", "/topic/users/5");
         headers.put("simpSessionId", "test");
         headers.put("roomId", "5");
         MessageHeaders messageHeaders = new MessageHeaders(headers);
-        when(message.getHeaders()).thenReturn(messageHeaders);
+        Mockito.when(message.getHeaders()).thenReturn(messageHeaders);
         SessionSubscribeEvent sessionSubscribeEvent = new SessionSubscribeEvent(new Object(), message, authentication);
-        when(roomService.findRoomById(anyInt())).thenThrow(new RoomNotFoundException());
+        Mockito.when(roomService.findRoomById(ArgumentMatchers.anyInt())).thenThrow(new RoomNotFoundException());
         Assertions.assertThrows(RoomNotFoundException.class, () -> webSocketConnectionChatListener.handleSubscribeUser(sessionSubscribeEvent));
-        verify(simpMessagingTemplate, never()).convertAndSend(anyString(), any(ChatUserDTO.class));
-    }
-
-    private void setUpUserServiceWithUser() throws UserNotFoundException {
-        User user = new User(100, authentication.getName(), "email");
-        when(userService.findUserByUserName(anyString())).thenReturn(user);
-    }
-
-    private void setUpRoomServiceWithRoom() throws RoomNotFoundException {
-        //TODO try DataFaker
-        Room room = new Room(5, "testRoom", true, "url", "token", new Date(), new User(100, "Vasya", "email"));
-        when(roomService.findRoomById(anyInt())).thenReturn(room);
+        Mockito.verify(simpMessagingTemplate, Mockito.never())
+                .convertAndSend(ArgumentMatchers.anyString(), ArgumentMatchers.any(ChatUserDTO.class));
     }
 }
