@@ -28,9 +28,6 @@ public class WebSocketConnectionChatListener {
 
     @EventListener
     public void handleSubscribeUser(SessionSubscribeEvent session) {
-        if (!validateAuthentication(session)) {
-            return;
-        }
         String username = session.getUser().getName();
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(session.getMessage());
         if (!validateHeaders(headerAccessor)) {
@@ -40,7 +37,7 @@ public class WebSocketConnectionChatListener {
         String destination = headerAccessor.getDestination();
         String sessionId = headerAccessor.getSessionId();
         /*Additional header {roomId: roomNumber (integer)} should be added by FE in subscribe function*/
-        Integer roomId = Integer.valueOf((String) headerAccessor.getHeader("roomId"));
+        Integer roomId = Integer.valueOf(headerAccessor.getFirstNativeHeader("roomId"));
         Room roomById = roomService.findRoomById(roomId);
         boolean isOwner = roomById.getOwner().getUsername().equals(user.getUsername());
         ChatUser chatUser = new ChatUser(user.getId(), roomId, sessionId, username, destination, isOwner);
@@ -48,30 +45,8 @@ public class WebSocketConnectionChatListener {
         log.info("User {}, id {}, with session {} connected to topic {} of room #{}", user.getUsername(), user.getId(), sessionId, destination, roomId);
     }
 
-    private Boolean validateAuthentication(SessionSubscribeEvent session) {
-        if (session.getUser() == null) {
-            log.error("No authenticated user in session");
-            return false;
-        }
-        return true;
-    }
-
-    private Boolean validateHeaders(StompHeaderAccessor accessor) {
+    private boolean validateHeaders(StompHeaderAccessor accessor) {
         String destination = accessor.getDestination();
-        if (destination == null) {
-            log.error("Topic is null");
-            return false;
-        }
-        if (accessor.getHeader("roomId") == null) {
-            log.error("RoomId is null");
-            return false;
-        }
-        try {
-            Integer roomId = Integer.valueOf((String) accessor.getHeader("roomId"));
-        } catch (NumberFormatException e) {
-            log.error("RoomId is not int value");
-            return false;
-        }
         if (!accessor.getDestination().startsWith(usersTopic)) {
             log.trace("Not correct topic for answer: [topic] {}", destination);
             return false;
