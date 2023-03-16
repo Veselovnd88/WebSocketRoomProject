@@ -9,6 +9,4 @@ public class ChatUserDTO {
     private Integer userId;
     @JsonProperty("username")
     private String username;
-    @JsonProperty("isOwner")
-    private Boolean isOwner;
 }
