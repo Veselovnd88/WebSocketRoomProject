@@ -16,13 +16,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 @SpringBootTest
-class TopicSubscriptionInterceptorTest {
+class SocketSubscriptionInterceptorTest {
     @Value("${socket.dest-prefix}")
     private String destinationPrefix;
 
     @Test
     void shouldReturnMessage() {
-        ChannelInterceptor interceptor = new TopicSubscriptionInterceptor(destinationPrefix);
+        ChannelInterceptor interceptor = new SocketSubscriptionInterceptor(destinationPrefix);
         MessageChannel channel = Mockito.mock(MessageChannel.class);
         Message<?> message = Mockito.mock(Message.class);
         Map<String, Object> headers = new HashMap<>();
@@ -35,7 +35,7 @@ class TopicSubscriptionInterceptorTest {
 
     @Test
     void shouldThrowMessagingExceptionIfDestinationIsNull() {
-        ChannelInterceptor interceptor = new TopicSubscriptionInterceptor("/topic");
+        ChannelInterceptor interceptor = new SocketSubscriptionInterceptor("/topic");
         MessageChannel channel = Mockito.mock(MessageChannel.class);
         Message<?> message = Mockito.mock(Message.class);
         Map<String, Object> headers = new HashMap<>();
@@ -48,7 +48,7 @@ class TopicSubscriptionInterceptorTest {
 
     @Test
     void shouldThrowMessagingExceptionIfDestinationIsNotCorrect() {
-        ChannelInterceptor interceptor = new TopicSubscriptionInterceptor("/topic");
+        ChannelInterceptor interceptor = new SocketSubscriptionInterceptor("/topic");
         MessageChannel channel = Mockito.mock(MessageChannel.class);
         Message<?> message = Mockito.mock(Message.class);
         Map<String, Object> headers = new HashMap<>();

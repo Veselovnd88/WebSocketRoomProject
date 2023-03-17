@@ -7,8 +7,8 @@ import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
-import ru.veselov.websocketroomproject.config.interceptors.TopicConnectionInterceptor;
-import ru.veselov.websocketroomproject.config.interceptors.TopicSubscriptionInterceptor;
+import ru.veselov.websocketroomproject.config.interceptors.SocketConnectionInterceptor;
+import ru.veselov.websocketroomproject.config.interceptors.SocketSubscriptionInterceptor;
 
 @Configuration
 @EnableWebSocketMessageBroker
@@ -37,6 +37,6 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
-        registration.interceptors(new TopicSubscriptionInterceptor(destinationPrefix), new TopicConnectionInterceptor());
+        registration.interceptors(new SocketSubscriptionInterceptor(destinationPrefix), new SocketConnectionInterceptor());
     }
 }
