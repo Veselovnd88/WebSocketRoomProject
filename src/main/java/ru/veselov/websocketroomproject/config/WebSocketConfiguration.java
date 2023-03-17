@@ -37,6 +37,6 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
-        registration.interceptors(new TopicSubscriptionInterceptor(), new TopicConnectionInterceptor());
+        registration.interceptors(new TopicSubscriptionInterceptor(destinationPrefix), new TopicConnectionInterceptor());
     }
 }
