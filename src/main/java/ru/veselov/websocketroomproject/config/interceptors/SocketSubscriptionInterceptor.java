@@ -13,10 +13,10 @@ import org.springframework.messaging.support.ChannelInterceptor;
  * or not correct prefix
  */
 @Slf4j
-public class TopicSubscriptionInterceptor implements ChannelInterceptor {
+public class SocketSubscriptionInterceptor implements ChannelInterceptor {
     private final String destinationPrefix;
 
-    public TopicSubscriptionInterceptor(String destinationPrefix) {
+    public SocketSubscriptionInterceptor(String destinationPrefix) {
         this.destinationPrefix = destinationPrefix;
     }
 

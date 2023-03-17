@@ -10,8 +10,11 @@ import org.springframework.messaging.support.ChannelInterceptor;
 
 import java.security.Principal;
 
+/**
+ * Interceptor validates authentication and correct roomId
+ */
 @Slf4j
-public class TopicConnectionInterceptor implements ChannelInterceptor {
+public class SocketConnectionInterceptor implements ChannelInterceptor {
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
