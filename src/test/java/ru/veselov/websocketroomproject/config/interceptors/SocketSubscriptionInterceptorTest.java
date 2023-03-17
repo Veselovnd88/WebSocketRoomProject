@@ -59,4 +59,5 @@ class SocketSubscriptionInterceptorTest {
 
         Assertions.assertThatThrownBy(() -> interceptor.preSend(message, channel)).isInstanceOf(MessagingException.class);
     }
+
 }

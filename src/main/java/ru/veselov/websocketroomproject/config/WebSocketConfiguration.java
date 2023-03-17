@@ -39,4 +39,5 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
     public void configureClientInboundChannel(ChannelRegistration registration) {
         registration.interceptors(new SocketSubscriptionInterceptor(destinationPrefix), new SocketConnectionInterceptor());
     }
+
 }
