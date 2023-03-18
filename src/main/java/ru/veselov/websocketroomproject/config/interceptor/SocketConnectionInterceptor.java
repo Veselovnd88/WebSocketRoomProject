@@ -33,7 +33,7 @@ public class SocketConnectionInterceptor implements ChannelInterceptor {
 
     private boolean validateAuthentication(Principal principal) {
         if (principal == null) {
-            log.error("No authenticated user in session");
+            log.info("No authenticated user in session");
             return false;
         }
         return true;
@@ -41,17 +41,17 @@ public class SocketConnectionInterceptor implements ChannelInterceptor {
 
     private boolean validateRoomIdInHeader(String roomId) {
         if (roomId == null) {
-            log.error("RoomId is null");
+            log.info("RoomId is null");
             return false;
         }
         if (roomId.isEmpty()) {
-            log.error("RoomId is empty");
+            log.info("RoomId is empty");
             return false;
         }
         try {
             Integer.valueOf(roomId);
         } catch (NumberFormatException e) {
-            log.error("RoomId is not integer value");
+            log.info("RoomId is not integer value");
             return false;
         }
         return true;
