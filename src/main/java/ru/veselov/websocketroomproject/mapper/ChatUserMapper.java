@@ -4,7 +4,7 @@ import org.mapstruct.Mapper;
 import ru.veselov.websocketroomproject.dto.ChatUserDTO;
 import ru.veselov.websocketroomproject.model.ChatUser;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface ChatUserMapper {
     ChatUserDTO chatUserToDTO(ChatUser chatUser);
 

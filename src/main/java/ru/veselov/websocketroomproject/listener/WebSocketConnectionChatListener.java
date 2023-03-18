@@ -15,67 +15,37 @@ import ru.veselov.websocketroomproject.model.User;
 import ru.veselov.websocketroomproject.service.RoomService;
 import ru.veselov.websocketroomproject.service.UserService;
 
+import java.security.Principal;
+
 @Component
 @Slf4j
 @RequiredArgsConstructor
 public class WebSocketConnectionChatListener {
     @Value("${socket.users-topic}")
     private String usersTopic;
-    private final UserService userService;
-    private final RoomService roomService;
     private final SimpMessagingTemplate messagingTemplate;
-    private final ChatUserMapper chatUserMapper;
 
+    /**
+     * Handling subscriptions.
+     * Filter to the chosen destination that we need to send message, here - topic with users.
+     * Create ChatUser object, map it to DTO and send to the topic.
+     */
     @EventListener
-    public void handleSubscribeUser(SessionSubscribeEvent session) {
-        if (!validateAuthentication(session)) {
-            return;
-        }
-        String username = session.getUser().getName();
+    public void handleUserSubscription(SessionSubscribeEvent session) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(session.getMessage());
-        if (!validateHeaders(headerAccessor)) {
+        if (filterDestination(headerAccessor)) {
             return;
         }
-        User user = userService.findUserByUserName(username);
         String destination = headerAccessor.getDestination();
         String sessionId = headerAccessor.getSessionId();
-        /*Additional header {roomId: roomNumber (integer)} should be added by FE in subscribe function*/
-        Integer roomId = Integer.valueOf((String) headerAccessor.getHeader("roomId"));
-        Room roomById = roomService.findRoomById(roomId);
-        boolean isOwner = roomById.getOwner().getUsername().equals(user.getUsername());
-        ChatUser chatUser = new ChatUser(user.getId(), roomId, sessionId, username, destination, isOwner);
-        messagingTemplate.convertAndSend(destination, chatUserMapper.chatUserToDTO(chatUser));
-        log.info("User {}, id {}, with session {} connected to topic {} of room #{}", user.getUsername(), user.getId(), sessionId, destination, roomId);
+        messagingTemplate.convertAndSend(destination, sessionId);
+        /*User and room data should be retrieved from cache, this information should be added to cache
+         * in connectHandling listener or in controller (will be implemented later)*/
+        log.info("User [username], id [id], with session {} connected to topic {} of room #[roomId]",
+                sessionId, destination);
     }
 
-    private Boolean validateAuthentication(SessionSubscribeEvent session) {
-        if (session.getUser() == null) {
-            log.error("No authenticated user in session");
-            return false;
-        }
-        return true;
-    }
-
-    private Boolean validateHeaders(StompHeaderAccessor accessor) {
-        String destination = accessor.getDestination();
-        if (destination == null) {
-            log.error("Topic is null");
-            return false;
-        }
-        if (accessor.getHeader("roomId") == null) {
-            log.error("RoomId is null");
-            return false;
-        }
-        try {
-            Integer roomId = Integer.valueOf((String) accessor.getHeader("roomId"));
-        } catch (NumberFormatException e) {
-            log.error("RoomId is not int value");
-            return false;
-        }
-        if (!accessor.getDestination().startsWith(usersTopic)) {
-            log.trace("Not correct topic for answer: [topic] {}", destination);
-            return false;
-        }
-        return true;
+    private boolean filterDestination(StompHeaderAccessor accessor) {
+        return !accessor.getDestination().startsWith(usersTopic);
     }
 }

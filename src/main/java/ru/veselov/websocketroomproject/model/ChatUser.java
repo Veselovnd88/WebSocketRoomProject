@@ -9,7 +9,7 @@ public class ChatUser {
     private Integer userId;
     private Integer roomId;
     private String session;
-    private String userName;
+    private String username;
     private String destination;
     private Boolean isOwner;
 }
