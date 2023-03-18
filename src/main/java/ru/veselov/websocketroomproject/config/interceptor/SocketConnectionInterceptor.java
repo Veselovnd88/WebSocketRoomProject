@@ -1,4 +1,4 @@
-package ru.veselov.websocketroomproject.config.interceptors;
+package ru.veselov.websocketroomproject.config.interceptor;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;

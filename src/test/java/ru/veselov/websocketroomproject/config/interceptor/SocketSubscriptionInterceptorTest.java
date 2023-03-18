@@ -1,4 +1,4 @@
-package ru.veselov.websocketroomproject.config.interceptors;
+package ru.veselov.websocketroomproject.config.interceptor;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;

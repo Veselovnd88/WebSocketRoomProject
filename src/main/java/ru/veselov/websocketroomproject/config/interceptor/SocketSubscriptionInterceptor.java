@@ -1,4 +1,4 @@
-package ru.veselov.websocketroomproject.config.interceptors;
+package ru.veselov.websocketroomproject.config.interceptor;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
@@ -32,11 +32,11 @@ public class SocketSubscriptionInterceptor implements ChannelInterceptor {
     private boolean validateHeaders(StompHeaderAccessor accessor) {
         String destination = accessor.getDestination();
         if (destination == null) {
-            log.error("Destination is null");
+            log.info("Destination is null");
             return false;
         }
         if (!destination.startsWith(destinationPrefix)) {
-            log.error("Destination has not correct prefix: {}", destination);
+            log.info("Destination has not correct prefix: {}", destination);
             return false;
         }
         return true;
