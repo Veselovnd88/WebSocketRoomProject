@@ -20,9 +20,9 @@ import java.util.Map;
 
 @SpringBootTest
 @WithMockUser(username = "testUser")
-class WebSocketConnectionChatListenerTest {
+class WebSocketSubscriptionHandlerTest {
     @Autowired
-    private WebSocketConnectionChatListener webSocketConnectionChatListener;
+    private WebSocketSubscriptionHandler webSocketSubscriptionHandler;
     @MockBean
     private SimpMessagingTemplate simpMessagingTemplate;
 
@@ -37,7 +37,7 @@ class WebSocketConnectionChatListenerTest {
         Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
         SessionSubscribeEvent sessionSubscribeEvent = new SessionSubscribeEvent(new Object(), message, authentication);
 
-        webSocketConnectionChatListener.handleUserSubscription(sessionSubscribeEvent);
+        webSocketSubscriptionHandler.handleUserSubscription(sessionSubscribeEvent);
 
         Mockito.verify(simpMessagingTemplate, Mockito.times(1))
                 .convertAndSend(ArgumentMatchers.anyString(), ArgumentMatchers.any(Object.class));
@@ -54,7 +54,7 @@ class WebSocketConnectionChatListenerTest {
         Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
         SessionSubscribeEvent sessionSubscribeEvent = new SessionSubscribeEvent(new Object(), message, authentication);
 
-        webSocketConnectionChatListener.handleUserSubscription(sessionSubscribeEvent);
+        webSocketSubscriptionHandler.handleUserSubscription(sessionSubscribeEvent);
 
         Mockito.verify(simpMessagingTemplate, Mockito.never())
                 .convertAndSend(ArgumentMatchers.anyString(), ArgumentMatchers.any(Object.class));

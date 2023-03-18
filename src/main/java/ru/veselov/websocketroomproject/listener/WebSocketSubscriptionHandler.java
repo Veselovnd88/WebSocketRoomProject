@@ -8,19 +8,11 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionSubscribeEvent;
-import ru.veselov.websocketroomproject.mapper.ChatUserMapper;
-import ru.veselov.websocketroomproject.model.ChatUser;
-import ru.veselov.websocketroomproject.model.Room;
-import ru.veselov.websocketroomproject.model.User;
-import ru.veselov.websocketroomproject.service.RoomService;
-import ru.veselov.websocketroomproject.service.UserService;
-
-import java.security.Principal;
 
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class WebSocketConnectionChatListener {
+public class WebSocketSubscriptionHandler {
     @Value("${socket.users-topic}")
     private String usersTopic;
     private final SimpMessagingTemplate messagingTemplate;
