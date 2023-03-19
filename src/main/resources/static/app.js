@@ -18,9 +18,12 @@ function connect() {
     stompClient.connect({roomId: 5}, function (frame) {
         setConnected(true);
         console.log('Connected: ' + frame);
-        stompClient.subscribe('/topic/messages/9', function (greeting) {
+        /*stompClient.subscribe('/topic/messages/9', function (greeting) {
             showGreeting(JSON.parse(greeting.body).username);
 
+        });*/
+        stompClient.subscribe('/topic/messages/9', function (greeting) {
+            showGreeting(greeting);
         });
         stompClient.subscribe('/topic/users/9', function (users){
             showUsers(JSON.parse(users.body).username);

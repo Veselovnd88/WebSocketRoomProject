@@ -37,6 +37,22 @@ class SocketConnectionInterceptorTest {
     }
 
     @Test
+    void shouldReturnMessageIfAnotherCommand() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        ChannelInterceptor interceptor = new SocketConnectionInterceptor();
+        MessageChannel channel = Mockito.mock(MessageChannel.class);
+        Message<?> message = Mockito.mock(Message.class);
+        Map<String, Object> headers = Map.of(
+                "stompCommand", StompCommand.SUBSCRIBE,
+                "simpSessionId", "test",
+                "simpUser", authentication,
+                "nativeHeaders", Map.of("roomId", List.of("5")));
+        Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
+
+        Assertions.assertThat(interceptor.preSend(message, channel)).isNotNull().isInstanceOf(Message.class);
+    }
+
+    @Test
     void shouldThrowMessagingExceptionWithNoAuthenticatedUser() {
         ChannelInterceptor interceptor = new SocketConnectionInterceptor();
         MessageChannel channel = Mockito.mock(MessageChannel.class);

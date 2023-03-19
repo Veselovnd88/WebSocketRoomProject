@@ -6,6 +6,7 @@ socket:
   app-prefix: "/app"
   endpoint: "/api/room/chat"
   users-topic: "/topic/users"
+  chat-topic: "/topic/messages"
 
 spring:
   security:
