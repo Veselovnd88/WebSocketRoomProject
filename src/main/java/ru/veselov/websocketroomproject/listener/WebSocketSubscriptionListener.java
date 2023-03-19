@@ -12,7 +12,7 @@ import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class WebSocketSubscriptionHandler {
+public class WebSocketSubscriptionListener {
     @Value("${socket.users-topic}")
     private String usersTopic;
     private final SimpMessagingTemplate messagingTemplate;

@@ -34,6 +34,20 @@ class SocketSubscriptionInterceptorTest {
     }
 
     @Test
+    void shouldReturnMessageIfAnotherCommand() {
+        ChannelInterceptor interceptor = new SocketSubscriptionInterceptor(destinationPrefix);
+        MessageChannel channel = Mockito.mock(MessageChannel.class);
+        Message<?> message = Mockito.mock(Message.class);
+        Map<String, Object> headers = Map.of(
+                "stompCommand", StompCommand.CONNECT,
+                "simpDestination", "/topic/users/5",
+                "simpSessionId", "test"
+        );
+        Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
+        Assertions.assertThat(interceptor.preSend(message, channel)).isNotNull().isInstanceOf(Message.class);
+    }
+
+    @Test
     void shouldThrowMessagingExceptionIfDestinationIsNull() {
         ChannelInterceptor interceptor = new SocketSubscriptionInterceptor("/topic");
         MessageChannel channel = Mockito.mock(MessageChannel.class);
