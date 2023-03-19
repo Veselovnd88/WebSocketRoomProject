@@ -1,5 +1,6 @@
 package ru.veselov.websocketroomproject.config.interceptor;
 
+import io.micrometer.common.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -18,7 +19,7 @@ public class SocketConnectionInterceptor implements ChannelInterceptor {
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-        if (StompCommand.CONNECT.equals(accessor.getCommand())) {
+        if (isConnectCommand(accessor)) {
             Principal principal = accessor.getUser();
             if (!validateAuthentication(principal)) {
                 throw new MessagingException("No permission for no authenticated user");
@@ -40,13 +41,8 @@ public class SocketConnectionInterceptor implements ChannelInterceptor {
     }
 
     private boolean validateRoomIdInHeader(String roomId) {
-        if (roomId == null) {
-            log.info("RoomId is null");
-            return false;
-        }
-        if (roomId.isEmpty()) {
-            log.info("RoomId is empty");
-            return false;
+        if (StringUtils.isBlank(roomId)) {
+            log.warn("RoomId can't be null or empty");
         }
         try {
             Integer.valueOf(roomId);
@@ -55,6 +51,10 @@ public class SocketConnectionInterceptor implements ChannelInterceptor {
             return false;
         }
         return true;
+    }
+
+    private boolean isConnectCommand(StompHeaderAccessor accessor) {
+        return StompCommand.CONNECT.equals(accessor.getCommand());
     }
 
 }

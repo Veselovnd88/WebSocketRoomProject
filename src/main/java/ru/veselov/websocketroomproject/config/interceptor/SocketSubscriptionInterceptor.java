@@ -23,23 +23,31 @@ public class SocketSubscriptionInterceptor implements ChannelInterceptor {
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-        if (StompCommand.SUBSCRIBE.equals(accessor.getCommand()) && (!validateHeaders(accessor))) {
+        if (!validate(accessor)) {
             throw new MessagingException("Destination cannot be null and should start with prefix [/topic]");
         }
         return message;
     }
 
+    private boolean validate(StompHeaderAccessor accessor) {
+        return isSubscribeCommand(accessor.getCommand()) && validateHeaders(accessor);
+    }
+
     private boolean validateHeaders(StompHeaderAccessor accessor) {
         String destination = accessor.getDestination();
         if (destination == null) {
-            log.info("Destination is null");
+            log.warn("Destination is null");
             return false;
         }
         if (!destination.startsWith(destinationPrefix)) {
-            log.info("Destination has not correct prefix: {}", destination);
+            log.warn("Destination has not correct prefix: {}", destination);
             return false;
         }
         return true;
+    }
+
+    private boolean isSubscribeCommand(StompCommand stompCommand) {
+        return StompCommand.SUBSCRIBE.equals(stompCommand);
     }
 
 }

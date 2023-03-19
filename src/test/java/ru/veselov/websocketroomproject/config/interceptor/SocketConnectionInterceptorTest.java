@@ -14,7 +14,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,11 +26,11 @@ class SocketConnectionInterceptorTest {
         ChannelInterceptor interceptor = new SocketConnectionInterceptor();
         MessageChannel channel = Mockito.mock(MessageChannel.class);
         Message<?> message = Mockito.mock(Message.class);
-        Map<String, Object> headers = new HashMap<>();
-        headers.put("stompCommand", StompCommand.CONNECT);
-        headers.put("simpSessionId", "test");
-        headers.put("simpUser", authentication);
-        headers.put("nativeHeaders", Map.of("roomId", List.of("5")));
+        Map<String, Object> headers = Map.of(
+                "stompCommand", StompCommand.CONNECT,
+                "simpSessionId", "test",
+                "simpUser", authentication,
+                "nativeHeaders", Map.of("roomId", List.of("5")));
         Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
 
         Assertions.assertThat(interceptor.preSend(message, channel)).isNotNull().isInstanceOf(Message.class);
@@ -42,10 +41,10 @@ class SocketConnectionInterceptorTest {
         ChannelInterceptor interceptor = new SocketConnectionInterceptor();
         MessageChannel channel = Mockito.mock(MessageChannel.class);
         Message<?> message = Mockito.mock(Message.class);
-        Map<String, Object> headers = new HashMap<>();
-        headers.put("stompCommand", StompCommand.CONNECT);
-        headers.put("simpSessionId", "test");
-        headers.put("nativeHeaders", Map.of("roomId", List.of("5")));
+        Map<String, Object> headers = Map.of(
+                "stompCommand", StompCommand.CONNECT,
+                "simpSessionId", "test",
+                "nativeHeaders", Map.of("roomId", List.of("5")));
         Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
 
         Assertions.assertThatThrownBy(() -> interceptor.preSend(message, channel)).isInstanceOf(MessagingException.class);
@@ -57,10 +56,10 @@ class SocketConnectionInterceptorTest {
         ChannelInterceptor interceptor = new SocketConnectionInterceptor();
         MessageChannel channel = Mockito.mock(MessageChannel.class);
         Message<?> message = Mockito.mock(Message.class);
-        Map<String, Object> headers = new HashMap<>();
-        headers.put("stompCommand", StompCommand.CONNECT);
-        headers.put("simpSessionId", "test");
-        headers.put("simpUser", authentication);
+        Map<String, Object> headers = Map.of(
+                "stompCommand", StompCommand.CONNECT,
+                "simpSessionId", "test",
+                "simpUser", authentication);
         Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
 
         Assertions.assertThatThrownBy(() -> interceptor.preSend(message, channel)).isInstanceOf(MessagingException.class);
@@ -72,11 +71,11 @@ class SocketConnectionInterceptorTest {
         ChannelInterceptor interceptor = new SocketConnectionInterceptor();
         MessageChannel channel = Mockito.mock(MessageChannel.class);
         Message<?> message = Mockito.mock(Message.class);
-        Map<String, Object> headers = new HashMap<>();
-        headers.put("stompCommand", StompCommand.CONNECT);
-        headers.put("simpSessionId", "test");
-        headers.put("simpUser", authentication);
-        headers.put("nativeHeaders", Map.of("roomId", List.of("")));
+        Map<String, Object> headers = Map.of(
+                "stompCommand", StompCommand.CONNECT,
+                "simpSessionId", "test",
+                "simpUser", authentication,
+                "nativeHeaders", Map.of("roomId", List.of("")));
         Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
 
         Assertions.assertThatThrownBy(() -> interceptor.preSend(message, channel)).isInstanceOf(MessagingException.class);
@@ -88,11 +87,11 @@ class SocketConnectionInterceptorTest {
         ChannelInterceptor interceptor = new SocketConnectionInterceptor();
         MessageChannel channel = Mockito.mock(MessageChannel.class);
         Message<?> message = Mockito.mock(Message.class);
-        Map<String, Object> headers = new HashMap<>();
-        headers.put("stompCommand", StompCommand.CONNECT);
-        headers.put("simpSessionId", "test");
-        headers.put("simpUser", authentication);
-        headers.put("nativeHeaders", Map.of("roomId", List.of("abc")));
+        Map<String, Object> headers = Map.of(
+                "stompCommand", StompCommand.CONNECT,
+                "simpSessionId", "test",
+                "simpUser", authentication,
+                "nativeHeaders", Map.of("roomId", List.of("abc")));
         Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
 
         Assertions.assertThatThrownBy(() -> interceptor.preSend(message, channel)).isInstanceOf(MessagingException.class);

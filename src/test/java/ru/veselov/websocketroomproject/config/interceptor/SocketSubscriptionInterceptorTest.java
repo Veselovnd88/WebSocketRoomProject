@@ -12,7 +12,6 @@ import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.support.ChannelInterceptor;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @SpringBootTest
@@ -25,10 +24,11 @@ class SocketSubscriptionInterceptorTest {
         ChannelInterceptor interceptor = new SocketSubscriptionInterceptor(destinationPrefix);
         MessageChannel channel = Mockito.mock(MessageChannel.class);
         Message<?> message = Mockito.mock(Message.class);
-        Map<String, Object> headers = new HashMap<>();
-        headers.put("stompCommand", StompCommand.SUBSCRIBE);
-        headers.put("simpDestination", "/topic/users/5");
-        headers.put("simpSessionId", "test");
+        Map<String, Object> headers = Map.of(
+                "stompCommand", StompCommand.SUBSCRIBE,
+                "simpDestination", "/topic/users/5",
+                "simpSessionId", "test"
+        );
         Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
         Assertions.assertThat(interceptor.preSend(message, channel)).isNotNull().isInstanceOf(Message.class);
     }
@@ -38,9 +38,10 @@ class SocketSubscriptionInterceptorTest {
         ChannelInterceptor interceptor = new SocketSubscriptionInterceptor("/topic");
         MessageChannel channel = Mockito.mock(MessageChannel.class);
         Message<?> message = Mockito.mock(Message.class);
-        Map<String, Object> headers = new HashMap<>();
-        headers.put("stompCommand", StompCommand.SUBSCRIBE);
-        headers.put("simpSessionId", "test");
+        Map<String, Object> headers = Map.of(
+                "stompCommand", StompCommand.SUBSCRIBE,
+                "simpSessionId", "test"
+        );
         Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
 
         Assertions.assertThatThrownBy(() -> interceptor.preSend(message, channel)).isInstanceOf(MessagingException.class);
@@ -51,10 +52,11 @@ class SocketSubscriptionInterceptorTest {
         ChannelInterceptor interceptor = new SocketSubscriptionInterceptor("/topic");
         MessageChannel channel = Mockito.mock(MessageChannel.class);
         Message<?> message = Mockito.mock(Message.class);
-        Map<String, Object> headers = new HashMap<>();
-        headers.put("stompCommand", StompCommand.SUBSCRIBE);
-        headers.put("simpSessionId", "test");
-        headers.put("simpDestination", "/tRopic/users/5");
+        Map<String, Object> headers = Map.of(
+                "stompCommand", StompCommand.SUBSCRIBE,
+                "simpSessionId", "test",
+                "simpDestination", "/tRopic/users/5"
+        );
         Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
 
         Assertions.assertThatThrownBy(() -> interceptor.preSend(message, channel)).isInstanceOf(MessagingException.class);
