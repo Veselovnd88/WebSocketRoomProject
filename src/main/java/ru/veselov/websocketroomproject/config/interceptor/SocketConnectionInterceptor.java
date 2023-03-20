@@ -25,7 +25,7 @@ public class SocketConnectionInterceptor implements ChannelInterceptor {
                 throw new MessagingException("No permission for no authenticated user");
             }
             String roomId = accessor.getFirstNativeHeader("roomId");
-            if (!validateRoomIdInHeader(roomId)) {
+            if (!isValidRoomId(roomId)) {
                 throw new MessagingException("Room Id should be integer value");
             }
         }
@@ -34,20 +34,15 @@ public class SocketConnectionInterceptor implements ChannelInterceptor {
 
     private boolean validateAuthentication(Principal principal) {
         if (principal == null) {
-            log.info("No authenticated user in session");
+            log.warn("No authenticated user in session");
             return false;
         }
         return true;
     }
 
-    private boolean validateRoomIdInHeader(String roomId) {
+    private boolean isValidRoomId(String roomId) {
         if (StringUtils.isBlank(roomId)) {
             log.warn("RoomId can't be null or empty");
-        }
-        try {
-            Integer.valueOf(roomId);
-        } catch (NumberFormatException e) {
-            log.info("RoomId is not integer value");
             return false;
         }
         return true;
