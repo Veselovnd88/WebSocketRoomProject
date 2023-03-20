@@ -22,10 +22,11 @@ function connect() {
             showGreeting(JSON.parse(greeting.body).username);
 
         });*/
-        stompClient.subscribe('/topic/messages/9', function (greeting) {
-            showGreeting(greeting);
+        stompClient.subscribe('/topic/messages/5', function (greeting) {
+            showGreeting(JSON.parse(greeting.body));
+            console.log(greeting)
         });
-        stompClient.subscribe('/topic/users/9', function (users){
+        stompClient.subscribe('/topic/users/5', function (users){
             showUsers(JSON.parse(users.body).username);
         }, {roomId: 5});
     });
@@ -40,7 +41,7 @@ function disconnect() {
 }
 
 function sendName() {
-    stompClient.send("/app/chat/9", {}, JSON.stringify({'name': $("#name").val()}));
+    stompClient.send("/app/chat/5", {}, JSON.stringify({'name': $("#name").val()}));
 }
 
 

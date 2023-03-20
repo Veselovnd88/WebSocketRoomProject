@@ -9,15 +9,21 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import ru.veselov.websocketroomproject.model.ChatUser;
+import ru.veselov.websocketroomproject.service.ChatUserService;
 
 import java.time.LocalDateTime;
 
+/**
+ * Handling CONNECTION command from FrontEnd
+ * placing ChatUser object with required information to the Cache/Redis
+ */
 @Component
 @Slf4j
 @RequiredArgsConstructor
 public class WebSocketConnectionListener {
-    @Value("${socket.chat-topic}")
-    private String chatDestination;
+
+    private final ChatUserService chatUserService;
+
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     @EventListener
@@ -32,10 +38,9 @@ public class WebSocketConnectionListener {
                 sessionId,
                 LocalDateTime.now()
         );
+        chatUserService.saveChatUser(chatUser);
         log.info("User {} connecting to room # {}, placed in cache",
                 chatUser.getUsername(), chatUser.getSession());
-        simpMessagingTemplate.convertAndSend(chatDestination + "/" + roomId,
-                "User " + chatUser.getUsername() + " connected to chat");
     }
 
 }
