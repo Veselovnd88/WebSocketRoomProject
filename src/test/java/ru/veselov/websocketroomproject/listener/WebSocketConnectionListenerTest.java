@@ -48,9 +48,9 @@ class WebSocketConnectionListenerTest {
                 .saveChatUser(chatUserArgumentCaptor.capture());
         ChatUser chatUserFromCaptor = chatUserArgumentCaptor.getValue();
         Assertions.assertThat(chatUserFromCaptor).isNotNull().isInstanceOf(ChatUser.class);
-        Assertions.assertThat(chatUserFromCaptor.getSession()).isEqualTo("test").isNotNull();
-        Assertions.assertThat(chatUserFromCaptor.getUsername()).isEqualTo("user1").isNotNull();
-        Assertions.assertThat(chatUserFromCaptor.getRoomId()).isNotNull().isInstanceOf(String.class).isEqualTo("5");
+        Assertions.assertThat(chatUserFromCaptor.getSession()).isEqualTo("test");
+        Assertions.assertThat(chatUserFromCaptor.getUsername()).isEqualTo("user1");
+        Assertions.assertThat(chatUserFromCaptor.getRoomId()).isEqualTo("5");
     }
 
 }

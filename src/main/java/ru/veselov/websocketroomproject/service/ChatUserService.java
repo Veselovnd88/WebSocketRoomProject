@@ -4,8 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.veselov.websocketroomproject.model.ChatUser;
 
-import java.time.LocalDateTime;
-
 @Service
 @Slf4j
 public class ChatUserService {
@@ -18,10 +16,9 @@ public class ChatUserService {
     public ChatUser getChatUserBySessionId(String sessionId) {
         log.info("Retrieving ChatUser with sessionId: {}", sessionId);
         return new ChatUser(
-                "5",
-                sessionId,
                 "test",
-                LocalDateTime.now()
+                "5",
+                sessionId
         );
         /*stub for further implementation*/
     }

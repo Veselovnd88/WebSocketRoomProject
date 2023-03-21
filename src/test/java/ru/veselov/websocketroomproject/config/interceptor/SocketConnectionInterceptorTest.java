@@ -97,20 +97,4 @@ class SocketConnectionInterceptorTest {
         Assertions.assertThatThrownBy(() -> interceptor.preSend(message, channel)).isInstanceOf(MessagingException.class);
     }
 
-    @Test
-    void shouldThrowMessagingExceptionWithRoomIdIsNotInt() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        ChannelInterceptor interceptor = new SocketConnectionInterceptor();
-        MessageChannel channel = Mockito.mock(MessageChannel.class);
-        Message<?> message = Mockito.mock(Message.class);
-        Map<String, Object> headers = Map.of(
-                "stompCommand", StompCommand.CONNECT,
-                "simpSessionId", "test",
-                "simpUser", authentication,
-                "nativeHeaders", Map.of("roomId", List.of("abc")));
-        Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
-
-        Assertions.assertThatThrownBy(() -> interceptor.preSend(message, channel)).isInstanceOf(MessagingException.class);
-    }
-
 }

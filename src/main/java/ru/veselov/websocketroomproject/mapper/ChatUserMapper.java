@@ -7,6 +7,4 @@ import ru.veselov.websocketroomproject.model.ChatUser;
 @Mapper(componentModel = "spring")
 public interface ChatUserMapper {
     ChatUserDTO chatUserToDTO(ChatUser chatUser);
-
-    ChatUser dtoToChatUser(ChatUserDTO chatUserDTO);
 }

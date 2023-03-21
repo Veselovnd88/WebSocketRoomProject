@@ -23,11 +23,11 @@ function connect() {
 
         });*/
         stompClient.subscribe('/topic/messages/5', function (greeting) {
-            showGreeting(JSON.parse(greeting.body));
+            showGreeting(JSON.parse(greeting.body).message.username);
             console.log(greeting)
         });
         stompClient.subscribe('/topic/users/5', function (users){
-            showUsers(JSON.parse(users.body).username);
+            showUsers(JSON.parse(users.body).messageType);
         }, {roomId: 5});
     });
 }
