@@ -1,7 +1,9 @@
 package ru.veselov.websocketroomproject.listener;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,6 +28,8 @@ class WebSocketConnectionListenerTest {
     private WebSocketConnectionListener webSocketConnectionListener;
     @MockBean
     ChatUserService chatUserService;
+    @Captor
+    ArgumentCaptor<ChatUser> chatUserArgumentCaptor;
 
     @Test
     void shouldSaveUser() {
@@ -36,12 +40,17 @@ class WebSocketConnectionListenerTest {
                 "simpSessionId", "test",
                 "nativeHeaders", Map.of("roomId", List.of("5")));
         Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
-        SessionConnectEvent sessionSubscribeEvent = new SessionConnectEvent(new Object(), message,authentication);
+        SessionConnectEvent sessionSubscribeEvent = new SessionConnectEvent(new Object(), message, authentication);
 
         webSocketConnectionListener.handleUserConnection(sessionSubscribeEvent);
 
         Mockito.verify(chatUserService, Mockito.times(1))
-                .saveChatUser(ArgumentMatchers.any(ChatUser.class));
+                .saveChatUser(chatUserArgumentCaptor.capture());
+        ChatUser chatUserFromCaptor = chatUserArgumentCaptor.getValue();
+        Assertions.assertThat(chatUserFromCaptor).isNotNull().isInstanceOf(ChatUser.class);
+        Assertions.assertThat(chatUserFromCaptor.getSession()).isEqualTo("test").isNotNull();
+        Assertions.assertThat(chatUserFromCaptor.getUsername()).isEqualTo("user1").isNotNull();
+        Assertions.assertThat(chatUserFromCaptor.getRoomId()).isNotNull().isInstanceOf(String.class).isEqualTo("5");
     }
 
 }

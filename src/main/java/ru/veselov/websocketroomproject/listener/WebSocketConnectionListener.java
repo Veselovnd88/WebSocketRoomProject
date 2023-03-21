@@ -33,14 +33,12 @@ public class WebSocketConnectionListener {
         String username = session.getUser().getName();
         String sessionId = accessor.getSessionId();
         ChatUser chatUser = new ChatUser(
-                roomId,
                 username,
-                sessionId,
-                LocalDateTime.now()
+                roomId,
+                sessionId
         );
         chatUserService.saveChatUser(chatUser);
-        log.info("User {} connecting to room # {}, placed in cache",
-                chatUser.getUsername(), chatUser.getSession());
+        log.info("User {} connecting to room # {}", chatUser.getUsername(), chatUser.getSession());
     }
 
 }
