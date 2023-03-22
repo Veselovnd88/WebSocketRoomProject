@@ -35,7 +35,7 @@ public class WebSocketConnectedListener {
         ChatUser chatUser = chatUserService.getChatUserBySessionId(sessionId);
         simpMessagingTemplate.convertAndSend(chatDestination + "/" + chatUser.getRoomId(),
                 new SendMessageDTO<>(MessageType.CONNECTED, chatUserMapper.chatUserToDTO(chatUser)));
-        log.info("Sent message about connected user {} to all current users", chatUser.getUsername());
+        log.info("Notification about new connected user {}", chatUser.getUsername());
     }
 
 }
