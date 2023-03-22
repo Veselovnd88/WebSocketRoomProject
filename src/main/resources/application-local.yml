@@ -14,8 +14,9 @@ spring:
       name: user1
       password: secret
       roles: USER
-  profiles:
-    active: local
+
 logging:
   level:
     ru.veselov: INFO
+
+local.stub: enabled
