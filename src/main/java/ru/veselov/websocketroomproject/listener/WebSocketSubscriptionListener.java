@@ -8,20 +8,35 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionSubscribeEvent;
+import ru.veselov.websocketroomproject.dto.ChatUserDTO;
+import ru.veselov.websocketroomproject.dto.MessageType;
+import ru.veselov.websocketroomproject.dto.SendMessageDTO;
+import ru.veselov.websocketroomproject.mapper.ChatUserMapper;
+import ru.veselov.websocketroomproject.model.ChatUser;
+import ru.veselov.websocketroomproject.service.ChatUserService;
 
+import java.util.List;
+import java.util.Set;
+
+/**
+ * Handling subscriptions.
+ * Filter to the chosen destination that we need to send message, here - topic with users.
+ * Then find all users from room and send list to the topic
+ */
 @Component
 @Slf4j
 @RequiredArgsConstructor
 public class WebSocketSubscriptionListener {
+
     @Value("${socket.users-topic}")
     private String usersTopic;
+
     private final SimpMessagingTemplate messagingTemplate;
 
-    /**
-     * Handling subscriptions.
-     * Filter to the chosen destination that we need to send message, here - topic with users.
-     * Create ChatUser object, map it to DTO and send to the topic.
-     */
+    private final ChatUserService chatUserService;
+
+    private final ChatUserMapper chatUserMapper;
+
     @EventListener
     public void handleUserSubscription(SessionSubscribeEvent session) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(session.getMessage());
@@ -29,15 +44,21 @@ public class WebSocketSubscriptionListener {
             return;
         }
         String destination = headerAccessor.getDestination();
-        String sessionId = headerAccessor.getSessionId();
-        messagingTemplate.convertAndSend(destination, sessionId);
-        /*User and room data should be retrieved from cache, this information should be added to cache
-         * in connectHandling listener or in controller (will be implemented later)*/
-        log.info("User [username], id [id], with session {} connected to topic {} of room #[roomId]",
-                sessionId, destination);
+        String roomId = headerAccessor.getFirstNativeHeader("roomId");
+        messagingTemplate.convertAndSend(
+                destination,
+                toUserListPayload(roomId));
+        log.info("Refreshed list of room {} users", roomId);
     }
 
     private boolean filterDestination(StompHeaderAccessor accessor) {
         return !accessor.getDestination().startsWith(usersTopic);
     }
+
+    private SendMessageDTO<List<ChatUserDTO>> toUserListPayload(String roomId) {
+        Set<ChatUser> chatUsersByRoomId = chatUserService.findChatUsersByRoomId(roomId);
+        return new SendMessageDTO<>(MessageType.USERS, chatUsersByRoomId.stream()
+                .map(chatUserMapper::chatUserToDTO).toList());
+    }
+
 }

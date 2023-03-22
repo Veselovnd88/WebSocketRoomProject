@@ -40,7 +40,7 @@ class WebSocketConnectedListenerTest {
                 "simpSessionId", "test");
         Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
         SessionConnectedEvent sessionConnectedEvent = new SessionConnectedEvent(new Object(), message);
-        Mockito.when(chatUserService.getChatUserBySessionId("test")).thenReturn(new ChatUser(
+        Mockito.when(chatUserService.findChatUserBySessionId("test")).thenReturn(new ChatUser(
                 "testName",
                 "5",
                 "test"
@@ -49,7 +49,7 @@ class WebSocketConnectedListenerTest {
         webSocketConnectedListener.handleConnectedUserEvent(sessionConnectedEvent);
 
         Mockito.verify(chatUserService, Mockito.times(1))
-                .getChatUserBySessionId("test");
+                .findChatUserBySessionId("test");
         Mockito.verify(simpMessagingTemplate, Mockito.times(1))
                 .convertAndSend(ArgumentMatchers.anyString(), messageDTOArgumentCaptor.capture());
         SendMessageDTO<ChatUserDTO> messageDTOArgumentCaptorValue = messageDTOArgumentCaptor.getValue();

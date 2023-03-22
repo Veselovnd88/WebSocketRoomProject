@@ -37,7 +37,7 @@ public class WebSocketConnectedListener {
     public void handleConnectedUserEvent(SessionConnectedEvent session) {
         StompHeaderAccessor stompHeaderAccessor = StompHeaderAccessor.wrap(session.getMessage());
         String sessionId = stompHeaderAccessor.getSessionId();
-        ChatUser chatUser = chatUserService.getChatUserBySessionId(sessionId);
+        ChatUser chatUser = chatUserService.findChatUserBySessionId(sessionId);
         simpMessagingTemplate.convertAndSend(
                 toDestination(chatUser),
                 toPayload(chatUser));

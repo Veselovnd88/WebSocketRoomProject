@@ -2,9 +2,13 @@ package ru.veselov.websocketroomproject.service;
 
 import ru.veselov.websocketroomproject.model.ChatUser;
 
+import java.util.Set;
+
 public interface ChatUserService {
     void saveChatUser(ChatUser chatUser);
 
-    ChatUser getChatUserBySessionId(String sessionId);
+    ChatUser findChatUserBySessionId(String sessionId);
+
+    Set<ChatUser> findChatUsersByRoomId(String roomId);
 
 }
