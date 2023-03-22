@@ -63,7 +63,7 @@ class WebSocketSubscriptionListenerTest {
         Mockito.verify(chatUserService, Mockito.times(1)).findChatUsersByRoomId("5");
         Mockito.verify(simpMessagingTemplate, Mockito.times(1))
                 .convertAndSend(ArgumentMatchers.anyString(), argumentCaptor.capture());
-        Assertions.assertThat(argu)
+        Assertions.assertThat(argu)//FIXME
 
     }
 
