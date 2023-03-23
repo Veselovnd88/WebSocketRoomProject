@@ -1,4 +1,15 @@
 var stompClient = null;
+const eventSource = new EventSource('/sse/5');
+eventSource.onopen = function () {
+    console.log("connection is ok")
+}
+eventSource.onmessage = (e) => {
+    console.log(e.data);
+};
+
+eventSource.addEventListener('event', (e)=> {
+    console.log(e.data);
+});
 
 function setConnected(connected) {
     $("#connect").prop("disabled", connected);
