@@ -39,4 +39,9 @@ public class ChatUserServiceStub implements ChatUserService {
                 ).maxLen(4).generate());
     }
 
+    @Override
+    public ChatUser removeChatUser(String sessionId) {
+        return null;
+    }
+
 }
