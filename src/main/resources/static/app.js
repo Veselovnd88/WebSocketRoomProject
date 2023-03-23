@@ -27,7 +27,7 @@ function connect() {
             console.log(greeting)
         });
         stompClient.subscribe('/topic/users/5', function (users){
-            showUsers(JSON.parse(users.body).messageType);
+            showUsers(JSON.parse(users.body).message);
         }, {roomId: 5});
     });
 }
@@ -53,6 +53,7 @@ function showUsers(message) {
 
     $("#users").empty();
     $("#users").append("<tr><td>" + message + "</td></tr>");
+    console.log(message);
 }
 
 $(function () {

@@ -48,7 +48,7 @@ public class WebSocketSubscriptionListener {
         messagingTemplate.convertAndSend(
                 destination,
                 toUserListPayload(roomId));
-        log.info("Refreshed list of room {} users", roomId);
+        log.info("Refreshed users list of room {}", roomId);
     }
 
     private boolean filterDestination(StompHeaderAccessor accessor) {

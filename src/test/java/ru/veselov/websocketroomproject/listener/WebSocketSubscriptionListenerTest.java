@@ -1,5 +1,6 @@
 package ru.veselov.websocketroomproject.listener;
 
+import net.datafaker.Faker;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -22,9 +23,9 @@ import ru.veselov.websocketroomproject.dto.SendMessageDTO;
 import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.service.ChatUserService;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @SpringBootTest
 @WithMockUser(username = "testUser")
@@ -35,6 +36,8 @@ class WebSocketSubscriptionListenerTest {
     private SimpMessagingTemplate simpMessagingTemplate;
     @MockBean
     private ChatUserService chatUserService;
+
+    private Faker faker = new Faker();
 
     @Captor
     ArgumentCaptor<SendMessageDTO<List<ChatUserDTO>>> argumentCaptor;
@@ -49,18 +52,12 @@ class WebSocketSubscriptionListenerTest {
                 "nativeHeaders", Map.of("roomId", List.of("5")));
         Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
         SessionSubscribeEvent sessionSubscribeEvent = new SessionSubscribeEvent(new Object(), message, authentication);
-        Mockito.when(chatUserService.findChatUsersByRoomId("5")).thenReturn(Set.of(
-                new ChatUser(
-                        "vasya",
-                        "5",
-                        "session1"
-                ),
-                new ChatUser(
-                        "petya",
-                        "5",
-                        "session2"
-                )
-        ));
+        Mockito.when(chatUserService.findChatUsersByRoomId("5")).thenReturn(
+                new HashSet<>(
+                        faker.collection(
+                                () -> new ChatUser(faker.name().username(), "5", faker.expression("#{letterify '???????'}"))
+                        ).maxLen(4).generate())
+        );
         webSocketSubscriptionListener.handleUserSubscription(sessionSubscribeEvent);
         Mockito.verify(chatUserService, Mockito.times(1)).findChatUsersByRoomId("5");
         Mockito.verify(simpMessagingTemplate, Mockito.times(1))
@@ -68,7 +65,7 @@ class WebSocketSubscriptionListenerTest {
         Assertions.assertThat(argumentCaptor.getValue()).isInstanceOf(SendMessageDTO.class).isNotNull();
         Assertions.assertThat(argumentCaptor.getValue().getMessageType())
                 .isEqualTo(MessageType.USERS);
-        Assertions.assertThat(argumentCaptor.getValue().getMessage()).hasSize(2).hasAtLeastOneElementOfType(ChatUserDTO.class);
+        Assertions.assertThat(argumentCaptor.getValue().getMessage()).hasSize(4).hasAtLeastOneElementOfType(ChatUserDTO.class);
 
     }
 

@@ -38,7 +38,7 @@ public class WebSocketConnectionListener {
                 sessionId
         );
         chatUserService.saveChatUser(chatUser);
-        log.info("User {} connecting to room # {}", chatUser.getUsername(), chatUser.getSession());
+        log.info("User {} connecting to room # {}", chatUser.getUsername(), chatUser.getRoomId());
     }
 
 }
