@@ -8,7 +8,6 @@ import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.service.ChatUserService;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Slf4j
@@ -41,7 +40,12 @@ public class ChatUserServiceStub implements ChatUserService {
 
     @Override
     public ChatUser removeChatUser(String sessionId) {
-        return null;
+        log.info("User with Session {} removed", sessionId);
+        return new ChatUser(
+                "test",
+                "5",
+                sessionId
+        );
     }
 
 }
