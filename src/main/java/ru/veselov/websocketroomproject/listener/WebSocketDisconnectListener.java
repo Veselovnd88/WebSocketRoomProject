@@ -50,4 +50,5 @@ public class WebSocketDisconnectListener {
     private SendMessageDTO<ChatUserDTO> toPayload(ChatUser chatUser) {
         return new SendMessageDTO<>(MessageType.DISCONNECTED, chatUserMapper.chatUserToDTO(chatUser));
     }
+
 }

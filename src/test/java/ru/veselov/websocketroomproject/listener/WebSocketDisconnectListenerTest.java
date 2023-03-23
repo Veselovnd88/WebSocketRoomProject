@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
+import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,6 +24,7 @@ import ru.veselov.websocketroomproject.service.ChatUserService;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 @SpringBootTest
 class WebSocketDisconnectListenerTest {
 
@@ -34,7 +36,7 @@ class WebSocketDisconnectListenerTest {
 
     @Autowired
     private WebSocketDisconnectListener webSocketDisconnectListener;
-
+    @Captor
     ArgumentCaptor<SendMessageDTO<ChatUserDTO>> messageDTOArgumentCaptor;
 
     @Test
@@ -44,20 +46,20 @@ class WebSocketDisconnectListenerTest {
                 "simpSessionId", "test");
         Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
         SessionDisconnectEvent sessionDisconnectEvent = new SessionDisconnectEvent(new Object(), message, "sessionId", CloseStatus.NORMAL);
-        Mockito.when(chatUserService.getChatUserBySessionId("test")).thenReturn(new ChatUser(
+        Mockito.when(chatUserService.removeChatUser("test")).thenReturn(new ChatUser(
                 "testName",
                 "5",
                 "test"
         ));
 
-        webSocketDisconnectListener.handleUserDisconnect(sessionDisconnectEvent);//FIXME
+        webSocketDisconnectListener.handleUserDisconnect(sessionDisconnectEvent);
 
         Mockito.verify(chatUserService, Mockito.times(1))
-                .getChatUserBySessionId("test");
+                .removeChatUser("test");
         Mockito.verify(simpMessagingTemplate, Mockito.times(1))
                 .convertAndSend(ArgumentMatchers.anyString(), messageDTOArgumentCaptor.capture());
         SendMessageDTO<ChatUserDTO> messageDTOArgumentCaptorValue = messageDTOArgumentCaptor.getValue();
-        Assertions.assertThat(messageDTOArgumentCaptorValue.getMessageType()).isEqualTo(MessageType.CONNECTED);
+        Assertions.assertThat(messageDTOArgumentCaptorValue.getMessageType()).isEqualTo(MessageType.DISCONNECTED);
         Assertions.assertThat(messageDTOArgumentCaptorValue.getMessage().getUsername()).isEqualTo("testName");
     }
 
