@@ -17,6 +17,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 import ru.veselov.websocketroomproject.dto.ChatUserDTO;
+import ru.veselov.websocketroomproject.dto.MessageType;
+import ru.veselov.websocketroomproject.dto.SendMessageDTO;
 import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.service.ChatUserService;
 
@@ -35,7 +37,7 @@ class WebSocketSubscriptionListenerTest {
     private ChatUserService chatUserService;
 
     @Captor
-    ArgumentCaptor<List<ChatUserDTO>> argumentCaptor;
+    ArgumentCaptor<SendMessageDTO<List<ChatUserDTO>>> argumentCaptor;
 
     @Test
     void shouldConnectToChosenTopic() {
@@ -63,7 +65,10 @@ class WebSocketSubscriptionListenerTest {
         Mockito.verify(chatUserService, Mockito.times(1)).findChatUsersByRoomId("5");
         Mockito.verify(simpMessagingTemplate, Mockito.times(1))
                 .convertAndSend(ArgumentMatchers.anyString(), argumentCaptor.capture());
-        Assertions.assertThat(argu)//FIXME
+        Assertions.assertThat(argumentCaptor.getValue()).isInstanceOf(SendMessageDTO.class).isNotNull();
+        Assertions.assertThat(argumentCaptor.getValue().getMessageType())
+                .isEqualTo(MessageType.USERS);
+        Assertions.assertThat(argumentCaptor.getValue().getMessage()).hasSize(2).hasAtLeastOneElementOfType(ChatUserDTO.class);
 
     }
 
@@ -72,7 +77,7 @@ class WebSocketSubscriptionListenerTest {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Message<byte[]> message = Mockito.mock(Message.class);
         Map<String, Object> headers = Map.of(
-                "simpDestination", "/topic/users/5",
+                "simpDestination", "/topic/notUsers/5",
                 "simpSessionId", "test",
                 "nativeHeaders", Map.of("roomId", List.of("5")));
         Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
