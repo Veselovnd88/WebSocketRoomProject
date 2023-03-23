@@ -7,4 +7,5 @@ public interface ChatUserService {
 
     ChatUser getChatUserBySessionId(String sessionId);
 
+    ChatUser removeChatUser(String sessionId);
 }

@@ -13,7 +13,6 @@ public class ChatUserServiceStub implements ChatUserService {
 
     public void saveChatUser(ChatUser chatUser) {
         log.info("ChatUser {} saved to db", chatUser.getUsername());
-        /*Stub for further implementation*/
     }
 
     public ChatUser getChatUserBySessionId(String sessionId) {
@@ -23,7 +22,16 @@ public class ChatUserServiceStub implements ChatUserService {
                 "5",
                 sessionId
         );
-        /*stub for further implementation*/
+    }
+
+    @Override
+    public ChatUser removeChatUser(String sessionId) {
+        log.info("User with Session {} removed",sessionId);
+        return new ChatUser(
+                "test",
+                "5",
+                sessionId
+        );
     }
 
 }
