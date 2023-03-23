@@ -11,4 +11,5 @@ public interface ChatUserService {
 
     Set<ChatUser> findChatUsersByRoomId(String roomId);
 
+    ChatUser removeChatUser(String sessionId);
 }
