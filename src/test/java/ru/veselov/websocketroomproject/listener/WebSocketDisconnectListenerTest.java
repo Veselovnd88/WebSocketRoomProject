@@ -45,12 +45,15 @@ class WebSocketDisconnectListenerTest {
         Map<String, Object> headers = Map.of(
                 "simpSessionId", "test");
         Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
-        SessionDisconnectEvent sessionDisconnectEvent = new SessionDisconnectEvent(new Object(), message, "sessionId", CloseStatus.NORMAL);
+        SessionDisconnectEvent sessionDisconnectEvent = new SessionDisconnectEvent(new Object(),
+                message,
+                "sessionId",
+                CloseStatus.NORMAL);
         Mockito.when(chatUserService.removeChatUser("test")).thenReturn(new ChatUser(
                 "testName",
                 "5",
-                "test"
-        ));
+                "test")
+        );
 
         webSocketDisconnectListener.handleUserDisconnect(sessionDisconnectEvent);
 
