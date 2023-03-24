@@ -6,6 +6,5 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class SendMessageDTO<T> {
-    private MessageType messageType;
     private T message;
 }

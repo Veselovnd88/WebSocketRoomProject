@@ -9,7 +9,6 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 import ru.veselov.websocketroomproject.dto.ChatUserDTO;
-import ru.veselov.websocketroomproject.dto.MessageType;
 import ru.veselov.websocketroomproject.dto.SendMessageDTO;
 import ru.veselov.websocketroomproject.mapper.ChatUserMapper;
 import ru.veselov.websocketroomproject.model.ChatUser;
@@ -31,6 +30,9 @@ public class WebSocketSubscriptionListener {
     @Value("${socket.users-topic}")
     private String usersTopic;
 
+    @Value("${socket.header-room-id}")
+    private String roomIdHeader;
+
     private final SimpMessagingTemplate messagingTemplate;
 
     private final ChatUserService chatUserService;
@@ -44,7 +46,7 @@ public class WebSocketSubscriptionListener {
             return;
         }
         String destination = headerAccessor.getDestination();
-        String roomId = headerAccessor.getFirstNativeHeader("roomId");
+        String roomId = headerAccessor.getFirstNativeHeader(roomIdHeader);
         messagingTemplate.convertAndSend(
                 destination,
                 toUserListPayload(roomId)
@@ -58,9 +60,8 @@ public class WebSocketSubscriptionListener {
 
     private SendMessageDTO<List<ChatUserDTO>> toUserListPayload(String roomId) {
         Set<ChatUser> chatUsersByRoomId = chatUserService.findChatUsersByRoomId(roomId);
-        return new SendMessageDTO<>(MessageType.USERS,
-                chatUsersByRoomId.stream().map(chatUserMapper::chatUserToDTO).toList()
-        );
+        List<ChatUserDTO> chatUserDTOS = chatUsersByRoomId.stream().map(chatUserMapper::chatUserToDTO).toList();
+        return new SendMessageDTO<>(chatUserDTOS);
     }
 
 }

@@ -15,6 +15,8 @@ import java.util.Set;
 @ConditionalOnProperty(prefix = "local", name = "stub", havingValue = "enabled")
 public class ChatUserServiceStub implements ChatUserService {
 
+    private static final String ROOM_ID = "5";
+
     private final Faker faker = new Faker();
 
     public void saveChatUser(ChatUser chatUser) {
@@ -25,7 +27,7 @@ public class ChatUserServiceStub implements ChatUserService {
         log.info("Retrieving ChatUser with sessionId: {}", sessionId);
         return new ChatUser(
                 faker.name().username(),
-                "5",
+                ROOM_ID,
                 sessionId
         );
     }
@@ -34,19 +36,21 @@ public class ChatUserServiceStub implements ChatUserService {
     public Set<ChatUser> findChatUsersByRoomId(String roomId) {
         log.info("Retrieve all users of room #{}", roomId);
         return new HashSet<>(
-                faker.collection(
-                        () -> new ChatUser(faker.name().username(), "5", faker.expression("#{letterify '???????'}"))
-                ).maxLen(4).generate());
+                faker.collection(this::generateUser).maxLen(4).generate());
     }
 
     @Override
     public ChatUser removeChatUser(String sessionId) {
-        log.info("User with Session {} removed", sessionId);
+        log.info("Removing ChatUser with sessionId: {}", sessionId);
         return new ChatUser(
                 faker.name().username(),
-                "5",
+                ROOM_ID,
                 sessionId
         );
+    }
+
+    private ChatUser generateUser() {
+        return new ChatUser(faker.name().username(), ROOM_ID, faker.expression("#{letterify '???????'}"));
     }
 
 }

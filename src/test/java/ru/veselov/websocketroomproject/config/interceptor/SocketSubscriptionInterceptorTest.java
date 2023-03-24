@@ -10,12 +10,17 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.stomp.StompCommand;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
+import ru.veselov.websocketroomproject.TestConstants;
 
 import java.util.Map;
 
 @SpringBootTest
 class SocketSubscriptionInterceptorTest {
+
+    private static final String DESTINATION = "/topic/users/5";
+
     @Value("${socket.dest-prefix}")
     private String destinationPrefix;
 
@@ -25,10 +30,11 @@ class SocketSubscriptionInterceptorTest {
         MessageChannel channel = Mockito.mock(MessageChannel.class);
         Message<?> message = Mockito.mock(Message.class);
         Map<String, Object> headers = Map.of(
-                "stompCommand", StompCommand.SUBSCRIBE,
-                "simpDestination", "/topic/users/5",
-                "simpSessionId", "test"
+                TestConstants.COMMAND_HEADER, StompCommand.SUBSCRIBE,
+                StompHeaderAccessor.SESSION_ID_HEADER, TestConstants.TEST_SESSION_ID,
+                StompHeaderAccessor.DESTINATION_HEADER, DESTINATION
         );
+
         Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
         Assertions.assertThat(interceptor.preSend(message, channel)).isNotNull().isInstanceOf(Message.class);
     }
@@ -39,22 +45,23 @@ class SocketSubscriptionInterceptorTest {
         MessageChannel channel = Mockito.mock(MessageChannel.class);
         Message<?> message = Mockito.mock(Message.class);
         Map<String, Object> headers = Map.of(
-                "stompCommand", StompCommand.CONNECT,
-                "simpDestination", "/topic/users/5",
-                "simpSessionId", "test"
+                TestConstants.COMMAND_HEADER, StompCommand.CONNECT,
+                StompHeaderAccessor.SESSION_ID_HEADER, TestConstants.TEST_SESSION_ID,
+                StompHeaderAccessor.DESTINATION_HEADER, DESTINATION
         );
+
         Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
         Assertions.assertThat(interceptor.preSend(message, channel)).isNotNull().isInstanceOf(Message.class);
     }
 
     @Test
     void shouldThrowMessagingExceptionIfDestinationIsNull() {
-        ChannelInterceptor interceptor = new SocketSubscriptionInterceptor("/topic");
+        ChannelInterceptor interceptor = new SocketSubscriptionInterceptor(destinationPrefix);
         MessageChannel channel = Mockito.mock(MessageChannel.class);
         Message<?> message = Mockito.mock(Message.class);
         Map<String, Object> headers = Map.of(
-                "stompCommand", StompCommand.SUBSCRIBE,
-                "simpSessionId", "test"
+                TestConstants.COMMAND_HEADER, StompCommand.SUBSCRIBE,
+                StompHeaderAccessor.SESSION_ID_HEADER, TestConstants.TEST_SESSION_ID
         );
         Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
 
@@ -63,13 +70,13 @@ class SocketSubscriptionInterceptorTest {
 
     @Test
     void shouldThrowMessagingExceptionIfDestinationIsNotCorrect() {
-        ChannelInterceptor interceptor = new SocketSubscriptionInterceptor("/topic");
+        ChannelInterceptor interceptor = new SocketSubscriptionInterceptor(destinationPrefix);
         MessageChannel channel = Mockito.mock(MessageChannel.class);
         Message<?> message = Mockito.mock(Message.class);
         Map<String, Object> headers = Map.of(
-                "stompCommand", StompCommand.SUBSCRIBE,
-                "simpSessionId", "test",
-                "simpDestination", "/tRopic/users/5"
+                TestConstants.COMMAND_HEADER, StompCommand.SUBSCRIBE,
+                StompHeaderAccessor.SESSION_ID_HEADER, TestConstants.TEST_SESSION_ID,
+                StompHeaderAccessor.DESTINATION_HEADER, "/tRopic/users/5" //incorrect topic name
         );
         Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
 

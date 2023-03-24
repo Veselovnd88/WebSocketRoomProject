@@ -4,14 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.service.ChatUserService;
-
-import java.time.LocalDateTime;
 
 /**
  * Handling CONNECTION command from FrontEnd
@@ -22,14 +19,15 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class WebSocketConnectionListener {
 
-    private final ChatUserService chatUserService;
+    @Value("${socket.header-room-id}")
+    private String roomIdHeader;
 
-    private final SimpMessagingTemplate simpMessagingTemplate;
+    private final ChatUserService chatUserService;
 
     @EventListener
     public void handleUserConnection(SessionConnectEvent session) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(session.getMessage());
-        String roomId = accessor.getFirstNativeHeader("roomId");
+        String roomId = accessor.getFirstNativeHeader(roomIdHeader);
         String username = session.getUser().getName();
         String sessionId = accessor.getSessionId();
         ChatUser chatUser = new ChatUser(
@@ -38,7 +36,7 @@ public class WebSocketConnectionListener {
                 sessionId
         );
         chatUserService.saveChatUser(chatUser);
-        log.info("User {} connecting to room # {}", chatUser.getUsername(), chatUser.getRoomId());
+        log.info("User {} connecting to room # {}", chatUser.getUsername(), chatUser.getSession());
     }
 
 }

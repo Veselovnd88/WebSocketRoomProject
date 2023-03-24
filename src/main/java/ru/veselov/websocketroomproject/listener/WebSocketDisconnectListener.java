@@ -9,7 +9,6 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import ru.veselov.websocketroomproject.dto.ChatUserDTO;
-import ru.veselov.websocketroomproject.dto.MessageType;
 import ru.veselov.websocketroomproject.dto.SendMessageDTO;
 import ru.veselov.websocketroomproject.mapper.ChatUserMapper;
 import ru.veselov.websocketroomproject.model.ChatUser;
@@ -48,7 +47,7 @@ public class WebSocketDisconnectListener {
     }
 
     private SendMessageDTO<ChatUserDTO> toPayload(ChatUser chatUser) {
-        return new SendMessageDTO<>(MessageType.DISCONNECTED, chatUserMapper.chatUserToDTO(chatUser));
+        return new SendMessageDTO<>(chatUserMapper.chatUserToDTO(chatUser));
     }
 
 }
