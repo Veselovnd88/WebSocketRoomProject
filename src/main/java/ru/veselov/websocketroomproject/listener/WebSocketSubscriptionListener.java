@@ -58,8 +58,9 @@ public class WebSocketSubscriptionListener {
 
     private SendMessageDTO<List<ChatUserDTO>> toUserListPayload(String roomId) {
         Set<ChatUser> chatUsersByRoomId = chatUserService.findChatUsersByRoomId(roomId);
-        return new SendMessageDTO<>(MessageType.USERS, chatUsersByRoomId.stream()
-                .map(chatUserMapper::chatUserToDTO).toList());
+        return new SendMessageDTO<>(MessageType.USERS,
+                chatUsersByRoomId.stream().map(chatUserMapper::chatUserToDTO).toList()
+        );
     }
 
 }

@@ -43,7 +43,7 @@ public class ChatUserServiceStub implements ChatUserService {
     public ChatUser removeChatUser(String sessionId) {
         log.info("User with Session {} removed", sessionId);
         return new ChatUser(
-                "test",
+                faker.name().username(),
                 "5",
                 sessionId
         );
