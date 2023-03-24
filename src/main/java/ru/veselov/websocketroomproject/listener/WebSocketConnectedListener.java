@@ -40,7 +40,8 @@ public class WebSocketConnectedListener {
         ChatUser chatUser = chatUserService.findChatUserBySessionId(sessionId);
         simpMessagingTemplate.convertAndSend(
                 toDestination(chatUser),
-                toPayload(chatUser));
+                toPayload(chatUser)
+        );
         log.info("User {} is connected", chatUser.getUsername());
     }
 

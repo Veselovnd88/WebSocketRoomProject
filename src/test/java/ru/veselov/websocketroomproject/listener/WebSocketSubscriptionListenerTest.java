@@ -37,7 +37,7 @@ class WebSocketSubscriptionListenerTest {
     @MockBean
     private ChatUserService chatUserService;
 
-    private Faker faker = new Faker();
+    private final Faker faker = new Faker();
 
     @Captor
     ArgumentCaptor<SendMessageDTO<List<ChatUserDTO>>> argumentCaptor;

@@ -32,6 +32,7 @@ public class ChatUserServiceStub implements ChatUserService {
 
     @Override
     public Set<ChatUser> findChatUsersByRoomId(String roomId) {
+        log.info("Retrieve all users of room #{}", roomId);
         return new HashSet<>(
                 faker.collection(
                         () -> new ChatUser(faker.name().username(), "5", faker.expression("#{letterify '???????'}"))
