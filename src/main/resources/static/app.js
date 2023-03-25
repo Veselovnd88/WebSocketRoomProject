@@ -1,5 +1,6 @@
 var stompClient = null;
-const eventSource = new EventSource('/sse/5');
+let roomId = Math.floor((Math.random()*1000)+1);
+const eventSource = new EventSource('/sse?roomId='+roomId);
 eventSource.onopen = function () {
     console.log("connection is ok")
 }
