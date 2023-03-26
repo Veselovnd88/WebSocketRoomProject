@@ -31,7 +31,7 @@ public class EmitterService {
         log.info("Emitter was removed from room #{}", roomId);
     }
 
-    public List<SseEmitter> findEmittersByRoomId(String roomId){
+    public List<SseEmitter> findEmittersByRoomId(String roomId) {
         return roomIdEmitterMap.get(roomId);
     }
 

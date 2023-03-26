@@ -1,6 +1,6 @@
 var stompClient = null;
 let roomId = Math.floor((Math.random()*1000)+1);
-const eventSource = new EventSource('/sse?roomId='+roomId);
+const eventSource = new EventSource('/api/room/sse?roomId='+roomId);
 eventSource.onopen = function () {
     console.log("connection is ok")
 }
@@ -13,6 +13,7 @@ eventSource.addEventListener('init', (e)=> {
 });
 
 eventSource.addEventListener('USERS_REFRESHED', (e)=> {
+    showUsers(e.data)
     console.log(e.data);
 });
 
@@ -77,7 +78,6 @@ function showUsers(message) {
 
     $("#users").empty();
     $("#users").append("<tr><td>" + message + "</td></tr>");
-    console.log(message);
 }
 
 $(function () {
