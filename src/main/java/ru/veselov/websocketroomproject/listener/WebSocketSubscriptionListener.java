@@ -47,10 +47,7 @@ public class WebSocketSubscriptionListener {
         }
         String destination = headerAccessor.getDestination();
         String roomId = headerAccessor.getFirstNativeHeader(roomIdHeader);
-        messagingTemplate.convertAndSend(
-                destination,
-                toUserListPayload(roomId)
-        );
+
         log.info("Updated userlist of room {}", roomId);
     }
 

@@ -8,7 +8,19 @@ eventSource.onmessage = (e) => {
     console.log(e.data);
 };
 
-eventSource.addEventListener('event', (e)=> {
+eventSource.addEventListener('init', (e)=> {
+    console.log(e.data);
+});
+
+eventSource.addEventListener('USERS_REFRESHED', (e)=> {
+    console.log(e.data);
+});
+
+eventSource.addEventListener('CONNECTED', (e)=> {
+    console.log(JSON.parse(e.data).username);
+});
+
+eventSource.addEventListener('DISCONNECTED', (e)=> {
     console.log(e.data);
 });
 
@@ -27,20 +39,20 @@ function setConnected(connected) {
 function connect() {
     var socket = new SockJS('/api/room/chat');
     stompClient = Stomp.over(socket);
-    stompClient.connect({roomId: 5}, function (frame) {
+    stompClient.connect({roomId: roomId}, function (frame) {
         setConnected(true);
         console.log('Connected: ' + frame);
         /*stompClient.subscribe('/topic/messages/9', function (greeting) {
             showGreeting(JSON.parse(greeting.body).username);
 
         });*/
-        stompClient.subscribe('/topic/messages/5', function (greeting) {
+        stompClient.subscribe('/topic/messages/'+roomId, function (greeting) {
             showGreeting(JSON.parse(greeting.body).message.username);
             console.log(greeting)
         });
-        stompClient.subscribe('/topic/users/5', function (users){
+        stompClient.subscribe('/topic/users/'+roomId, function (users){
             showUsers(JSON.parse(users.body).message);
-        }, {roomId: 5});
+        }, {roomId: roomId});
     });
 }
 

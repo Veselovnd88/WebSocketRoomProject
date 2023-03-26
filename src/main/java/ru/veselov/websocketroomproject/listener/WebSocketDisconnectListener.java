@@ -33,10 +33,7 @@ public class WebSocketDisconnectListener {
         StompHeaderAccessor stompHeaderAccessor = StompHeaderAccessor.wrap(session.getMessage());
         String sessionId = stompHeaderAccessor.getSessionId();
         ChatUser chatUser = chatUserService.removeChatUser(sessionId);
-        simpMessagingTemplate.convertAndSend(
-                toDestination(chatUser),
-                toPayload(chatUser)
-        );
+
         log.info("User {} is disconnected", chatUser.getUsername());
 
     }

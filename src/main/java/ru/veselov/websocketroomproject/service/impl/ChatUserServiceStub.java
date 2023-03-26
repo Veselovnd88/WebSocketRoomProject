@@ -7,7 +7,9 @@ import org.springframework.stereotype.Service;
 import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.service.ChatUserService;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @Slf4j
@@ -19,17 +21,16 @@ public class ChatUserServiceStub implements ChatUserService {
 
     private final Faker faker = new Faker();
 
+    private final Map<String, ChatUser> stubRepository = new HashMap<>();
+
     public void saveChatUser(ChatUser chatUser) {
+        stubRepository.put(chatUser.getSession(), chatUser);
         log.info("ChatUser {} saved to db", chatUser.getUsername());
     }
 
     public ChatUser findChatUserBySessionId(String sessionId) {
         log.info("Retrieving ChatUser with sessionId: {}", sessionId);
-        return new ChatUser(
-                faker.name().username(),
-                ROOM_ID,
-                sessionId
-        );
+        return stubRepository.get(sessionId);
     }
 
     @Override
@@ -42,11 +43,7 @@ public class ChatUserServiceStub implements ChatUserService {
     @Override
     public ChatUser removeChatUser(String sessionId) {
         log.info("Removing ChatUser with sessionId: {}", sessionId);
-        return new ChatUser(
-                faker.name().username(),
-                ROOM_ID,
-                sessionId
-        );
+        return stubRepository.remove(sessionId);
     }
 
     private ChatUser generateUser() {
