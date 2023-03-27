@@ -3,25 +3,25 @@ package ru.veselov.websocketroomproject.controller;
 import lombok.SneakyThrows;
 import net.datafaker.Faker;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import reactor.core.publisher.FluxSink;
+import ru.veselov.websocketroomproject.mapper.ChatUserMapper;
 import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.service.ChatUserService;
-import ru.veselov.websocketroomproject.service.SubscriptionService;
 import ru.veselov.websocketroomproject.service.EventMessageService;
+import ru.veselov.websocketroomproject.service.SubscriptionService;
 
-import java.util.HashSet;
-
-@WithMockUser(username = "user1")
+@WithMockUser(username = "test")
 @WebMvcTest(ServerEventController.class)
 class ServerEventControllerTest {
 
@@ -31,24 +31,30 @@ class ServerEventControllerTest {
     public MockMvc mockMvc;
 
     @MockBean
-    private SubscriptionService SubscriptionService;
+    private ChatUserMapper chatUserMapper;
+
     @MockBean
-    private EventMessageService eventMessageService;
+    private SubscriptionService subscriptionService;
+
     @MockBean
     private ChatUserService chatUserService;
+    @MockBean
+    private EventMessageService eventMessageService;
 
     @Test
     @SneakyThrows
     void test() {
-        Mockito.when(chatUserService.findChatUsersByRoomId(ArgumentMatchers.anyString()))
-                .thenReturn(new HashSet<>(
-                        faker.collection(this::generateUser).maxLen(4).generate())
-                );
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/room/sse?roomId="+ROOM_ID))
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/room/sse?roomId=" + ROOM_ID))
                 .andExpect(MockMvcResultMatchers.request().asyncStarted())
                 .andDo(MockMvcResultHandlers.log())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.TEXT_EVENT_STREAM_VALUE))
                 .andReturn();
 
+        Mockito.verify(subscriptionService, Mockito.times(1))
+                .saveSubscription(Mockito.anyString(),
+                        Mockito.anyString(),
+                        Mockito.any(FluxSink.class));
 
     }
 

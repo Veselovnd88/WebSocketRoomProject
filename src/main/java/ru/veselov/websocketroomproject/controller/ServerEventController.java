@@ -11,16 +11,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
-import ru.veselov.websocketroomproject.dto.ChatUserDTO;
-import ru.veselov.websocketroomproject.dto.EventMessageDTO;
+import reactor.core.publisher.FluxSink;
 import ru.veselov.websocketroomproject.mapper.ChatUserMapper;
-import ru.veselov.websocketroomproject.model.ChatUser;
-import ru.veselov.websocketroomproject.service.ChatUserService;
 import ru.veselov.websocketroomproject.service.EventMessageService;
 import ru.veselov.websocketroomproject.service.SubscriptionService;
-
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/room")
@@ -32,17 +26,24 @@ public class ServerEventController {
 
     private final EventMessageService eventMessageService;
 
-    private final ChatUserService chatUserService;
     private final ChatUserMapper chatUserMapper;
 
     /**
-     * Controller handling subscription from client, create fluxsink and put it to the storage;
-     * Once client connected to the source, we sent list of users;
+     * Controller handling subscription from client's eventsource,
+     * create fluxsink and put it to the storage;
+     * Once client connected to the source, we sent him list of users;
      */
     @GetMapping(path = "/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ServerSentEvent> subscribe(@RequestParam String roomId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
+        Flux<ServerSentEvent> flux = createFlux(roomId, username);
+        eventMessageService.sendUserList(roomId);
+        return flux;
+    }
+
+
+    private Flux<ServerSentEvent> createFlux(String roomId, String username) {
         return Flux.create(fluxSink -> {
                     log.info("Subscription for user {} of room {} created", username, roomId);
                     fluxSink.onCancel(
@@ -51,8 +52,10 @@ public class ServerEventController {
                                 log.info("Subscription of user {} of room {} removed", username, roomId);
                             }
                     );
+                    fluxSink.next(ServerSentEvent.builder()
+                            .event("init")
+                            .build());  //sent init event to notify successful connection
                     subscriptionService.saveSubscription(roomId, username, fluxSink);
-                    eventMessageService.sendUserList(roomId);
                 }
         );
     }
