@@ -28,11 +28,9 @@ public class WebSocketConnectedListener {
     @Value("${socket.chat-topic}")
     private String chatDestination;
 
-    private final EventMessageService eventMessageService;
-
     private final ChatUserService chatUserService;
 
-    private final SimpMessagingTemplate simpMessagingTemplate;
+    private final EventMessageService eventMessageService;
 
     private final ChatUserMapper chatUserMapper;
 
@@ -42,17 +40,8 @@ public class WebSocketConnectedListener {
         String sessionId = stompHeaderAccessor.getSessionId();
         ChatUser chatUser = chatUserService.findChatUserBySessionId(sessionId);
         log.info("User {} is connected", chatUser.getUsername());
-
-        eventMessageService.sendEventMessageToEmitters(chatUser.getRoomId(), EventType.CONNECTED, chatUser);
-
-    }
-
-    private String toDestination(ChatUser chatUser) {
-        return chatDestination + "/" + chatUser.getRoomId();
-    }
-
-    private SendMessageDTO<ChatUserDTO> toPayload(ChatUser chatUser) {
-        return new SendMessageDTO<>(chatUserMapper.chatUserToDTO(chatUser));
+        eventMessageService.sendUserConnectedMessage(chatUser);
+        eventMessageService.sendUserList(chatUser.getRoomId());
     }
 
 }

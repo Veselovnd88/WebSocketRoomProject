@@ -13,7 +13,7 @@ eventSource.addEventListener('init', (e)=> {
 });
 
 eventSource.addEventListener('USERS_REFRESHED', (e)=> {
-    showUsers(e.data)
+    showUsers(e.data);
     console.log(e.data);
 });
 

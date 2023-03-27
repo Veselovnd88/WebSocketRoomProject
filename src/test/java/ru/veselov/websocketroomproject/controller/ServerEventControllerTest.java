@@ -7,23 +7,19 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MockMvcBuilder;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.service.ChatUserService;
-import ru.veselov.websocketroomproject.service.EmitterService;
+import ru.veselov.websocketroomproject.service.SubscriptionService;
 import ru.veselov.websocketroomproject.service.EventMessageService;
 
 import java.util.HashSet;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @WithMockUser(username = "user1")
 @WebMvcTest(ServerEventController.class)
@@ -35,7 +31,7 @@ class ServerEventControllerTest {
     public MockMvc mockMvc;
 
     @MockBean
-    private EmitterService emitterService;
+    private SubscriptionService SubscriptionService;
     @MockBean
     private EventMessageService eventMessageService;
     @MockBean
