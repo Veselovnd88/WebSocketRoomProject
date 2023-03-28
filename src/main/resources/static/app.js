@@ -1,6 +1,7 @@
 var stompClient = null;
-let roomId = Math.floor((Math.random()*1000)+1);
-const eventSource = new EventSource('/api/room/sse?roomId='+roomId);
+let roomId = Math.floor((Math.random() * 1000) + 1);
+//let roomId = "5";
+const eventSource = new EventSource('/api/room/sse?roomId=' + roomId);
 eventSource.onopen = function () {
     console.log("connection is ok")
 }
@@ -8,20 +9,22 @@ eventSource.onmessage = (e) => {
     console.log(e.data);
 };
 
-eventSource.addEventListener('init', (e)=> {
+eventSource.addEventListener('init', (e) => {
     console.log(e.data);
 });
 
-eventSource.addEventListener('USERS_REFRESHED', (e)=> {
+eventSource.addEventListener('USERS_REFRESHED', (e) => {
     showUsers(e.data);
     console.log(e.data);
 });
 
-eventSource.addEventListener('CONNECTED', (e)=> {
-    console.log(JSON.parse(e.data).username);
+eventSource.addEventListener('CONNECTED', (e) => {
+    showServerMessage("Connected " + JSON.parse(e.data).message.username);
+    console.log(e.data);
 });
 
-eventSource.addEventListener('DISCONNECTED', (e)=> {
+eventSource.addEventListener('DISCONNECTED', (e) => {
+    showServerMessage("Disconnected " + JSON.parse(e.data).message.username);
     console.log(e.data);
 });
 
@@ -30,8 +33,7 @@ function setConnected(connected) {
     $("#disconnect").prop("disabled", !connected);
     if (connected) {
         $("#conversation").show();
-    }
-    else {
+    } else {
         $("#conversation").hide();
     }
     $("#greetings").html("");
@@ -47,13 +49,10 @@ function connect() {
             showGreeting(JSON.parse(greeting.body).username);
 
         });*/
-        stompClient.subscribe('/topic/messages/'+roomId, function (greeting) {
+        stompClient.subscribe('/topic/messages/' + roomId, function (greeting) {
             showGreeting(JSON.parse(greeting.body).message.username);
             console.log(greeting)
         });
-        stompClient.subscribe('/topic/users/'+roomId, function (users){
-            showUsers(JSON.parse(users.body).message);
-        }, {roomId: roomId});
     });
 }
 
@@ -74,6 +73,10 @@ function showGreeting(message) {
     $("#greetings").append("<tr><td>" + message + "</td></tr>");
 }
 
+function showServerMessage(message) {
+    $("#serverMessage").append("<tr><td>" + message + "</td></tr>");
+}
+
 function showUsers(message) {
 
     $("#users").empty();
@@ -84,7 +87,13 @@ $(function () {
     $("form").on('submit', function (e) {
         e.preventDefault();
     });
-    $( "#connect" ).click(function() { connect(); });
-    $( "#disconnect" ).click(function() { disconnect(); });
-    $( "#send" ).click(function() { sendName(); });
+    $("#connect").click(function () {
+        connect();
+    });
+    $("#disconnect").click(function () {
+        disconnect();
+    });
+    $("#send").click(function () {
+        sendName();
+    });
 });

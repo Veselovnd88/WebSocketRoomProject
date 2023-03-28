@@ -8,6 +8,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.service.ChatUserService;
+import ru.veselov.websocketroomproject.service.EventMessageService;
+import ru.veselov.websocketroomproject.service.SubscriptionService;
 
 @Component
 @Slf4j
@@ -16,12 +18,17 @@ public class WebSocketDisconnectListener {
 
     private final ChatUserService chatUserService;
 
+    private final EventMessageService eventMessageService;
+
+    private final SubscriptionService subscriptionService;
+
     @EventListener
     public void handleUserDisconnect(SessionDisconnectEvent session) {
         StompHeaderAccessor stompHeaderAccessor = StompHeaderAccessor.wrap(session.getMessage());
         String sessionId = stompHeaderAccessor.getSessionId();
         ChatUser chatUser = chatUserService.removeChatUser(sessionId);
-
+        subscriptionService.removeSubscription(chatUser.getRoomId(), chatUser.getUsername());
+        eventMessageService.sendUserDisconnectedMessage(chatUser);
         log.info("User {} is disconnected", chatUser.getUsername());
     }
 

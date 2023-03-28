@@ -21,23 +21,18 @@ import ru.veselov.websocketroomproject.service.EventMessageService;
 @RequiredArgsConstructor
 public class WebSocketConnectedListener {
 
-    @Value("${socket.chat-topic}")
-    private String chatDestination;
-
     private final ChatUserService chatUserService;
 
     private final EventMessageService eventMessageService;
-
-    private final ChatUserMapper chatUserMapper;
 
     @EventListener
     public void handleConnectedUserEvent(SessionConnectedEvent session) {
         StompHeaderAccessor stompHeaderAccessor = StompHeaderAccessor.wrap(session.getMessage());
         String sessionId = stompHeaderAccessor.getSessionId();
         ChatUser chatUser = chatUserService.findChatUserBySessionId(sessionId);
-        log.info("User {} is connected", chatUser.getUsername());
         eventMessageService.sendUserConnectedMessage(chatUser);
         eventMessageService.sendUserListToAllSubscriptions(chatUser.getRoomId());
+        log.info("User {} is connected", chatUser.getUsername());
     }
 
 }
