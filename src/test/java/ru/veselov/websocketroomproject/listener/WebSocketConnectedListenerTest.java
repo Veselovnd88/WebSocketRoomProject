@@ -46,8 +46,8 @@ class WebSocketConnectedListenerTest {
         Mockito.when(chatUserService.findChatUserBySessionId(TestConstants.TEST_SESSION_ID)).thenReturn(new ChatUser(
                 TestConstants.TEST_USERNAME,
                 ROOM_ID,
-                TestConstants.TEST_SESSION_ID
-        ));
+                TestConstants.TEST_SESSION_ID)
+        );
 
         webSocketConnectedListener.handleConnectedUserEvent(sessionConnectedEvent);
 

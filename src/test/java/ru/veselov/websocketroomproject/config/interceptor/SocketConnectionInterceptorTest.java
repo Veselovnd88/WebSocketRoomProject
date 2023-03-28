@@ -39,8 +39,7 @@ class SocketConnectionInterceptorTest {
                 TestConstants.COMMAND_HEADER, StompCommand.CONNECT,
                 StompHeaderAccessor.SESSION_ID_HEADER, TestConstants.TEST_SESSION_ID,
                 StompHeaderAccessor.USER_HEADER, authentication,
-                StompHeaderAccessor.NATIVE_HEADERS, Map.of(
-                        roomIdHeader, List.of(ROOM_ID))
+                StompHeaderAccessor.NATIVE_HEADERS, Map.of(roomIdHeader, List.of(ROOM_ID))
         );
         Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
 
@@ -57,8 +56,7 @@ class SocketConnectionInterceptorTest {
                 TestConstants.COMMAND_HEADER, StompCommand.SUBSCRIBE,
                 StompHeaderAccessor.SESSION_ID_HEADER, TestConstants.TEST_SESSION_ID,
                 StompHeaderAccessor.USER_HEADER, authentication,
-                StompHeaderAccessor.NATIVE_HEADERS, Map.of(
-                        roomIdHeader, List.of(ROOM_ID))
+                StompHeaderAccessor.NATIVE_HEADERS, Map.of(roomIdHeader, List.of(ROOM_ID))
         );
         Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
 
@@ -73,8 +71,7 @@ class SocketConnectionInterceptorTest {
         Map<String, Object> headers = Map.of(
                 TestConstants.COMMAND_HEADER, StompCommand.CONNECT,
                 StompHeaderAccessor.SESSION_ID_HEADER, TestConstants.TEST_SESSION_ID,
-                StompHeaderAccessor.NATIVE_HEADERS, Map.of(
-                        roomIdHeader, List.of(ROOM_ID))
+                StompHeaderAccessor.NATIVE_HEADERS, Map.of(roomIdHeader, List.of(ROOM_ID))
         );
         Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
 
@@ -107,8 +104,7 @@ class SocketConnectionInterceptorTest {
                 TestConstants.COMMAND_HEADER, StompCommand.CONNECT,
                 StompHeaderAccessor.SESSION_ID_HEADER, TestConstants.TEST_SESSION_ID,
                 StompHeaderAccessor.USER_HEADER, authentication,
-                StompHeaderAccessor.NATIVE_HEADERS, Map.of(
-                        roomIdHeader, List.of(""))  //empty
+                StompHeaderAccessor.NATIVE_HEADERS, Map.of(roomIdHeader, List.of(""))  //empty
         );
         Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
 

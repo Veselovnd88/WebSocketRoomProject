@@ -11,10 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.FluxSink;
-import ru.veselov.websocketroomproject.mapper.ChatUserMapper;
 import ru.veselov.websocketroomproject.service.EventMessageService;
-import ru.veselov.websocketroomproject.service.SubscriptionService;
+import ru.veselov.websocketroomproject.service.impl.SubscriptionServiceImpl;
 
 @RestController
 @RequestMapping("/api/room")
@@ -22,26 +20,22 @@ import ru.veselov.websocketroomproject.service.SubscriptionService;
 @RequiredArgsConstructor
 public class ServerEventController {
 
-    private final SubscriptionService subscriptionService;
+    private final SubscriptionServiceImpl subscriptionService;
 
     private final EventMessageService eventMessageService;
-
-    private final ChatUserMapper chatUserMapper;
 
     /**
      * Controller handling subscription from client's eventsource,
      * create fluxsink and put it to the storage;
      * Once client connected to the source, we sent him list of users;
      */
-    @GetMapping(path = "/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(value = "/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ServerSentEvent> subscribe(@RequestParam String roomId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         Flux<ServerSentEvent> flux = createFlux(roomId, username);
-        eventMessageService.sendUserList(roomId);
         return flux;
     }
-
 
     private Flux<ServerSentEvent> createFlux(String roomId, String username) {
         return Flux.create(fluxSink -> {
@@ -54,8 +48,9 @@ public class ServerEventController {
                     );
                     fluxSink.next(ServerSentEvent.builder()
                             .event("init")
-                            .build());  //sent init event to notify successful connection
+                            .build());  //send init event to notify successful connection
                     subscriptionService.saveSubscription(roomId, username, fluxSink);
+                    eventMessageService.sendUserListToSubscription(roomId, username);
                 }
         );
     }

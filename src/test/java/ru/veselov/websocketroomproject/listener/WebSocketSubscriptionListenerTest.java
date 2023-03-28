@@ -59,8 +59,7 @@ class WebSocketSubscriptionListenerTest {
         Map<String, Object> headers = Map.of(
                 StompHeaderAccessor.DESTINATION_HEADER, DESTINATION,
                 StompHeaderAccessor.SESSION_ID_HEADER, TestConstants.TEST_SESSION_ID,
-                StompHeaderAccessor.NATIVE_HEADERS, Map.of(
-                        roomIdHeader, List.of(ROOM_ID))
+                StompHeaderAccessor.NATIVE_HEADERS, Map.of(roomIdHeader, List.of(ROOM_ID))
         );
         Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
         SessionSubscribeEvent sessionSubscribeEvent = new SessionSubscribeEvent(new Object(), message, authentication);
@@ -91,8 +90,7 @@ class WebSocketSubscriptionListenerTest {
         Map<String, Object> headers = Map.of(
                 StompHeaderAccessor.DESTINATION_HEADER, "/topic/notUsers/5",    //not correct topic
                 StompHeaderAccessor.SESSION_ID_HEADER, TestConstants.TEST_SESSION_ID,
-                StompHeaderAccessor.NATIVE_HEADERS, Map.of(
-                        roomIdHeader, List.of(ROOM_ID))
+                StompHeaderAccessor.NATIVE_HEADERS, Map.of(roomIdHeader, List.of(ROOM_ID))
         );
         Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
         SessionSubscribeEvent sessionSubscribeEvent = new SessionSubscribeEvent(new Object(), message, authentication);
