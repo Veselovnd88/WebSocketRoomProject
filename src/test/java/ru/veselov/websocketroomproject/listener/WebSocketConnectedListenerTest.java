@@ -15,10 +15,9 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import ru.veselov.websocketroomproject.TestConstants;
-import ru.veselov.websocketroomproject.dto.ChatUserDTO;
-import ru.veselov.websocketroomproject.dto.SendMessageDTO;
 import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.service.ChatUserService;
+import ru.veselov.websocketroomproject.service.EventMessageService;
 
 import java.util.Map;
 
@@ -33,14 +32,16 @@ class WebSocketConnectedListenerTest {
     ChatUserService chatUserService;
     @MockBean
     SimpMessagingTemplate simpMessagingTemplate;
+
+    @MockBean
+    EventMessageService eventMessageService;
     @Captor
-    ArgumentCaptor<SendMessageDTO<ChatUserDTO>> messageDTOArgumentCaptor;
+    ArgumentCaptor<ChatUser> chatUserArgumentCaptor;
 
     @Test
-    void shouldSendMessage() {
+    void shouldSendMessageAndUserList() {
         Message<byte[]> message = Mockito.mock(Message.class);
-        Map<String, Object> headers = Map.of(
-                StompHeaderAccessor.SESSION_ID_HEADER, TestConstants.TEST_SESSION_ID);
+        Map<String, Object> headers = Map.of(StompHeaderAccessor.SESSION_ID_HEADER, TestConstants.TEST_SESSION_ID);
         Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
         SessionConnectedEvent sessionConnectedEvent = new SessionConnectedEvent(new Object(), message);
         Mockito.when(chatUserService.findChatUserBySessionId(TestConstants.TEST_SESSION_ID)).thenReturn(new ChatUser(
@@ -53,10 +54,12 @@ class WebSocketConnectedListenerTest {
 
         Mockito.verify(chatUserService, Mockito.times(1))
                 .findChatUserBySessionId(TestConstants.TEST_SESSION_ID);
-        Mockito.verify(simpMessagingTemplate, Mockito.times(1))
-                .convertAndSend(ArgumentMatchers.anyString(), messageDTOArgumentCaptor.capture());
-        SendMessageDTO<ChatUserDTO> messageDTOArgumentCaptorValue = messageDTOArgumentCaptor.getValue();
-        Assertions.assertThat(messageDTOArgumentCaptorValue.getMessage().getUsername())
+        Mockito.verify(eventMessageService, Mockito.times(1))
+                .sendUserConnectedMessage(chatUserArgumentCaptor.capture());
+        Mockito.verify(eventMessageService, Mockito.times(1))
+                .sendUserListToAllSubscriptions(ArgumentMatchers.anyString());
+        ChatUser captorValue = chatUserArgumentCaptor.getValue();
+        Assertions.assertThat(captorValue.getUsername())
                 .isEqualTo(TestConstants.TEST_USERNAME);
     }
 

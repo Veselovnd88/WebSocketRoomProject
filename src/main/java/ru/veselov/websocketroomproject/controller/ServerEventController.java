@@ -12,15 +12,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import ru.veselov.websocketroomproject.service.EventMessageService;
-import ru.veselov.websocketroomproject.service.impl.SubscriptionServiceImpl;
+import ru.veselov.websocketroomproject.service.SubscriptionService;
 
 @RestController
 @RequestMapping("/api/room")
 @Slf4j
 @RequiredArgsConstructor
+@SuppressWarnings("rawtypes")
 public class ServerEventController {
 
-    private final SubscriptionServiceImpl subscriptionService;
+    private final SubscriptionService subscriptionService;
 
     private final EventMessageService eventMessageService;
 
@@ -33,8 +34,7 @@ public class ServerEventController {
     public Flux<ServerSentEvent> subscribe(@RequestParam String roomId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
-        Flux<ServerSentEvent> flux = createFlux(roomId, username);
-        return flux;
+        return createFlux(roomId, username);
     }
 
     private Flux<ServerSentEvent> createFlux(String roomId, String username) {

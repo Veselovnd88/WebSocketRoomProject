@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@SuppressWarnings("rawtypes")
 public class EventMessageServiceImpl implements EventMessageService {
 
     private final SubscriptionServiceImpl subscriptionService;
@@ -30,8 +31,7 @@ public class EventMessageServiceImpl implements EventMessageService {
 
     @Override
     public void sendUserListToAllSubscriptions(String roomId) {
-        sendEventMessageToSubscriptions(roomId,
-                createUsersRefreshedEvent(roomId));
+        sendEventMessageToSubscriptions(roomId, createUsersRefreshedEvent(roomId));
     }
 
     @Override
