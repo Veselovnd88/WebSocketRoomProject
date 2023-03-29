@@ -3,9 +3,11 @@ package ru.veselov.websocketroomproject.listener;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
+import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
+import reactor.core.publisher.FluxSink;
 import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.service.ChatUserService;
 import ru.veselov.websocketroomproject.service.EventMessageService;
@@ -27,8 +29,9 @@ public class WebSocketDisconnectListener {
         StompHeaderAccessor stompHeaderAccessor = StompHeaderAccessor.wrap(session.getMessage());
         String sessionId = stompHeaderAccessor.getSessionId();
         ChatUser chatUser = chatUserService.removeChatUser(sessionId);
-        subscriptionService.findSubscription(chatUser.getRoomId(), chatUser.getUsername()).setConnected(false);
         eventMessageService.sendUserDisconnectedMessage(chatUser);
+        FluxSink<ServerSentEvent> fluxSink = subscriptionService.findSubscription(chatUser.getRoomId(), chatUser.getUsername()).getFluxSink();
+        fluxSink.error(new Exception());
         log.info("User {} is disconnected", chatUser.getUsername());
     }
 

@@ -29,12 +29,15 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             roomSubscriptionsMap.put(roomId, subscriptions);
         }
         log.info("New subscription of {} added to room #{}", username, roomId);
-        log.warn("Room sinks {}", roomSubscriptionsMap.get("5"));
     }
 
     @Override
     public void removeSubscription(String roomId, String username) {
         Map<String, SubscriptionData> roomSubscriptions = roomSubscriptionsMap.get(roomId);
+        if (roomSubscriptions == null) {
+            log.info("Subscription already removed");
+            return;
+        }
         roomSubscriptions.remove(username);
         log.info("Subscription of {} removed from room #{}", username, roomId);
         if (roomSubscriptions.isEmpty()) {

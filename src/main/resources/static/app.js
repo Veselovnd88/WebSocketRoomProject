@@ -59,6 +59,7 @@ function connect() {
 function disconnect() {
     if (stompClient !== null) {
         stompClient.disconnect();
+        eventSource.close();
     }
     setConnected(false);
     console.log("Disconnected");
