@@ -10,13 +10,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.FluxSink;
 import ru.veselov.websocketroomproject.model.SubscriptionData;
 import ru.veselov.websocketroomproject.service.EventMessageService;
 import ru.veselov.websocketroomproject.service.SubscriptionService;
-
-import java.time.Duration;
 
 @RestController
 @RequestMapping("/api/room")
@@ -54,6 +52,7 @@ public class ServerEventController {
                             .event("init")
                             .build());  //send init event to notify successful connection
                     SubscriptionData subscriptionData = new SubscriptionData(username, fluxSink, false);
+
                     subscriptionService.saveSubscription(roomId, username, subscriptionData);
                     eventMessageService.sendUserListToSubscription(roomId, username);
                 }

@@ -1,32 +1,7 @@
 var stompClient = null;
 //let roomId = Math.floor((Math.random() * 1000) + 1);
 let roomId = "5";
-const eventSource = new EventSource('/api/room/sse?roomId=' + roomId);
-eventSource.onopen = function () {
-    console.log("connection is ok")
-}
-eventSource.onmessage = (e) => {
-    console.log(e.data);
-};
-
-eventSource.addEventListener('init', (e) => {
-    console.log(e.data);
-});
-
-eventSource.addEventListener('USERS_REFRESHED', (e) => {
-    showUsers(e.data);
-    console.log(e.data);
-});
-
-eventSource.addEventListener('CONNECTED', (e) => {
-    showServerMessage("Connected " + JSON.parse(e.data).message.username);
-    console.log(e.data);
-});
-
-eventSource.addEventListener('DISCONNECTED', (e) => {
-    showServerMessage("Disconnected " + JSON.parse(e.data).message.username);
-    console.log(e.data);
-});
+let eventSource = null;
 
 function setConnected(connected) {
     $("#connect").prop("disabled", connected);
@@ -54,6 +29,34 @@ function connect() {
             console.log(greeting)
         });
     });
+    eventSource = new EventSource('/api/room/sse?roomId=' + roomId);
+    eventSource.onopen = function () {
+        console.log("connection is ok")
+    }
+    eventSource.onmessage = (e) => {
+        console.log(e.data);
+    };
+
+    eventSource.addEventListener('init', (e) => {
+        console.log(e.data);
+    });
+
+    eventSource.addEventListener('USERS_REFRESHED', (e) => {
+        showUsers(e.data);
+        console.log(e.data);
+    });
+
+    eventSource.addEventListener('CONNECTED', (e) => {
+        showServerMessage("Connected " + JSON.parse(e.data).message.username);
+        console.log(e.data);
+    });
+
+    eventSource.addEventListener('DISCONNECTED', (e) => {
+        showServerMessage("Disconnected " + JSON.parse(e.data).message.username);
+        console.log(e.data);
+    });
+
+
 }
 
 function disconnect() {
