@@ -31,7 +31,7 @@ public class WebSocketDisconnectListener {
         ChatUser chatUser = chatUserService.removeChatUser(sessionId);
         eventMessageService.sendUserDisconnectedMessage(chatUser);
         FluxSink<ServerSentEvent> fluxSink = subscriptionService.findSubscription(chatUser.getRoomId(), chatUser.getUsername()).getFluxSink();
-        fluxSink.error( new Exception());//FIXME if user disconnect or close browser we cloe subscription
+        fluxSink.complete();
         log.info("User {} is disconnected", chatUser.getUsername());
     }
 

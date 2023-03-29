@@ -48,6 +48,12 @@ public class ServerEventController {
                                 log.info("Subscription of user {} of room {} removed", username, roomId);
                             }
                     );
+                    fluxSink.onDispose(
+                            () -> {
+                                subscriptionService.removeSubscription(roomId, username);
+                                log.info("Subscription of user {} of room {} removed", username, roomId);
+                            }
+                    );
                     fluxSink.next(ServerSentEvent.builder()
                             .event("init")
                             .build());  //send init event to notify successful connection
