@@ -9,6 +9,7 @@ import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.service.ChatUserService;
 import ru.veselov.websocketroomproject.service.EventMessageService;
+import ru.veselov.websocketroomproject.service.SubscriptionService;
 
 /**
  * After confirmation of connection from server send message about
@@ -23,14 +24,21 @@ public class WebSocketConnectedListener {
 
     private final EventMessageService eventMessageService;
 
+    private final SubscriptionService subscriptionService;
+
     @EventListener
     public void handleConnectedUserEvent(SessionConnectedEvent session) {
         StompHeaderAccessor stompHeaderAccessor = StompHeaderAccessor.wrap(session.getMessage());
         String sessionId = stompHeaderAccessor.getSessionId();
         ChatUser chatUser = chatUserService.findChatUserBySessionId(sessionId);
+        setSubscriptionConnected(chatUser);
         eventMessageService.sendUserConnectedMessage(chatUser);
         eventMessageService.sendUserListToAllSubscriptions(chatUser.getRoomId());
         log.info("User {} is connected", chatUser.getUsername());
+    }
+
+    private void setSubscriptionConnected(ChatUser chatUser) {
+        subscriptionService.findSubscription(chatUser.getRoomId(), chatUser.getUsername()).setConnected(true);
     }
 
 }

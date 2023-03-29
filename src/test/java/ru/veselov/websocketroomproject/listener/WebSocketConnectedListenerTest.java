@@ -32,11 +32,10 @@ class WebSocketConnectedListenerTest {
     ChatUserService chatUserService;
     @MockBean
     SimpMessagingTemplate simpMessagingTemplate;
-
     @MockBean
     EventMessageService eventMessageService;
     @Captor
-    ArgumentCaptor<ChatUser> chatUserArgumentCaptor;
+    ArgumentCaptor<ChatUser> chatUserCaptor;
 
     @Test
     void shouldSendMessageAndUserList() {
@@ -52,15 +51,12 @@ class WebSocketConnectedListenerTest {
 
         webSocketConnectedListener.handleConnectedUserEvent(sessionConnectedEvent);
 
-        Mockito.verify(chatUserService, Mockito.times(1))
-                .findChatUserBySessionId(TestConstants.TEST_SESSION_ID);
-        Mockito.verify(eventMessageService, Mockito.times(1))
-                .sendUserConnectedMessage(chatUserArgumentCaptor.capture());
+        Mockito.verify(chatUserService, Mockito.times(1)).findChatUserBySessionId(TestConstants.TEST_SESSION_ID);
+        Mockito.verify(eventMessageService, Mockito.times(1)).sendUserConnectedMessage(chatUserCaptor.capture());
         Mockito.verify(eventMessageService, Mockito.times(1))
                 .sendUserListToAllSubscriptions(ArgumentMatchers.anyString());
-        ChatUser captorValue = chatUserArgumentCaptor.getValue();
-        Assertions.assertThat(captorValue.getUsername())
-                .isEqualTo(TestConstants.TEST_USERNAME);
+        ChatUser captorValue = chatUserCaptor.getValue();
+        Assertions.assertThat(captorValue.getUsername()).isEqualTo(TestConstants.TEST_USERNAME);
     }
 
 }

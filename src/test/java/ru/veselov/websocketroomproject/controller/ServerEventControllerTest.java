@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import reactor.core.publisher.FluxSink;
+import ru.veselov.websocketroomproject.model.SubscriptionData;
 import ru.veselov.websocketroomproject.service.EventMessageService;
 import ru.veselov.websocketroomproject.service.impl.SubscriptionServiceImpl;
 
@@ -44,7 +45,7 @@ class ServerEventControllerTest {
                 .andReturn();
 
         Mockito.verify(subscriptionService, Mockito.times(1))
-                .saveSubscription(Mockito.anyString(), Mockito.anyString(), Mockito.any(FluxSink.class));
+                .saveSubscription(Mockito.anyString(), Mockito.anyString(), Mockito.any(SubscriptionData.class));
 
         Mockito.verify(eventMessageService, Mockito.times(1))
                 .sendUserListToSubscription(Mockito.anyString(), Mockito.anyString());

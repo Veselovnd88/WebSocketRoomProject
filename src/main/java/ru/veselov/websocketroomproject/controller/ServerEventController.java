@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
+import ru.veselov.websocketroomproject.model.SubscriptionData;
 import ru.veselov.websocketroomproject.service.EventMessageService;
 import ru.veselov.websocketroomproject.service.SubscriptionService;
 
@@ -49,7 +50,8 @@ public class ServerEventController {
                     fluxSink.next(ServerSentEvent.builder()
                             .event("init")
                             .build());  //send init event to notify successful connection
-                    subscriptionService.saveSubscription(roomId, username, fluxSink);
+                    SubscriptionData subscriptionData = new SubscriptionData(username, fluxSink, false);
+                    subscriptionService.saveSubscription(roomId, username, subscriptionData);
                     eventMessageService.sendUserListToSubscription(roomId, username);
                 }
         );

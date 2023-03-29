@@ -27,7 +27,7 @@ public class WebSocketDisconnectListener {
         StompHeaderAccessor stompHeaderAccessor = StompHeaderAccessor.wrap(session.getMessage());
         String sessionId = stompHeaderAccessor.getSessionId();
         ChatUser chatUser = chatUserService.removeChatUser(sessionId);
-        subscriptionService.removeSubscription(chatUser.getRoomId(), chatUser.getUsername());
+        subscriptionService.findSubscription(chatUser.getRoomId(), chatUser.getUsername()).setConnected(false);
         eventMessageService.sendUserDisconnectedMessage(chatUser);
         log.info("User {} is disconnected", chatUser.getUsername());
     }
