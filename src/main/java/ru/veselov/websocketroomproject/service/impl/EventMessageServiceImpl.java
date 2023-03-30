@@ -67,11 +67,7 @@ public class EventMessageServiceImpl implements EventMessageService {
                 .data(eventMessageDTO)
                 .event(eventType.name())
                 .build();
-        subscriptionsByRoomId.forEach(x -> {
-            if (x.isConnected()) {
-                x.getFluxSink().next(event);
-            }
-        });
+        subscriptionsByRoomId.forEach(x -> x.getFluxSink().next(event));
         log.info("Message for event {} sent to all connected subscriptions of room #{}", eventType, roomId);
     }
 

@@ -5,7 +5,9 @@ import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -18,8 +20,9 @@ import ru.veselov.websocketroomproject.model.SubscriptionData;
 import ru.veselov.websocketroomproject.service.EventMessageService;
 import ru.veselov.websocketroomproject.service.impl.SubscriptionServiceImpl;
 
+@SpringBootTest
 @WithMockUser(username = "test")
-@WebMvcTest(ServerEventController.class)
+@AutoConfigureMockMvc
 class ServerEventControllerTest {
 
     private final static String ROOM_ID = "5";
@@ -30,8 +33,6 @@ class ServerEventControllerTest {
     @MockBean
     private SubscriptionServiceImpl subscriptionService;
 
-    @MockBean
-    private EventMessageService eventMessageService;
 
     @Test
     @SneakyThrows
@@ -47,8 +48,6 @@ class ServerEventControllerTest {
         Mockito.verify(subscriptionService, Mockito.times(1))
                 .saveSubscription(Mockito.anyString(), Mockito.anyString(), Mockito.any(SubscriptionData.class));
 
-        Mockito.verify(eventMessageService, Mockito.times(1))
-                .sendUserListToSubscription(Mockito.anyString(), Mockito.anyString());
     }
 
 }

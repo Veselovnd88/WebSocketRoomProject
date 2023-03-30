@@ -10,5 +10,4 @@ import reactor.core.publisher.FluxSink;
 public class SubscriptionData {
     private String username;
     private FluxSink<ServerSentEvent> fluxSink;
-    private boolean isConnected;
 }

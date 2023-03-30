@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
 import ru.veselov.websocketroomproject.model.SubscriptionData;
@@ -25,12 +26,11 @@ public class ServerEventController {
 
     private final SubscriptionService subscriptionService;
 
-    private final EventMessageService eventMessageService;
-
     /**
      * Controller handling subscription from client's eventsource,
      * create fluxsink and put it to the storage;
-     * Once client connected to the source, we sent him list of users;
+     * Eventsource should be created together with websocket connection
+     * Completed with websocket disconnection
      */
     @GetMapping(value = "/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ServerSentEvent> subscribe(@RequestParam String roomId) {
@@ -43,26 +43,23 @@ public class ServerEventController {
         return Flux.create(fluxSink -> {
                     log.info("Subscription for user {} of room {} created", username, roomId);
                     fluxSink.onCancel(
-                            () -> {
-                                subscriptionService.removeSubscription(roomId, username);
-                                log.info("Subscription of user {} of room {} removed", username, roomId);
-                            }
-                    );
+                            removeSubscription(username, roomId));
                     fluxSink.onDispose(
-                            () -> {
-                                subscriptionService.removeSubscription(roomId, username);
-                                log.info("Subscription of user {} of room {} removed", username, roomId);
-                            }
-                    );
+                            removeSubscription(username, roomId));
                     fluxSink.next(ServerSentEvent.builder()
                             .event("init")
                             .build());  //send init event to notify successful connection
-                    SubscriptionData subscriptionData = new SubscriptionData(username, fluxSink, false);
-
+                    SubscriptionData subscriptionData = new SubscriptionData(username, fluxSink);
                     subscriptionService.saveSubscription(roomId, username, subscriptionData);
-                    eventMessageService.sendUserListToSubscription(roomId, username);
                 }
         );
+    }
+
+    private Disposable removeSubscription(String username, String roomId) {
+        return () -> {
+            subscriptionService.removeSubscription(roomId, username);
+            log.info("Subscription of user {} of room {} removed", username, roomId);
+        };
     }
 
 }

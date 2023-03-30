@@ -30,9 +30,12 @@ public class WebSocketDisconnectListener {
         String sessionId = stompHeaderAccessor.getSessionId();
         ChatUser chatUser = chatUserService.removeChatUser(sessionId);
         eventMessageService.sendUserDisconnectedMessage(chatUser);
-        FluxSink<ServerSentEvent> fluxSink = subscriptionService.findSubscription(chatUser.getRoomId(), chatUser.getUsername()).getFluxSink();
-        fluxSink.complete();
+        getFluxSink(chatUser).complete();
         log.info("User {} is disconnected", chatUser.getUsername());
+    }
+
+    private FluxSink<ServerSentEvent> getFluxSink(ChatUser chatUser) {
+        return subscriptionService.findSubscription(chatUser.getRoomId(), chatUser.getUsername()).getFluxSink();
     }
 
 }
