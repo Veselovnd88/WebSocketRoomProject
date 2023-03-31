@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @SuppressWarnings("rawtypes")
 public class EventMessageServiceImpl implements EventMessageService {
 
-    private final SubscriptionServiceImpl subscriptionService;
+    private final RoomSubscriptionServiceImpl subscriptionService;
 
     private final ChatUserService chatUserService;
 

@@ -11,7 +11,7 @@ import reactor.core.publisher.FluxSink;
 import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.service.ChatUserService;
 import ru.veselov.websocketroomproject.service.EventMessageService;
-import ru.veselov.websocketroomproject.service.SubscriptionService;
+import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
 
 @Component
 @Slf4j
@@ -22,7 +22,7 @@ public class WebSocketDisconnectListener {
 
     private final EventMessageService eventMessageService;
 
-    private final SubscriptionService subscriptionService;
+    private final RoomSubscriptionService roomSubscriptionService;
 
     @EventListener
     public void handleUserDisconnect(SessionDisconnectEvent session) {
@@ -35,7 +35,7 @@ public class WebSocketDisconnectListener {
     }
 
     private FluxSink<ServerSentEvent> getFluxSink(ChatUser chatUser) {
-        return subscriptionService.findSubscription(chatUser.getRoomId(), chatUser.getUsername()).getFluxSink();
+        return roomSubscriptionService.findSubscription(chatUser.getRoomId(), chatUser.getUsername()).getFluxSink();
     }
 
 }

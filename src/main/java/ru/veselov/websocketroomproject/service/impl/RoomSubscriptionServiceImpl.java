@@ -1,11 +1,11 @@
 package ru.veselov.websocketroomproject.service.impl;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.FluxSink;
 import ru.veselov.websocketroomproject.model.SubscriptionData;
-import ru.veselov.websocketroomproject.service.SubscriptionService;
+import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
+import ru.veselov.websocketroomproject.service.UserSubscriptionService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,21 +13,18 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 @SuppressWarnings("rawtypes")
-public class SubscriptionServiceImpl implements SubscriptionService {
+public class RoomSubscriptionServiceImpl implements RoomSubscriptionService {
 
-    private final Map<String, Map<String, SubscriptionData>> roomSubscriptionsMap = new ConcurrentHashMap<>();
+    private final UserSubscriptionService userSubscriptionService;
+
+    private final Map<String, List<String>> roomSubscriptionsMap = new ConcurrentHashMap<>();
 
     @Override
     public void saveSubscription(String roomId, String username, SubscriptionData subscriptionData) {
-        if (roomSubscriptionsMap.containsKey(roomId)) {
-            roomSubscriptionsMap.get(roomId).put(username, subscriptionData);
-        } else {
-            Map<String, SubscriptionData> subscriptions = new ConcurrentHashMap<>();
-            subscriptions.put(username, subscriptionData);
-            roomSubscriptionsMap.put(roomId, subscriptions);
-        }
+
         log.info("New subscription of {} added to room #{}", username, roomId);
     }
 

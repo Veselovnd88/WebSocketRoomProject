@@ -9,7 +9,6 @@ import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.service.ChatUserService;
 import ru.veselov.websocketroomproject.service.EventMessageService;
-import ru.veselov.websocketroomproject.service.SubscriptionService;
 
 /**
  * After confirmation of connection from server send message about

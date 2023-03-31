@@ -16,7 +16,7 @@ import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.service.ChatUserService;
 import ru.veselov.websocketroomproject.service.EventMessageService;
-import ru.veselov.websocketroomproject.service.SubscriptionService;
+import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
 
 import java.util.Map;
 
@@ -31,7 +31,7 @@ class WebSocketDisconnectListenerTest {
     private EventMessageService eventMessageService;
 
     @MockBean
-    private SubscriptionService subscriptionService;
+    private RoomSubscriptionService roomSubscriptionService;
 
     @Autowired
     private WebSocketDisconnectListener webSocketDisconnectListener;
@@ -57,7 +57,7 @@ class WebSocketDisconnectListenerTest {
         webSocketDisconnectListener.handleUserDisconnect(sessionDisconnectEvent);
 
         Mockito.verify(chatUserService, Mockito.times(1)).removeChatUser(TestConstants.TEST_SESSION_ID);
-        Mockito.verify(subscriptionService, Mockito.times(1)).removeSubscription(ROOM_ID, TestConstants.TEST_USERNAME);
+        Mockito.verify(roomSubscriptionService, Mockito.times(1)).removeSubscription(ROOM_ID, TestConstants.TEST_USERNAME);
         Mockito.verify(eventMessageService, Mockito.times(1)).sendUserDisconnectedMessage(chatUserCaptor.capture());
     }
 

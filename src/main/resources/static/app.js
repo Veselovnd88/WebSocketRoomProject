@@ -29,7 +29,7 @@ function connect() {
             console.log(greeting)
         });
     });
-    eventSource = new EventSource('/api/room/sse?roomId=' + roomId);
+    eventSource = new EventSource('/api/room?roomId=' + roomId);
     eventSource.onopen = function () {
         console.log("connection is ok")
     }
