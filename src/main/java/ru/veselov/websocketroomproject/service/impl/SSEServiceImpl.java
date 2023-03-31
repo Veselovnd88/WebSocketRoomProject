@@ -21,21 +21,20 @@ public class SSEServiceImpl implements SSEService {
     public Flux<ServerSentEvent> createEventStream(String roomId, String username) {
         return Flux.create(fluxSink -> {
                     log.info("Subscription for user {} of room {} created", username, roomId);
-                    fluxSink.onCancel(removeSubscription(username, roomId));
-                    fluxSink.onDispose(removeSubscription(username, roomId));
+                    SubscriptionData subscriptionData = new SubscriptionData(username, roomId, fluxSink);
+                    fluxSink.onCancel(removeSubscription(subscriptionData));
+                    fluxSink.onDispose(removeSubscription(subscriptionData));
                     fluxSink.next(ServerSentEvent.builder()
                             .event("init")
                             .build());  //send init event to notify successful connection
-                    SubscriptionData subscriptionData = new SubscriptionData(username, fluxSink);
-                    roomSubscriptionService.saveSubscription(roomId, username, subscriptionData);
+                    roomSubscriptionService.saveSubscription(subscriptionData);
                 }
         );
     }
 
-    private Disposable removeSubscription(String username, String roomId) {
+    private Disposable removeSubscription(SubscriptionData subscriptionData) {
         return () -> {
-            roomSubscriptionService.removeSubscription(roomId, username);
-            log.info("Subscription of user {} of room {} removed", username, roomId);
+            roomSubscriptionService.removeSubscription(subscriptionData);
         };
     }
 }

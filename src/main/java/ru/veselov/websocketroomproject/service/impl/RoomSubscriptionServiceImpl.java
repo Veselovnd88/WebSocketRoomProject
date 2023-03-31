@@ -7,10 +7,10 @@ import ru.veselov.websocketroomproject.model.SubscriptionData;
 import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
 import ru.veselov.websocketroomproject.service.UserSubscriptionService;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Service
 @RequiredArgsConstructor
@@ -18,26 +18,29 @@ import java.util.concurrent.ConcurrentHashMap;
 @SuppressWarnings("rawtypes")
 public class RoomSubscriptionServiceImpl implements RoomSubscriptionService {
 
-    private final UserSubscriptionService userSubscriptionService;
-
-    private final Map<String, List<String>> roomSubscriptionsMap = new ConcurrentHashMap<>();
+    private final Map<String, CopyOnWriteArrayList<SubscriptionData>> roomSubscriptionsMap = new ConcurrentHashMap<>();
 
     @Override
-    public void saveSubscription(String roomId, String username, SubscriptionData subscriptionData) {
-
+    public void saveSubscription(SubscriptionData subscriptionData) {
+        String username = subscriptionData.getUsername();
+        String roomId = subscriptionData.getRoomId();
+        //userSubscriptionService.saveSubscription(username, subscriptionData);
+        if (!roomSubscriptionsMap.containsKey(roomId)) {
+            CopyOnWriteArrayList subscriptionList = new CopyOnWriteArrayList();
+            subscriptionList.add(subscriptionData);
+            roomSubscriptionsMap.put(roomId,subscriptionList);
+        } else {
+            roomSubscriptionsMap.get(roomId).add(subscriptionData);
+        }
         log.info("New subscription of {} added to room #{}", username, roomId);
     }
 
     @Override
-    public void removeSubscription(String roomId, String username) {
-        Map<String, SubscriptionData> roomSubscriptions = roomSubscriptionsMap.get(roomId);
-        if (roomSubscriptions == null) {
-            log.info("Subscription already removed");
-            return;
-        }
-        roomSubscriptions.remove(username);
-        log.info("Subscription of {} removed from room #{}", username, roomId);
-        if (roomSubscriptions.isEmpty()) {
+    public void removeSubscription(SubscriptionData subscriptionData) {
+        String roomId = subscriptionData.getRoomId();
+        roomSubscriptionsMap.get(roomId).remove(subscriptionData);
+        log.info("Subscription of {} removed from room #{}", subscriptionData.getUsername(), roomId);
+        if (roomSubscriptionsMap.get(roomId).isEmpty()) {
             roomSubscriptionsMap.remove(roomId);
             log.info("Room #{} removed from subscribe storage", roomId);
         }
@@ -45,13 +48,15 @@ public class RoomSubscriptionServiceImpl implements RoomSubscriptionService {
 
     @Override
     public List<SubscriptionData> findSubscriptionsByRoomId(String roomId) {
-        Map<String, SubscriptionData> stringFluxSinkMap = roomSubscriptionsMap.get(roomId);
-        return new ArrayList<>(stringFluxSinkMap.values());
+        return roomSubscriptionsMap.get(roomId);
+
     }
 
     @Override
     public SubscriptionData findSubscription(String roomId, String username) {
-        return roomSubscriptionsMap.get(roomId).get(username);
+        return roomSubscriptionsMap.get(roomId)
+                .stream()
+                .filter(x -> x.getRoomId().equals(roomId) && x.getUsername().equals(username)).findFirst().orElseThrow();
     }
 
 }

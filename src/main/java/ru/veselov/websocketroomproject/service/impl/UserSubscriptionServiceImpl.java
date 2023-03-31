@@ -7,17 +7,23 @@ import ru.veselov.websocketroomproject.service.UserSubscriptionService;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Service
 @Slf4j
 public class UserSubscriptionServiceImpl implements UserSubscriptionService {
 
-    private final Map<String, SubscriptionData> userSubscriptions = new ConcurrentHashMap<>();
+    private final Map<String, CopyOnWriteArrayList<SubscriptionData>> userSubscriptions = new ConcurrentHashMap<>();
 
 
     @Override
     public void saveSubscription(String username, SubscriptionData data) {
-        userSubscriptions.put(username, data);
+        if (!userSubscriptions.containsKey(username)) {
+            CopyOnWriteArrayList<SubscriptionData> subsList = new CopyOnWriteArrayList<>();
+            subsList.add(data);
+        } else {
+            userSubscriptions.get(username).add(data);
+        }
     }
 
     @Override

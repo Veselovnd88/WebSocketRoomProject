@@ -57,7 +57,6 @@ class WebSocketDisconnectListenerTest {
         webSocketDisconnectListener.handleUserDisconnect(sessionDisconnectEvent);
 
         Mockito.verify(chatUserService, Mockito.times(1)).removeChatUser(TestConstants.TEST_SESSION_ID);
-        Mockito.verify(roomSubscriptionService, Mockito.times(1)).removeSubscription(ROOM_ID, TestConstants.TEST_USERNAME);
         Mockito.verify(eventMessageService, Mockito.times(1)).sendUserDisconnectedMessage(chatUserCaptor.capture());
     }
 

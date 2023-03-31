@@ -9,5 +9,7 @@ import reactor.core.publisher.FluxSink;
 @AllArgsConstructor
 public class SubscriptionData {
     private String username;
+
+    private String roomId;
     private FluxSink<ServerSentEvent> fluxSink;
 }
