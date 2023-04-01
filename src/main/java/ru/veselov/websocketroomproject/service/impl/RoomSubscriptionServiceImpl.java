@@ -2,7 +2,10 @@ package ru.veselov.websocketroomproject.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.FluxSink;
+import ru.veselov.websocketroomproject.exception.SubscriptionNotFoundException;
 import ru.veselov.websocketroomproject.model.SubscriptionData;
 import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
 
@@ -28,10 +31,13 @@ public class RoomSubscriptionServiceImpl implements RoomSubscriptionService {
             subscriptionList.add(subscriptionData);
             roomSubscriptionsMap.put(roomId, subscriptionList);
         } else {
+            Set<SubscriptionData> currentSubscriptions = roomSubscriptionsMap.get(roomId);
+            checkIfSubscriptionPresent(subscriptionData, currentSubscriptions);
             roomSubscriptionsMap.get(roomId).add(subscriptionData);
         }
         log.info("New subscription of {} added to room #{}", username, roomId);
     }
+
 
     @Override
     public void removeSubscription(SubscriptionData subscriptionData) {
@@ -51,9 +57,21 @@ public class RoomSubscriptionServiceImpl implements RoomSubscriptionService {
 
     @Override
     public SubscriptionData findSubscription(String roomId, String username) {
+        if (roomSubscriptionsMap.get(roomId) == null) {
+            throw new SubscriptionNotFoundException();
+        }
         return roomSubscriptionsMap.get(roomId)
                 .stream()
-                .filter(x -> x.getRoomId().equals(roomId) && x.getUsername().equals(username)).findFirst().orElseThrow();
+                .filter(x -> x.getRoomId().equals(roomId) && x.getUsername().equals(username)).findFirst()
+                .orElseThrow(SubscriptionNotFoundException::new);
+    }
+
+    private void checkIfSubscriptionPresent(SubscriptionData subscriptionData, Set<SubscriptionData> subs) {
+        if (subs.contains(subscriptionData)) {
+            SubscriptionData sub = findSubscription(subscriptionData.getRoomId(), subscriptionData.getUsername());
+            FluxSink<ServerSentEvent> fluxSink = sub.getFluxSink();
+            fluxSink.complete();
+        }
     }
 
 }
