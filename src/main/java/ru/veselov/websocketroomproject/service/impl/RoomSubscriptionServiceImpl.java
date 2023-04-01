@@ -5,30 +5,28 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.veselov.websocketroomproject.model.SubscriptionData;
 import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
-import ru.veselov.websocketroomproject.service.UserSubscriptionService;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@SuppressWarnings("rawtypes")
 public class RoomSubscriptionServiceImpl implements RoomSubscriptionService {
 
-    private final Map<String, CopyOnWriteArrayList<SubscriptionData>> roomSubscriptionsMap = new ConcurrentHashMap<>();
+    private final Map<String, Set<SubscriptionData>> roomSubscriptionsMap = new ConcurrentHashMap<>();
 
     @Override
     public void saveSubscription(SubscriptionData subscriptionData) {
         String username = subscriptionData.getUsername();
         String roomId = subscriptionData.getRoomId();
-        //userSubscriptionService.saveSubscription(username, subscriptionData);
         if (!roomSubscriptionsMap.containsKey(roomId)) {
-            CopyOnWriteArrayList subscriptionList = new CopyOnWriteArrayList();
+            Set<SubscriptionData> subscriptionList = new CopyOnWriteArraySet<>();
             subscriptionList.add(subscriptionData);
-            roomSubscriptionsMap.put(roomId,subscriptionList);
+            roomSubscriptionsMap.put(roomId, subscriptionList);
         } else {
             roomSubscriptionsMap.get(roomId).add(subscriptionData);
         }
@@ -48,8 +46,7 @@ public class RoomSubscriptionServiceImpl implements RoomSubscriptionService {
 
     @Override
     public List<SubscriptionData> findSubscriptionsByRoomId(String roomId) {
-        return roomSubscriptionsMap.get(roomId);
-
+        return roomSubscriptionsMap.get(roomId).stream().toList();
     }
 
     @Override
