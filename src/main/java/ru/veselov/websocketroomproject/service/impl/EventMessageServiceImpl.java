@@ -13,7 +13,6 @@ import ru.veselov.websocketroomproject.model.SubscriptionData;
 import ru.veselov.websocketroomproject.service.ChatUserService;
 import ru.veselov.websocketroomproject.service.EventMessageService;
 
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -58,7 +57,7 @@ public class EventMessageServiceImpl implements EventMessageService {
     }
 
     private void sendEventMessageToSubscriptions(String roomId, EventMessageDTO eventMessageDTO) {
-        List<SubscriptionData> subscriptionsByRoomId = subscriptionService.findSubscriptionsByRoomId(roomId);
+        Set<SubscriptionData> subscriptionsByRoomId = subscriptionService.findSubscriptionsByRoomId(roomId);
         if (subscriptionsByRoomId == null) {
             return;
         }
@@ -72,7 +71,7 @@ public class EventMessageServiceImpl implements EventMessageService {
     }
 
     private void sendEventMessageToOneSubscription(String roomId, String username, EventMessageDTO eventMessageDTO) {
-        SubscriptionData subscription = subscriptionService.findSubscription(roomId, username);
+        SubscriptionData subscription = subscriptionService.findSubscription(username, roomId);
         EventType eventType = eventMessageDTO.getEventType();
         ServerSentEvent event = ServerSentEvent.builder()
                 .data(eventMessageDTO.getMessage())

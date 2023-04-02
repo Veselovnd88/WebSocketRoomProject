@@ -1,12 +1,11 @@
-package ru.veselov.websocketroomproject.service;
+package ru.veselov.websocketroomproject.cache;
 
-import org.springframework.stereotype.Service;
 import ru.veselov.websocketroomproject.model.SubscriptionData;
 
+import java.util.Optional;
 import java.util.Set;
 
-@Service
-public interface RoomSubscriptionService {
+public interface SubscriptionCache {
 
     void saveSubscription(SubscriptionData subscription);
 
@@ -14,6 +13,7 @@ public interface RoomSubscriptionService {
 
     Set<SubscriptionData> findSubscriptionsByRoomId(String roomId);
 
-    SubscriptionData findSubscription(String username, String roomId);
+    Optional<SubscriptionData> findSubscription(String username, String roomId);
+
 
 }
