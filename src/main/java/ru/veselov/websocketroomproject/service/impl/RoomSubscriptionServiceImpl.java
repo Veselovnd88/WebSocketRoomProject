@@ -57,13 +57,18 @@ public class RoomSubscriptionServiceImpl implements RoomSubscriptionService {
 
     @Override
     public SubscriptionData findSubscription(String roomId, String username) {
-        if (roomSubscriptionsMap.get(roomId) == null) {
-            throw new SubscriptionNotFoundException();
+        Set<SubscriptionData> subscriptions = roomSubscriptionsMap.get(roomId);
+        if (subscriptions == null) {
+            log.warn("No room found with #{}", roomId);
+            throw new SubscriptionNotFoundException("No such room number in subscription storage");
         }
-        return roomSubscriptionsMap.get(roomId)
-                .stream()
+        return subscriptions.stream()
                 .filter(x -> x.getRoomId().equals(roomId) && x.getUsername().equals(username)).findFirst()
-                .orElseThrow(SubscriptionNotFoundException::new);
+                .orElseThrow(() -> {
+                            log.warn("No user's {} subscription found for room", username);
+                            return new SubscriptionNotFoundException("No such user found for room");
+                        }
+                );
     }
 
     private void checkIfSubscriptionPresent(SubscriptionData subscriptionData, Set<SubscriptionData> subs) {

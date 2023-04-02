@@ -18,7 +18,7 @@ public class SSEServiceImpl implements SSEService {
     private final RoomSubscriptionService roomSubscriptionService;
 
     @Override
-    public Flux<ServerSentEvent> createEventStream(String roomId, String username) {
+    public Flux<ServerSentEvent> createEventStream(String username, String roomId) {
         return Flux.create(fluxSink -> {
                     log.info("Subscription for user {} of room {} created", username, roomId);
                     SubscriptionData subscriptionData = new SubscriptionData(username, roomId, fluxSink);
@@ -33,8 +33,6 @@ public class SSEServiceImpl implements SSEService {
     }
 
     private Disposable removeSubscription(SubscriptionData subscriptionData) {
-        return () -> {
-            roomSubscriptionService.removeSubscription(subscriptionData);
-        };
+        return () -> roomSubscriptionService.removeSubscription(subscriptionData);
     }
 }

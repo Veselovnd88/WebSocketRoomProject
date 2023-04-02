@@ -2,6 +2,7 @@ package ru.veselov.websocketroomproject.service.impl;
 
 import lombok.SneakyThrows;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 
 @SpringBootTest
-@SuppressWarnings("rawtypes")
+@SuppressWarnings({"rawtypes", "unchecked"})
 class RoomSubscriptionServiceImplTest {
 
     private final static String ROOM_ID = "5";
@@ -30,13 +31,21 @@ class RoomSubscriptionServiceImplTest {
     @Autowired
     RoomSubscriptionService roomSubscriptionService;
 
+    private Map<String, Set<SubscriptionData>> myMap;
+
+    @BeforeEach
+    @SneakyThrows
+    void init() {
+        Field roomSubscriptionMap = roomSubscriptionService.getClass().getDeclaredField("roomSubscriptionsMap");
+        roomSubscriptionMap.setAccessible(true);
+        myMap = (ConcurrentHashMap) roomSubscriptionMap.get(roomSubscriptionService);
+        myMap.clear();
+    }
+
 
     @Test
     @SneakyThrows
     void shouldSaveSubscriptionsToOneRoom() {
-        Field roomSubscriptionMap = roomSubscriptionService.getClass().getDeclaredField("roomSubscriptionsMap");
-        roomSubscriptionMap.setAccessible(true);
-        Map<String, Set<SubscriptionData>> myMap = (ConcurrentHashMap) roomSubscriptionMap.get(roomSubscriptionService);
         int roomNum = 1;
         int userNum = 10;
         Set<SubscriptionData> subscriptions = fillSetWithSubscriptions(roomNum, userNum);
@@ -53,9 +62,6 @@ class RoomSubscriptionServiceImplTest {
     @Test
     @SneakyThrows
     void shouldSaveSubscriptionsToDifferentRooms() {
-        Field roomSubscriptionMap = roomSubscriptionService.getClass().getDeclaredField("roomSubscriptionsMap");
-        roomSubscriptionMap.setAccessible(true);
-        Map<String, Set<SubscriptionData>> myMap = (ConcurrentHashMap) roomSubscriptionMap.get(roomSubscriptionService);
         int roomNum = 10;
         int userNum = 1;
         Set<SubscriptionData> subscriptions = fillSetWithSubscriptions(roomNum, userNum);
@@ -72,9 +78,6 @@ class RoomSubscriptionServiceImplTest {
     @SneakyThrows
     void shouldReplaceSubscription() {
         FluxSink fluxSink = Mockito.mock(FluxSink.class);
-        Field roomSubscriptionMap = roomSubscriptionService.getClass().getDeclaredField("roomSubscriptionsMap");
-        roomSubscriptionMap.setAccessible(true);
-        Map<String, Set<SubscriptionData>> myMap = (ConcurrentHashMap) roomSubscriptionMap.get(roomSubscriptionService);
         SubscriptionData subscriptionData = new SubscriptionData(TestConstants.TEST_USERNAME, ROOM_ID, fluxSink);
 
         for (int i = 0; i < TEST_NUM; i++) {
@@ -90,9 +93,6 @@ class RoomSubscriptionServiceImplTest {
     @SneakyThrows
     void shouldRemoveSubscriptionAndRemoveRoomWithNoSubscriptions() {
         FluxSink fluxSink = Mockito.mock(FluxSink.class);
-        Field roomSubscriptionMap = roomSubscriptionService.getClass().getDeclaredField("roomSubscriptionsMap");
-        roomSubscriptionMap.setAccessible(true);
-        Map<String, Set<SubscriptionData>> myMap = (ConcurrentHashMap) roomSubscriptionMap.get(roomSubscriptionService);
         int roomNum = 10;
         int userNum = 5;
         Set<SubscriptionData> subscriptions = fillSetWithSubscriptions(roomNum, userNum);
@@ -100,7 +100,7 @@ class RoomSubscriptionServiceImplTest {
         for (SubscriptionData subscriptionData : subscriptions) {
             roomSubscriptionService.saveSubscription(subscriptionData);
         }
-        //checking if all was saved correct
+        //checking if subscriptions were saved correct
         Assertions.assertThat(myMap).hasSize(roomNum);
         Assertions.assertThat(myMap.get("3")).containsAnyElementsOf(subscriptions).hasSize(userNum);
         String roomNumFromDeleteSubs = "5";
@@ -126,8 +126,6 @@ class RoomSubscriptionServiceImplTest {
     @Test
     @SneakyThrows
     void shouldFoundSubscription() {
-        Field roomSubscriptionMap = roomSubscriptionService.getClass().getDeclaredField("roomSubscriptionsMap");
-        roomSubscriptionMap.setAccessible(true);
         int userNum = 5;
         int roomNum = 10;
         Set<SubscriptionData> subscriptions = fillSetWithSubscriptions(roomNum, userNum);
@@ -145,8 +143,6 @@ class RoomSubscriptionServiceImplTest {
     @Test
     @SneakyThrows
     void shouldThrowException() {
-        Field roomSubscriptionMap = roomSubscriptionService.getClass().getDeclaredField("roomSubscriptionsMap");
-        roomSubscriptionMap.setAccessible(true);
         int userNum = 5;
         int roomNum = 10;
         Set<SubscriptionData> subscriptions = fillSetWithSubscriptions(roomNum, userNum);

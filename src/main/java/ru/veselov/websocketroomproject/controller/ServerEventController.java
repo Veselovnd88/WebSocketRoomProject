@@ -28,7 +28,7 @@ public class ServerEventController {
     @GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ServerSentEvent> subscribe(@RequestParam String roomId, Authentication authentication) {
         String username = authentication.getName();
-        return sseService.createEventStream(roomId, username);
+        return sseService.createEventStream(username, roomId);
     }
 
 }
