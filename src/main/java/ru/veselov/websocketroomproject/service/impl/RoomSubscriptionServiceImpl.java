@@ -11,6 +11,9 @@ import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * Service for managing sse subscriptions
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j

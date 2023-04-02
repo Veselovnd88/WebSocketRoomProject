@@ -13,6 +13,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+/**
+ * Storage of SSE subscriptions of clients for each room
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -38,7 +41,7 @@ public class SubscriptionCacheImpl implements SubscriptionCache {
         String roomId = subscriptionData.getRoomId();
         boolean removed = roomSubscriptionsMap.get(roomId).remove(subscriptionData);
         if (!removed) {
-            return;
+            return; //if subscription already removed don't need to go further
         }
         log.info("Subscription of {} removed from room #{}", subscriptionData.getUsername(), roomId);
         if (roomSubscriptionsMap.get(roomId).isEmpty()) {
