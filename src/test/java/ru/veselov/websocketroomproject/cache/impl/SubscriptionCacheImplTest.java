@@ -20,10 +20,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 @SpringBootTest
-@SuppressWarnings({"rawtypes","unchecked"})
+@SuppressWarnings({"rawtypes", "unchecked"})
 class SubscriptionCacheImplTest {
-
-    private final static String ROOM_ID = "5";
 
     @Autowired
     SubscriptionCache subscriptionCache;
@@ -42,31 +40,27 @@ class SubscriptionCacheImplTest {
     @Test
     @SneakyThrows
     void shouldSaveSubscriptionsToOneRoom() {
-        int roomNum = 1;
-        int userNum = 10;
-        Set<SubscriptionData> subscriptions = fillSetWithSubscriptions(userNum, roomNum);
+        Set<SubscriptionData> subscriptions = fillSetWithSubscriptions(10, 1);
 
         for (SubscriptionData subscriptionData : subscriptions) {
             subscriptionCache.saveSubscription(subscriptionData);
         }
 
-        Assertions.assertThat(myMap).hasSize(roomNum);
-        Assertions.assertThat(myMap.get(String.valueOf(roomNum))).isNotNull().isInstanceOf(CopyOnWriteArraySet.class);
-        Assertions.assertThat(myMap.get(String.valueOf(roomNum))).hasSize(userNum).containsAll(subscriptions);
+        Assertions.assertThat(myMap).hasSize(1);
+        Assertions.assertThat(myMap.get("1")).isNotNull().isInstanceOf(CopyOnWriteArraySet.class);
+        Assertions.assertThat(myMap.get("1")).hasSize(10).containsAll(subscriptions);
     }
 
     @Test
     @SneakyThrows
     void shouldSaveSubscriptionsToDifferentRooms() {
-        int roomNum = 10;
-        int userNum = 1;
-        Set<SubscriptionData> subscriptions = fillSetWithSubscriptions(userNum, roomNum);
+        Set<SubscriptionData> subscriptions = fillSetWithSubscriptions(1, 10);
 
         for (SubscriptionData subscriptionData : subscriptions) {
             subscriptionCache.saveSubscription(subscriptionData);
         }
 
-        Assertions.assertThat(myMap).hasSize(roomNum);
+        Assertions.assertThat(myMap).hasSize(10);
         Assertions.assertThat(myMap.get("4")).containsAnyElementsOf(subscriptions).hasSize(1);
     }
 
@@ -74,48 +68,61 @@ class SubscriptionCacheImplTest {
     @SneakyThrows
     void shouldRemoveSubscriptionAndRemoveRoomWithNoSubscriptions() {
         FluxSink fluxSink = Mockito.mock(FluxSink.class);
-        int roomNum = 10;
-        int userNum = 5;
-        Set<SubscriptionData> subscriptions = fillSetWithSubscriptions(userNum, roomNum);
+        Set<SubscriptionData> subscriptions = fillSetWithSubscriptions(5, 10);
         //saving subscriptions
         for (SubscriptionData subscriptionData : subscriptions) {
             subscriptionCache.saveSubscription(subscriptionData);
         }
         //checking if subscriptions were saved correct
-        Assertions.assertThat(myMap).hasSize(roomNum);
-        Assertions.assertThat(myMap.get("3")).containsAnyElementsOf(subscriptions).hasSize(userNum);
-        String roomNumFromDeleteSubs = "5";
+        Assertions.assertThat(myMap).hasSize(10);
+        Assertions.assertThat(myMap.get("3")).containsAnyElementsOf(subscriptions).hasSize(5);
         //checking removing one subscription from room
         subscriptionCache.removeSubscription(
-                new SubscriptionData("5", roomNumFromDeleteSubs, fluxSink)
+                new SubscriptionData("user5", "3", fluxSink) // "3" - room number from where we delete user5
         );
 
-        Assertions.assertThat(myMap).hasSize(roomNum);
-        Assertions.assertThat(myMap.get(roomNumFromDeleteSubs)).hasSize(userNum - 1);
+        Assertions.assertThat(myMap).hasSize(10);
+        Assertions.assertThat(myMap.get("3")).hasSize(4);
 
         //checking removing all subscriptions from room
-        for (int i = 1; i < userNum; i++) {
+        for (int i = 1; i < 5; i++) {
             subscriptionCache.removeSubscription(
-                    new SubscriptionData(String.valueOf(i), roomNumFromDeleteSubs, fluxSink)
+                    new SubscriptionData("user" + i, "3", fluxSink)
             );
         }
 
-        Assertions.assertThat(myMap).hasSize(roomNum - 1);
-        Assertions.assertThat(myMap.get(ROOM_ID + 0)).isNull();
+        Assertions.assertThat(myMap).hasSize(9);
+        Assertions.assertThat(myMap.get("3")).isNull();
+    }
+
+    @Test
+    @SneakyThrows
+    void shouldNotThrowNPEIfRoomNotInCacheAndReturn() {
+        FluxSink fluxSink = Mockito.mock(FluxSink.class);
+        Set<SubscriptionData> subscriptions = fillSetWithSubscriptions(1, 1);
+
+        for (SubscriptionData subscriptionData : subscriptions) {
+            subscriptionCache.saveSubscription(subscriptionData);
+        }
+        //checking removing one subscription from not existed room
+        subscriptionCache.removeSubscription(
+                new SubscriptionData("user1", "5", fluxSink)
+        );
+
+        Assertions.assertThat(myMap).hasSize(1);
+        Assertions.assertThat(myMap.get("1")).hasSize(1);
     }
 
     @Test
     @SneakyThrows
     void shouldFoundSubscription() {
-        int userNum = 5;
-        int roomNum = 10;
-        Set<SubscriptionData> subscriptions = fillSetWithSubscriptions(userNum, roomNum);
+        Set<SubscriptionData> subscriptions = fillSetWithSubscriptions(5, 10);
         //saving subscriptions
         for (SubscriptionData subscriptionData : subscriptions) {
             subscriptionCache.saveSubscription(subscriptionData);
         }
 
-        Optional<SubscriptionData> subscription = subscriptionCache.findSubscription("1", "1");
+        Optional<SubscriptionData> subscription = subscriptionCache.findSubscription("user1", "1");
 
         Assertions.assertThat(subscription).isPresent();
         Assertions.assertThat(subscription.get().getRoomId()).isEqualTo("1");
@@ -124,15 +131,13 @@ class SubscriptionCacheImplTest {
     @Test
     @SneakyThrows
     void shouldThrowExceptionIfNoRoomFound() {
-        int userNum = 5;
-        int roomNum = 10;
-        Set<SubscriptionData> subscriptions = fillSetWithSubscriptions(userNum, roomNum);
+        Set<SubscriptionData> subscriptions = fillSetWithSubscriptions(5, 10);
         //saving subscriptions
         for (SubscriptionData subscriptionData : subscriptions) {
             subscriptionCache.saveSubscription(subscriptionData);
         }
 
-        Assertions.assertThatThrownBy(() -> subscriptionCache.findSubscription("5", "50"))
+        Assertions.assertThatThrownBy(() -> subscriptionCache.findSubscription("user5", "50"))
                 .isInstanceOf(SubscriptionNotFoundException.class);
     }
 
@@ -143,7 +148,7 @@ class SubscriptionCacheImplTest {
         for (int i = 1; i < roomNum + 1; i++) {
             for (int j = 1; j < userNum + 1; j++) {
                 subscriptionDataSet.add(
-                        new SubscriptionData(String.valueOf(j), String.valueOf(i), fluxSink)
+                        new SubscriptionData("user" + j, String.valueOf(i), fluxSink)
                 );
             }
         }

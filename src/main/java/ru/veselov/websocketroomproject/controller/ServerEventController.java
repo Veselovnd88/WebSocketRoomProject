@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
-import ru.veselov.websocketroomproject.service.SSEService;
+import ru.veselov.websocketroomproject.service.ChatEventService;
 
 @RestController
 @RequestMapping("/api/room")
@@ -19,7 +19,7 @@ import ru.veselov.websocketroomproject.service.SSEService;
 @SuppressWarnings("rawtypes")
 public class ServerEventController {
 
-    private final SSEService sseService;
+    private final ChatEventService chatEventService;
 
     /**
      * Controller handling subscription from client's eventsource and return stream of events;
@@ -28,7 +28,7 @@ public class ServerEventController {
     @GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ServerSentEvent> subscribe(@RequestParam String roomId, Authentication authentication) {
         String username = authentication.getName();
-        return sseService.createEventStream(username, roomId);
+        return chatEventService.createEventStream(username, roomId);
     }
 
 }

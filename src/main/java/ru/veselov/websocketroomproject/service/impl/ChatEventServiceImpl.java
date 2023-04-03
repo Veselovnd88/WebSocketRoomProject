@@ -7,13 +7,13 @@ import org.springframework.stereotype.Service;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import ru.veselov.websocketroomproject.model.SubscriptionData;
-import ru.veselov.websocketroomproject.service.SSEService;
+import ru.veselov.websocketroomproject.service.ChatEventService;
 import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class SSEServiceImpl implements SSEService {
+public class ChatEventServiceImpl implements ChatEventService {
 
     private final RoomSubscriptionService roomSubscriptionService;
 

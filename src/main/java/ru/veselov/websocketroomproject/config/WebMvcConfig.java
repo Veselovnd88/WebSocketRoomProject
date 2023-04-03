@@ -1,5 +1,6 @@
 package ru.veselov.websocketroomproject.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -11,13 +12,17 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  */
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
+    @Value("${chat-event.core-pool-size}")
+    private int corePoolSize;
+
+    @Value("${chat-event.max-pool-size}")
+    private int maxPoolSize;
 
     @Bean
     public ThreadPoolTaskExecutor mvcTaskExecutor() {
-        //TODO we can configure it according our requirements in the future
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-        taskExecutor.setCorePoolSize(10);
-        taskExecutor.setMaxPoolSize(10);
+        taskExecutor.setCorePoolSize(corePoolSize);
+        taskExecutor.setMaxPoolSize(maxPoolSize);
         return taskExecutor;
     }
 
