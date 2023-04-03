@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import ru.veselov.websocketroomproject.cache.SubscriptionCache;
-import ru.veselov.websocketroomproject.exception.SubscriptionNotFoundException;
 import ru.veselov.websocketroomproject.model.SubscriptionData;
 
 import java.util.Collections;
@@ -51,14 +50,14 @@ public class SubscriptionCacheImpl implements SubscriptionCache {
 
     @Override
     public Set<SubscriptionData> findSubscriptionsByRoomId(String roomId) {
-        return roomSubscriptionsMap.get(roomId);
+        return roomSubscriptionsMap.getOrDefault(roomId, new CopyOnWriteArraySet<>());
     }
 
     @Override
     public Optional<SubscriptionData> findSubscription(String username, String roomId) {
         Set<SubscriptionData> subscriptions = roomSubscriptionsMap.get(roomId);
         if (subscriptions == null) {
-            throw new SubscriptionNotFoundException("No such room for subscriptions");
+            return Optional.empty();
         }
         return findSubscriptionByUsernameAndRoomId(subscriptions, username, roomId);
     }

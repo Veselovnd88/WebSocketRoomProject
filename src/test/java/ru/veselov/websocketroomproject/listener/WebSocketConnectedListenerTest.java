@@ -52,7 +52,7 @@ class WebSocketConnectedListenerTest {
         webSocketConnectedListener.handleConnectedUserEvent(sessionConnectedEvent);
 
         Mockito.verify(chatUserService, Mockito.times(1)).findChatUserBySessionId(TestConstants.TEST_SESSION_ID);
-        Mockito.verify(eventMessageService, Mockito.times(1)).sendUserConnectedMessage(chatUserCaptor.capture());
+        Mockito.verify(eventMessageService, Mockito.times(1)).sendUserConnectedMessageToAll(chatUserCaptor.capture());
         Mockito.verify(eventMessageService, Mockito.times(1))
                 .sendUserListToAllSubscriptions(ArgumentMatchers.anyString());
         ChatUser captorValue = chatUserCaptor.getValue();

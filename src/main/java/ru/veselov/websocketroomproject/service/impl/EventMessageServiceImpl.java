@@ -30,37 +30,27 @@ public class EventMessageServiceImpl implements EventMessageService {
 
     @Override
     public void sendUserListToAllSubscriptions(String roomId) {
-        sendEventMessageToSubscriptions(roomId, createUsersRefreshedEvent(roomId));
+        sendEventMessageToAllSubscriptions(roomId, createUsersRefreshedEvent(roomId));
     }
 
     @Override
-    public void sendUserConnectedMessage(ChatUser chatUser) {
+    public void sendUserConnectedMessageToAll(ChatUser chatUser) {
         EventMessageDTO<ChatUserDTO> eventMessageDTO = new EventMessageDTO<>(
                 EventType.CONNECTED,
                 toChatUserDTO(chatUser));
-        sendEventMessageToSubscriptions(chatUser.getRoomId(), eventMessageDTO);
+        sendEventMessageToAllSubscriptions(chatUser.getRoomId(), eventMessageDTO);
     }
 
     @Override
-    public void sendUserDisconnectedMessage(ChatUser chatUser) {
+    public void sendUserDisconnectedMessageToAll(ChatUser chatUser) {
         EventMessageDTO<ChatUserDTO> eventMessageDTO = new EventMessageDTO<>(
                 EventType.DISCONNECTED,
                 toChatUserDTO(chatUser));
-        sendEventMessageToSubscriptions(chatUser.getRoomId(), eventMessageDTO);
+        sendEventMessageToAllSubscriptions(chatUser.getRoomId(), eventMessageDTO);
     }
 
-    @Override
-    public void sendUserListToSubscription(String roomId, String username) {
-        sendEventMessageToOneSubscription(roomId,
-                username,
-                createUsersRefreshedEvent(roomId));
-    }
-
-    private void sendEventMessageToSubscriptions(String roomId, EventMessageDTO eventMessageDTO) {
+    private void sendEventMessageToAllSubscriptions(String roomId, EventMessageDTO eventMessageDTO) {
         Set<SubscriptionData> subscriptionsByRoomId = subscriptionService.findSubscriptionsByRoomId(roomId);
-        if (subscriptionsByRoomId == null) {
-            return;
-        }
         EventType eventType = eventMessageDTO.getEventType();
         ServerSentEvent event = ServerSentEvent.builder()
                 .data(eventMessageDTO)
@@ -68,17 +58,6 @@ public class EventMessageServiceImpl implements EventMessageService {
                 .build();
         subscriptionsByRoomId.forEach(x -> x.getFluxSink().next(event));
         log.info("Message for event {} sent to all connected subscriptions of room #{}", eventType, roomId);
-    }
-
-    private void sendEventMessageToOneSubscription(String roomId, String username, EventMessageDTO eventMessageDTO) {
-        SubscriptionData subscription = subscriptionService.findSubscription(username, roomId);
-        EventType eventType = eventMessageDTO.getEventType();
-        ServerSentEvent event = ServerSentEvent.builder()
-                .data(eventMessageDTO.getMessage())
-                .event(eventType.name())
-                .build();
-        subscription.getFluxSink().next(event);
-        log.info("Message for event {} sent to subscription {}", eventType, username);
     }
 
     private EventMessageDTO<Set<ChatUserDTO>> createUsersRefreshedEvent(String roomId) {

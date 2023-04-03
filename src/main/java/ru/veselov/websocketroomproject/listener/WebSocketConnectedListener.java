@@ -28,8 +28,8 @@ public class WebSocketConnectedListener {
         StompHeaderAccessor stompHeaderAccessor = StompHeaderAccessor.wrap(session.getMessage());
         String sessionId = stompHeaderAccessor.getSessionId();
         ChatUser chatUser = chatUserService.findChatUserBySessionId(sessionId);
-        eventMessageService.sendUserConnectedMessage(chatUser);
         eventMessageService.sendUserListToAllSubscriptions(chatUser.getRoomId());
+        eventMessageService.sendUserConnectedMessageToAll(chatUser);
         log.info("User {} is connected", chatUser.getUsername());
     }
 

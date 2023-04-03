@@ -39,6 +39,11 @@ public class RoomSubscriptionServiceImpl implements RoomSubscriptionService {
 
     @Override
     public Set<SubscriptionData> findSubscriptionsByRoomId(String roomId) {
+        Set<SubscriptionData> subscriptions = subscriptionCache.findSubscriptionsByRoomId(roomId);
+        if (subscriptions.isEmpty()) {
+            log.warn("No subscriptions found for this room#{}", roomId);
+            throw new SubscriptionNotFoundException("No subscriptions found for this room#" + roomId);
+        }
         return subscriptionCache.findSubscriptionsByRoomId(roomId);
     }
 

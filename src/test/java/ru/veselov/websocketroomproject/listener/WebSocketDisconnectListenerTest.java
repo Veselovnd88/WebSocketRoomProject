@@ -12,8 +12,10 @@ import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
+import reactor.core.publisher.FluxSink;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.model.ChatUser;
+import ru.veselov.websocketroomproject.model.SubscriptionData;
 import ru.veselov.websocketroomproject.service.ChatUserService;
 import ru.veselov.websocketroomproject.service.EventMessageService;
 import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
@@ -21,6 +23,7 @@ import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
 import java.util.Map;
 
 @SpringBootTest
+@SuppressWarnings({"rawtypes", "unchecked"})
 class WebSocketDisconnectListenerTest {
 
     private static final String ROOM_ID = "5";
@@ -40,24 +43,28 @@ class WebSocketDisconnectListenerTest {
     ArgumentCaptor<ChatUser> chatUserCaptor;
 
     @Test
-    void shouldRemoveUserFromCacheAndSubscriptionAndSendMessage() {
+    void shouldRemoveUserFromCacheAndCompleteSubscriptionAndSendMessage() {
         Message<byte[]> message = Mockito.mock(Message.class);
+        FluxSink fluxSink = Mockito.mock(FluxSink.class);
         Map<String, Object> headers = Map.of(StompHeaderAccessor.SESSION_ID_HEADER, TestConstants.TEST_SESSION_ID);
         Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
         SessionDisconnectEvent sessionDisconnectEvent = new SessionDisconnectEvent(new Object(),
                 message,
                 TestConstants.TEST_SESSION_ID,
                 CloseStatus.NORMAL);
-        Mockito.when(chatUserService.removeChatUser(TestConstants.TEST_SESSION_ID)).thenReturn(new ChatUser(
+        Mockito.when(chatUserService.removeChatUser(TestConstants.TEST_USERNAME)).thenReturn(new ChatUser(
                 TestConstants.TEST_USERNAME,
                 ROOM_ID,
                 TestConstants.TEST_SESSION_ID)
         );
+        Mockito.when(roomSubscriptionService.findSubscription(TestConstants.TEST_USERNAME, ROOM_ID)).thenReturn(
+                new SubscriptionData(TestConstants.TEST_USERNAME, ROOM_ID, fluxSink));
 
         webSocketDisconnectListener.handleUserDisconnect(sessionDisconnectEvent);
 
         Mockito.verify(chatUserService, Mockito.times(1)).removeChatUser(TestConstants.TEST_SESSION_ID);
-        Mockito.verify(eventMessageService, Mockito.times(1)).sendUserDisconnectedMessage(chatUserCaptor.capture());
+        Mockito.verify(eventMessageService, Mockito.times(1)).sendUserDisconnectedMessageToAll(chatUserCaptor.capture());
+        Mockito.verify(fluxSink, Mockito.times(1)).complete();
     }
 
 }

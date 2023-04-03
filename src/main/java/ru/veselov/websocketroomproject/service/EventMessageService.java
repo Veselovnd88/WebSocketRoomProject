@@ -6,10 +6,8 @@ public interface EventMessageService {
 
     void sendUserListToAllSubscriptions(String roomId);
 
-    void sendUserConnectedMessage(ChatUser chatUser);
+    void sendUserConnectedMessageToAll(ChatUser chatUser);
 
-    void sendUserDisconnectedMessage(ChatUser chatUser);
-
-    void sendUserListToSubscription(String roomId, String username);
+    void sendUserDisconnectedMessageToAll(ChatUser chatUser);
 
 }

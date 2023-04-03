@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import reactor.core.publisher.FluxSink;
 import ru.veselov.websocketroomproject.cache.SubscriptionCache;
-import ru.veselov.websocketroomproject.exception.SubscriptionNotFoundException;
 import ru.veselov.websocketroomproject.model.SubscriptionData;
 
 import java.lang.reflect.Field;
@@ -130,17 +129,17 @@ class SubscriptionCacheImplTest {
 
     @Test
     @SneakyThrows
-    void shouldThrowExceptionIfNoRoomFound() {
+    void shouldReturnEmptyOptional() {
         Set<SubscriptionData> subscriptions = fillSetWithSubscriptions(5, 10);
         //saving subscriptions
         for (SubscriptionData subscriptionData : subscriptions) {
             subscriptionCache.saveSubscription(subscriptionData);
         }
 
-        Assertions.assertThatThrownBy(() -> subscriptionCache.findSubscription("user5", "50"))
-                .isInstanceOf(SubscriptionNotFoundException.class);
-    }
+        Optional<SubscriptionData> optional = subscriptionCache.findSubscription("user5", "100");
 
+        Assertions.assertThat(optional).isEmpty();
+    }
 
     private Set<SubscriptionData> fillSetWithSubscriptions(int userNum, int roomNum) {
         FluxSink fluxSink = Mockito.mock(FluxSink.class);
