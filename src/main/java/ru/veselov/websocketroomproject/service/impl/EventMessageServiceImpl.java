@@ -12,6 +12,7 @@ import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.model.SubscriptionData;
 import ru.veselov.websocketroomproject.service.ChatUserService;
 import ru.veselov.websocketroomproject.service.EventMessageService;
+import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
 @SuppressWarnings("rawtypes")
 public class EventMessageServiceImpl implements EventMessageService {
 
-    private final RoomSubscriptionServiceImpl subscriptionService;
+    private final RoomSubscriptionService subscriptionService;
 
     private final ChatUserService chatUserService;
 
@@ -30,7 +31,11 @@ public class EventMessageServiceImpl implements EventMessageService {
 
     @Override
     public void sendUserListToAllSubscriptions(String roomId) {
-        sendEventMessageToAllSubscriptions(roomId, createUsersRefreshedEvent(roomId));
+        Set<ChatUser> chatUsers = chatUserService.findChatUsersByRoomId(roomId);
+        EventMessageDTO<Set<ChatUserDTO>> eventMsg = new EventMessageDTO<>(
+                EventType.USERS_REFRESHED,
+                toChatUserDTOs(chatUsers));
+        sendEventMessageToAllSubscriptions(roomId, eventMsg);
     }
 
     @Override
@@ -58,13 +63,6 @@ public class EventMessageServiceImpl implements EventMessageService {
                 .build();
         subscriptionsByRoomId.forEach(x -> x.getFluxSink().next(event));
         log.info("Message for event {} sent to all connected subscriptions of room #{}", eventType, roomId);
-    }
-
-    private EventMessageDTO<Set<ChatUserDTO>> createUsersRefreshedEvent(String roomId) {
-        Set<ChatUser> chatUsers = chatUserService.findChatUsersByRoomId(roomId);
-        return new EventMessageDTO<>(
-                EventType.USERS_REFRESHED,
-                toChatUserDTOs(chatUsers));
     }
 
     private Set<ChatUserDTO> toChatUserDTOs(Set<ChatUser> chatUsers) {
