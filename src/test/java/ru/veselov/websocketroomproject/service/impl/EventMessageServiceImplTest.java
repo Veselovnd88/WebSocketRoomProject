@@ -10,17 +10,15 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.codec.ServerSentEvent;
-import reactor.core.publisher.FluxSink;
-import ru.veselov.websocketroomproject.controller.EventType;
+import ru.veselov.websocketroomproject.dto.ChatUserDTO;
 import ru.veselov.websocketroomproject.dto.EventMessageDTO;
+import ru.veselov.websocketroomproject.event.EventSender;
+import ru.veselov.websocketroomproject.event.EventType;
+import ru.veselov.websocketroomproject.mapper.ChatUserMapper;
 import ru.veselov.websocketroomproject.model.ChatUser;
-import ru.veselov.websocketroomproject.model.SubscriptionData;
 import ru.veselov.websocketroomproject.service.ChatUserService;
 import ru.veselov.websocketroomproject.service.EventMessageService;
-import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
 
-import java.util.HashSet;
 import java.util.Set;
 
 @SpringBootTest
@@ -32,43 +30,64 @@ class EventMessageServiceImplTest {
     @Autowired
     EventMessageService eventMessageService;
 
+    @Autowired
+    ChatUserMapper chatUserMapper;
+
     private final Faker faker = new Faker();
 
     @MockBean
-    RoomSubscriptionService roomSubscriptionService;
+    EventSender eventSender;
 
     @MockBean
     ChatUserService chatUserService;
 
     @Captor
-    ArgumentCaptor<EventMessageDTO> eventMsgCaptor;
+    ArgumentCaptor<EventMessageDTO<Set<ChatUserDTO>>> eventMessageCaptorSet;
+
+    @Captor
+    ArgumentCaptor<EventMessageDTO<ChatUserDTO>> eventMessageCaptorChatUser;
 
     @Test
-    void shouldSendMessageT() {
-        FluxSink fluxSink = Mockito.mock(FluxSink.class);
-        Mockito.when(roomSubscriptionService.findSubscriptionsByRoomId(ROOM_ID))
-                .thenReturn(fillSetWithSubscriptions(fluxSink));
-        Mockito.when(chatUserService.findChatUsersByRoomId(ROOM_ID)).thenReturn(Set.of(
-                new ChatUser(faker.name().username(), ROOM_ID, "asdf"))
-        );
+    void shouldCreateEventMessageWithUsersRefreshedEventTypeAndCallSender() {
+        ChatUser stubChatUser = new ChatUser(faker.name().username(), ROOM_ID, "asdf");
+        Mockito.when(chatUserService.findChatUsersByRoomId(ROOM_ID)).thenReturn(Set.of(stubChatUser));
 
         eventMessageService.sendUserListToAllSubscriptions(ROOM_ID);
 
-        EventMessageDTO capturedMsg = eventMsgCaptor.capture();
-        //Assertions.assertThat(capturedMsg.getEventType()).isEqualTo(EventType.USERS_REFRESHED);
-        Mockito.verify(roomSubscriptionService, Mockito.times(1)).findSubscriptionsByRoomId(ROOM_ID);
+        Mockito.verify(eventSender, Mockito.times(1))
+                .sendEventToRoomSubscriptions(ArgumentMatchers.anyString(), eventMessageCaptorSet.capture());
+        EventMessageDTO<Set<ChatUserDTO>> capturedMsg = eventMessageCaptorSet.getValue();
+        Assertions.assertThat(capturedMsg.getEventType()).isEqualTo(EventType.USERS_REFRESHED);
+        Assertions.assertThat(capturedMsg.getMessage()).contains(chatUserMapper.chatUserToDTO(stubChatUser));
         Mockito.verify(chatUserService, Mockito.times(1)).findChatUsersByRoomId(ROOM_ID);
-        Mockito.verify(fluxSink, Mockito.times(10)).next(ArgumentMatchers.any(ServerSentEvent.class));
     }
 
+    @Test
+    void shouldCreateEventMessageWithConnectedEventTypeAndCallSender() {
+        ChatUser stubChatUser = new ChatUser(faker.name().username(), ROOM_ID, "asdf");
+        Mockito.when(chatUserService.findChatUsersByRoomId(ROOM_ID)).thenReturn(Set.of(stubChatUser));
 
-    private Set<SubscriptionData> fillSetWithSubscriptions(FluxSink fluxSink) {
-        return new HashSet<>(
-                faker.collection(() -> generateSubscription(fluxSink)).maxLen(10).generate());
+        eventMessageService.sendUserConnectedMessageToAll(stubChatUser);
+
+        Mockito.verify(eventSender, Mockito.times(1))
+                .sendEventToRoomSubscriptions(ArgumentMatchers.anyString(), eventMessageCaptorChatUser.capture());
+        EventMessageDTO<ChatUserDTO> capturedMsg = eventMessageCaptorChatUser.getValue();
+        Assertions.assertThat(capturedMsg.getEventType()).isEqualTo(EventType.CONNECTED);
+        Assertions.assertThat(capturedMsg.getMessage()).isEqualTo(chatUserMapper.chatUserToDTO(stubChatUser));
     }
 
-    private SubscriptionData generateSubscription(FluxSink fluxSink) {
-        return new SubscriptionData(faker.name().username(), ROOM_ID, fluxSink);
+    @Test
+    void shouldCreateEventMessageWithDisconnectedEventTypeAndCallSender() {
+        ChatUser stubChatUser = new ChatUser(faker.name().username(), ROOM_ID, "asdf");
+        Mockito.when(chatUserService.findChatUsersByRoomId(ROOM_ID)).thenReturn(Set.of(stubChatUser));
+
+        eventMessageService.sendUserDisconnectedMessageToAll(stubChatUser);
+
+        Mockito.verify(eventSender, Mockito.times(1))
+                .sendEventToRoomSubscriptions(ArgumentMatchers.anyString(), eventMessageCaptorChatUser.capture());
+        EventMessageDTO<ChatUserDTO> capturedMsg = eventMessageCaptorChatUser.getValue();
+        Assertions.assertThat(capturedMsg.getEventType()).isEqualTo(EventType.DISCONNECTED);
+        Assertions.assertThat(capturedMsg.getMessage()).isEqualTo(chatUserMapper.chatUserToDTO(stubChatUser));
     }
 
 }

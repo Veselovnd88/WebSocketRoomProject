@@ -6,7 +6,7 @@ import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
-import ru.veselov.websocketroomproject.model.SubscriptionData;
+import ru.veselov.websocketroomproject.event.SubscriptionData;
 import ru.veselov.websocketroomproject.service.ChatEventService;
 import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
 

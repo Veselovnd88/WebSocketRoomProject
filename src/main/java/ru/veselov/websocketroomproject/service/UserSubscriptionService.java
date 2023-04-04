@@ -1,6 +1,6 @@
 package ru.veselov.websocketroomproject.service;
 
-import ru.veselov.websocketroomproject.model.SubscriptionData;
+import ru.veselov.websocketroomproject.event.SubscriptionData;
 
 public interface UserSubscriptionService {
     void saveSubscription(String username, SubscriptionData data);

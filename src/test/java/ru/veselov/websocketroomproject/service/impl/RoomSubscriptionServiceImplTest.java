@@ -12,7 +12,7 @@ import reactor.core.publisher.FluxSink;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.cache.SubscriptionCache;
 import ru.veselov.websocketroomproject.exception.SubscriptionNotFoundException;
-import ru.veselov.websocketroomproject.model.SubscriptionData;
+import ru.veselov.websocketroomproject.event.SubscriptionData;
 import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
 
 import java.util.Optional;

@@ -1,4 +1,4 @@
-package ru.veselov.websocketroomproject.model;
+package ru.veselov.websocketroomproject.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

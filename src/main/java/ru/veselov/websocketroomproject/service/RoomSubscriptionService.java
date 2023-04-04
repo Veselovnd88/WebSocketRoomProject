@@ -1,7 +1,7 @@
 package ru.veselov.websocketroomproject.service;
 
 import org.springframework.stereotype.Service;
-import ru.veselov.websocketroomproject.model.SubscriptionData;
+import ru.veselov.websocketroomproject.event.SubscriptionData;
 
 import java.util.Set;
 

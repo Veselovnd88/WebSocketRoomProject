@@ -1,6 +1,6 @@
 package ru.veselov.websocketroomproject.cache;
 
-import ru.veselov.websocketroomproject.model.SubscriptionData;
+import ru.veselov.websocketroomproject.event.SubscriptionData;
 
 import java.util.Optional;
 import java.util.Set;

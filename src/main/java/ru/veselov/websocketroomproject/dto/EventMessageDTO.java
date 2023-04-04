@@ -2,7 +2,7 @@ package ru.veselov.websocketroomproject.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import ru.veselov.websocketroomproject.controller.EventType;
+import ru.veselov.websocketroomproject.event.EventType;
 
 @Data
 @AllArgsConstructor

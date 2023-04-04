@@ -1,4 +1,4 @@
-package ru.veselov.websocketroomproject.controller;
+package ru.veselov.websocketroomproject.event;
 
 public enum EventType {
     CONNECTED,
