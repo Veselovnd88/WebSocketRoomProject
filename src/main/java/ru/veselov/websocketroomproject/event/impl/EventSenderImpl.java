@@ -22,6 +22,9 @@ public class EventSenderImpl implements EventSender {
     @Override
     public void sendEventToRoomSubscriptions(String roomId, EventMessageDTO eventMessageDTO) {
         Set<SubscriptionData> subscriptionsByRoomId = roomSubscriptionService.findSubscriptionsByRoomId(roomId);
+        if (subscriptionsByRoomId.isEmpty()) {
+            return;
+        }
         EventType eventType = eventMessageDTO.getEventType();
         ServerSentEvent event = ServerSentEvent.builder()
                 .data(eventMessageDTO.getMessage())

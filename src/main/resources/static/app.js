@@ -47,12 +47,12 @@ function connect() {
     });
 
     eventSource.addEventListener('CONNECTED', (e) => {
-        showServerMessage("Connected " + JSON.parse(e.data).message.username);
+        showServerMessage("Connected " + JSON.parse(e.data).username);
         console.log(e.data);
     });
 
     eventSource.addEventListener('DISCONNECTED', (e) => {
-        showServerMessage("Disconnected " + JSON.parse(e.data).message.username);
+        showServerMessage("Disconnected " + JSON.parse(e.data).username);
         console.log(e.data);
     });
 
