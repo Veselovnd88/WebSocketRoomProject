@@ -4,6 +4,7 @@ import net.datafaker.Faker;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import ru.veselov.websocketroomproject.event.EventType;
 import ru.veselov.websocketroomproject.event.SubscriptionData;
 import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -54,6 +56,16 @@ class EventSenderImplTest {
         Assertions.assertThat(captured.data()).isEqualTo("payload");
     }
 
+    @Test
+    void shouldNotSendMessageIfNoSubscriptions() {
+        FluxSink fluxSink = Mockito.mock(FluxSink.class);
+        Mockito.when(roomSubscriptionService.findSubscriptionsByRoomId(ROOM_ID)).thenReturn(Collections.emptySet());
+        EventMessageDTO eventMessageDTO = new EventMessageDTO(EventType.CONNECTED, "payload");
+
+        eventSender.sendEventToRoomSubscriptions(ROOM_ID, eventMessageDTO);
+
+        Mockito.verify(fluxSink, Mockito.never()).next(ArgumentMatchers.any(ServerSentEvent.class));
+    }
 
     private Set<SubscriptionData> fillSetWithSubscriptions(FluxSink fluxSink) {
         return new HashSet<>(
