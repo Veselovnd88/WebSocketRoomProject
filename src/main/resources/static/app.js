@@ -25,7 +25,7 @@ function connect() {
 
         });*/
         stompClient.subscribe('/topic/messages/' + roomId, function (greeting) {
-            showGreeting(JSON.parse(greeting.body).message.username);
+            showGreeting(JSON.parse(greeting.body).sentFrom);
             console.log(greeting)
         });
     });
@@ -69,7 +69,7 @@ function disconnect() {
 }
 
 function sendName() {
-    stompClient.send("/app/chat/5", {}, JSON.stringify({'name': $("#name").val()}));
+    stompClient.send("/app/chat/"+roomId, {}, JSON.stringify({'sentFrom': $("#name").val()}));
 }
 
 
