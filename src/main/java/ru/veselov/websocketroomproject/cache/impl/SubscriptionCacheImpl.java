@@ -49,17 +49,17 @@ public class SubscriptionCacheImpl implements SubscriptionCache {
     }
 
     @Override
-    public Set<SubscriptionData> findSubscriptionsByRoomId(String roomId) {
-        return roomSubscriptionsMap.getOrDefault(roomId, new CopyOnWriteArraySet<>());
-    }
-
-    @Override
     public Optional<SubscriptionData> findSubscription(String username, String roomId) {
         Set<SubscriptionData> subscriptions = roomSubscriptionsMap.get(roomId);
         if (subscriptions == null) {
             return Optional.empty();
         }
         return findSubscriptionByUsernameAndRoomId(subscriptions, username, roomId);
+    }
+
+    @Override
+    public Set<SubscriptionData> findSubscriptionsByRoomId(String roomId) {
+        return roomSubscriptionsMap.getOrDefault(roomId, new CopyOnWriteArraySet<>());
     }
 
     private Optional<SubscriptionData> findSubscriptionByUsernameAndRoomId(

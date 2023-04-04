@@ -12,8 +12,8 @@ public interface RoomSubscriptionService {
 
     void removeSubscription(SubscriptionData subscriptionData);
 
-    Set<SubscriptionData> findSubscriptionsByRoomId(String roomId);
-
     SubscriptionData findSubscription(String username, String roomId);
+
+    Set<SubscriptionData> findSubscriptionsByRoomId(String roomId);
 
 }

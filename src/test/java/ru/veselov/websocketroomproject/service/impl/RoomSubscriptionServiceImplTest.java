@@ -87,7 +87,7 @@ class RoomSubscriptionServiceImplTest {
 
     @Test
     @SneakyThrows
-    void shouldReturnEmptySet() {
+    void shouldThrowException() {
         Optional optional = Optional.empty();
         Mockito.when(subscriptionCache.findSubscription(ArgumentMatchers.anyString(), ArgumentMatchers.anyString()))
                 .thenReturn(optional);

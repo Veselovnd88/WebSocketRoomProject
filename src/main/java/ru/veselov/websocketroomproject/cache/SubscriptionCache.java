@@ -11,9 +11,9 @@ public interface SubscriptionCache {
 
     void removeSubscription(SubscriptionData subscriptionData);
 
-    Set<SubscriptionData> findSubscriptionsByRoomId(String roomId);
-
     Optional<SubscriptionData> findSubscription(String username, String roomId);
+
+    Set<SubscriptionData> findSubscriptionsByRoomId(String roomId);
 
 
 }
