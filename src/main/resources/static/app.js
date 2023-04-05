@@ -28,10 +28,11 @@ function connect() {
 
         });*/
         stompClient.subscribe('/topic/messages/' + roomId, function (greeting) {
-            showGreeting(JSON.parse(greeting.body).sent +": "+
-                JSON.parse(greeting.body).sentFrom+": "+JSON.parse(greeting.body).content);
+            showGreeting(JSON.parse(greeting.body).sent + ": " +
+                JSON.parse(greeting.body).sentFrom + ": " + JSON.parse(greeting.body).content);
             console.log(greeting);
-            console.log(tz);
+            createImage(greeting);
+
         });
     });
     eventSource = new EventSource('/api/room?roomId=' + roomId);
@@ -74,12 +75,18 @@ function disconnect() {
 }
 
 function sendName() {
-    stompClient.send("/app/chat/"+roomId, {}, JSON.stringify({'content': $("#name").val(), 'zoneId':tz}));
+    stompClient.send("/app/chat/" + roomId, {}, JSON.stringify({'content': $("#name").val(), 'zoneId': tz}));
 }
 
 
 function showGreeting(message) {
     $("#greetings").append("<tr><td>" + message + "</td></tr>");
+}
+
+function createImage(message) {
+    let img = new Image();
+    img.src = JSON.parse(message.body).content;
+    document.getElementById("loadImage").src = img.src;
 }
 
 function showServerMessage(message) {
@@ -92,9 +99,10 @@ function sendMyImage() {
     reader.readAsDataURL(file);
 
 
-    reader.onloadend = function() {
+    reader.onloadend = function () {
         let message = reader.result;
-        stompClient.send("/app/chat/"+roomId, {content: 'img'},  message);
+        stompClient.send("/app/chat/" + roomId, {content: 'img'},
+            JSON.stringify({'content': message}));
     }
 
 }
@@ -118,5 +126,7 @@ $(function () {
     $("#send").click(function () {
         sendName();
     });
-    $( "#sendImage" ).click(function() { sendMyImage(); });
+    $("#sendImage").click(function () {
+        sendMyImage();
+    });
 });

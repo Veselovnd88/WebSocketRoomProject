@@ -2,19 +2,14 @@ package ru.veselov.websocketroomproject.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.converter.ByteArrayMessageConverter;
-import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
-import ru.veselov.websocketroomproject.config.interceptor.Base64DecoderInterceptor;
-import ru.veselov.websocketroomproject.config.interceptor.Base64EncoderInterceptor;
+import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
 import ru.veselov.websocketroomproject.config.interceptor.SocketConnectionInterceptor;
 import ru.veselov.websocketroomproject.config.interceptor.SocketSubscriptionInterceptor;
-
-import java.util.List;
 
 @Configuration
 @EnableWebSocketMessageBroker
@@ -27,6 +22,15 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
 
     @Value("${socket.app-prefix}")
     private String appPrefix;
+
+    @Value("${socket.message-size-limit}")
+    private Integer messageSizeLimit;
+
+    @Value("${socket.send-time-limit}")
+    private Integer sendTimeLimit;
+
+    @Value("${socket.buffer-size-limit}")
+    private Integer bufferSizeLimit;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -45,18 +49,15 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
     public void configureClientInboundChannel(ChannelRegistration registration) {
         registration.interceptors(
                 new SocketSubscriptionInterceptor(destinationPrefix),
-                new SocketConnectionInterceptor(),
-                new Base64DecoderInterceptor());
+                new SocketConnectionInterceptor()
+        );
     }
 
     @Override
-    public void configureClientOutboundChannel(ChannelRegistration registration) {
-        registration.interceptors(new Base64EncoderInterceptor());
+    public void configureWebSocketTransport(WebSocketTransportRegistration registry) {
+        registry.setMessageSizeLimit(messageSizeLimit);
+        registry.setSendBufferSizeLimit(bufferSizeLimit);
+        registry.setSendTimeLimit(sendTimeLimit);
     }
 
-    @Override
-    public boolean configureMessageConverters(List<MessageConverter> messageConverters) {
-        messageConverters.add(new ByteArrayMessageConverter());
-        return false;
-    }
 }

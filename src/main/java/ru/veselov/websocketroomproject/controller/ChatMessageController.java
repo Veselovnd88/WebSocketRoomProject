@@ -29,7 +29,9 @@ public class ChatMessageController {
         log.info("Message received {}", chatMessage);
         chatMessage.setSent(ZonedDateTime.now());
         String username = authentication.getName();
-        chatMessage.setSentFrom(username);
+        if (chatMessage.getSentFrom() == null) {
+            chatMessage.setSentFrom(username);
+        }
         simpMessagingTemplate.convertAndSend(
                 toDestination(roomId),
                 chatMessage

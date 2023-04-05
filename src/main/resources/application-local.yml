@@ -5,9 +5,11 @@ socket:
   dest-prefix: "/topic"
   app-prefix: "/app"
   endpoint: "/api/room/chat"
-  users-topic: "/topic/users"
   chat-topic: "/topic/messages"
   header-room-id: "roomId"
+  message-size-limit: 65536
+  send-time-limit: 100000
+  buffer-size-limit: 524288
 
 chat-event:
   core-pool-size: 10
