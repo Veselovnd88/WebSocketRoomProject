@@ -4,6 +4,8 @@ let roomId = "5";
 let eventSource = null;
 const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
+const reader = new FileReader();
+
 function setConnected(connected) {
     $("#connect").prop("disabled", connected);
     $("#disconnect").prop("disabled", !connected);
@@ -84,6 +86,19 @@ function showServerMessage(message) {
     $("#serverMessage").append("<tr><td>" + message + "</td></tr>");
 }
 
+function sendMyImage() {
+    let fileInput = document.getElementById('file');
+    let file = fileInput.files[0];
+    reader.readAsDataURL(file);
+
+
+    reader.onloadend = function() {
+        let message = reader.result;
+        stompClient.send("/app/chat/"+roomId, {content: 'img'},  message);
+    }
+
+}
+
 function showUsers(message) {
 
     $("#users").empty();
@@ -103,4 +118,5 @@ $(function () {
     $("#send").click(function () {
         sendName();
     });
+    $( "#sendImage" ).click(function() { sendMyImage(); });
 });
