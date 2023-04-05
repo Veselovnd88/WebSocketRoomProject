@@ -2,6 +2,7 @@ var stompClient = null;
 //let roomId = Math.floor((Math.random() * 1000) + 1);
 let roomId = "5";
 let eventSource = null;
+const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 function setConnected(connected) {
     $("#connect").prop("disabled", connected);
@@ -25,8 +26,10 @@ function connect() {
 
         });*/
         stompClient.subscribe('/topic/messages/' + roomId, function (greeting) {
-            showGreeting(JSON.parse(greeting.body).sentFrom);
-            console.log(greeting)
+            showGreeting(JSON.parse(greeting.body).sent +": "+
+                JSON.parse(greeting.body).sentFrom+": "+JSON.parse(greeting.body).content);
+            console.log(greeting);
+            console.log(tz);
         });
     });
     eventSource = new EventSource('/api/room?roomId=' + roomId);
@@ -69,7 +72,7 @@ function disconnect() {
 }
 
 function sendName() {
-    stompClient.send("/app/chat/"+roomId, {}, JSON.stringify({'sentFrom': $("#name").val()}));
+    stompClient.send("/app/chat/"+roomId, {}, JSON.stringify({'content': $("#name").val(), 'zoneId':tz}));
 }
 
 

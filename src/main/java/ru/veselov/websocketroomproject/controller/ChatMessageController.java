@@ -7,14 +7,16 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 import ru.veselov.websocketroomproject.dto.ChatMessage;
+
+import java.time.ZonedDateTime;
 
 @Controller
 @Slf4j
 @RequiredArgsConstructor
-public class ChatController {
+public class ChatMessageController {
 
     @Value("${socket.chat-topic}")
     private String chatDestination;
@@ -23,10 +25,11 @@ public class ChatController {
 
     @MessageMapping("/chat/{id}")
     public void processMessage(@DestinationVariable("id") String roomId,
-                               @Payload ChatMessage chatMessage) {
+                               @Payload ChatMessage chatMessage, Authentication authentication) {
         log.info("Message received {}", chatMessage);
-        System.out.println(roomId);
-
+        chatMessage.setSent(ZonedDateTime.now());
+        String username = authentication.getName();
+        chatMessage.setSentFrom(username);
         simpMessagingTemplate.convertAndSend(
                 toDestination(roomId),
                 chatMessage
