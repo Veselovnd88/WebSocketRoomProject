@@ -9,7 +9,8 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
-import ru.veselov.websocketroomproject.dto.ChatMessage;
+import ru.veselov.websocketroomproject.dto.ReceivedChatMessage;
+import ru.veselov.websocketroomproject.dto.SendChatMessage;
 
 import java.time.ZonedDateTime;
 
@@ -25,16 +26,20 @@ public class ChatMessageController {
 
     @MessageMapping("/chat/{id}")
     public void processMessage(@DestinationVariable("id") String roomId,
-                               @Payload ChatMessage chatMessage, Authentication authentication) {
-        log.info("Message received {}", chatMessage);
-        chatMessage.setSent(ZonedDateTime.now());
+                               @Payload ReceivedChatMessage receivedChatMessage, Authentication authentication) {
+        log.info("Message received {}", receivedChatMessage);
+        SendChatMessage sendChatMessage = new SendChatMessage();
+        sendChatMessage.setSent(ZonedDateTime.now());
         String username = authentication.getName();
-        if (chatMessage.getSentFrom() == null) {
-            chatMessage.setSentFrom(username);
+        if (receivedChatMessage.getSentFrom() == null) {
+            sendChatMessage.setSentFrom(username);
+        }
+        else{
+            sendChatMessage.setSentFrom(username);
         }
         simpMessagingTemplate.convertAndSend(
                 toDestination(roomId),
-                chatMessage
+                sendChatMessage
         );
     }
 
