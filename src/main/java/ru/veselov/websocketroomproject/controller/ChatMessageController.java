@@ -34,9 +34,6 @@ public class ChatMessageController {
         if (receivedChatMessage.getSentFrom() == null) {
             sendChatMessage.setSentFrom(username);
         }
-        else{
-            sendChatMessage.setSentFrom(username);
-        }
         simpMessagingTemplate.convertAndSend(
                 toDestination(roomId),
                 sendChatMessage
