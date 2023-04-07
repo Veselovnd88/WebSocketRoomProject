@@ -1,7 +1,14 @@
 package ru.veselov.websocketroomproject.config;
 
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import org.springframework.messaging.converter.ByteArrayMessageConverter;
+import org.springframework.messaging.converter.MappingJackson2MessageConverter;
+import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
@@ -11,9 +18,15 @@ import org.springframework.web.socket.config.annotation.WebSocketTransportRegist
 import ru.veselov.websocketroomproject.config.interceptor.SocketConnectionInterceptor;
 import ru.veselov.websocketroomproject.config.interceptor.SocketSubscriptionInterceptor;
 
+import java.util.List;
+
 @Configuration
 @EnableWebSocketMessageBroker
+@RequiredArgsConstructor
 public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer {
+
+    private final MappingJackson2MessageConverter jackson2MessageConverter;
+
     @Value("${socket.endpoint}")
     private String endpoint;
 
@@ -60,4 +73,10 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
         registry.setSendTimeLimit(sendTimeLimit);
     }
 
+    @Override
+    public boolean configureMessageConverters(List<MessageConverter> messageConverters) {
+        messageConverters.add(jackson2MessageConverter);
+        messageConverters.add(new ByteArrayMessageConverter());
+        return false;
+    }
 }

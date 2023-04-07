@@ -29,7 +29,7 @@ public class ChatMessageController {
                                @Payload ReceivedChatMessage receivedChatMessage, Authentication authentication) {
         log.info("Message received {}", receivedChatMessage);
         SendChatMessage sendChatMessage = new SendChatMessage();
-        sendChatMessage.setSentTime(ZonedDateTime.now().toString());
+        sendChatMessage.setSentTime(ZonedDateTime.now());
         String username = authentication.getName();
         if (receivedChatMessage.getSentFrom() == null) {
             sendChatMessage.setSentFrom(username);

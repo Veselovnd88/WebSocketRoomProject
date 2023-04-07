@@ -58,6 +58,9 @@ class ChatMessageControllerTest {
     SimpMessagingTemplate simpMessagingTemplate;
 
     @Autowired
+    MappingJackson2MessageConverter jackson2MessageConverter;
+
+    @Autowired
     ChatMessageController chatMessageController;
 
     @MockBean
@@ -82,7 +85,7 @@ class ChatMessageControllerTest {
         stompHeaders.add("roomId", ROOM_ID);
         WebSocketStompClient stompClient = new WebSocketStompClient(new SockJsClient(
                 Collections.singletonList(new WebSocketTransport(new StandardWebSocketClient()))));
-        stompClient.setMessageConverter(new MappingJackson2MessageConverter());
+        stompClient.setMessageConverter(jackson2MessageConverter);
 
         StompSession session = stompClient.connectAsync(URL, headers, stompHeaders,
                 new StompSessionHandlerAdapter() {

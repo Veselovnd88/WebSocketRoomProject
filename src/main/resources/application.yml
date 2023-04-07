@@ -27,4 +27,4 @@ spring:
 logging:
   level:
     ru.veselov: INFO
-    org.springframework.web.socket : TRACE
+    org.springframework.web.socket : INFO

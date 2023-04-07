@@ -2,10 +2,12 @@ package ru.veselov.websocketroomproject.dto;
 
 import lombok.Data;
 
+import java.time.ZonedDateTime;
+
 @Data
 public class SendChatMessage {
     private String sentFrom;
     private String content;
-    private String sentTime;
+    private ZonedDateTime sentTime;
 
 }
