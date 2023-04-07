@@ -26,4 +26,5 @@ spring:
 
 logging:
   level:
-    com.robo.harvex: INFO
+    ru.veselov: INFO
+    org.springframework.web.socket : TRACE

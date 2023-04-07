@@ -29,11 +29,13 @@ public class ChatMessageController {
                                @Payload ReceivedChatMessage receivedChatMessage, Authentication authentication) {
         log.info("Message received {}", receivedChatMessage);
         SendChatMessage sendChatMessage = new SendChatMessage();
-        sendChatMessage.setSent(ZonedDateTime.now());
+        sendChatMessage.setSentTime(ZonedDateTime.now().toString());
         String username = authentication.getName();
         if (receivedChatMessage.getSentFrom() == null) {
             sendChatMessage.setSentFrom(username);
         }
+        sendChatMessage.setSentFrom(receivedChatMessage.getSentFrom());
+        log.info("Отправляет сообщение на {}", toDestination(roomId));
         simpMessagingTemplate.convertAndSend(
                 toDestination(roomId),
                 sendChatMessage
