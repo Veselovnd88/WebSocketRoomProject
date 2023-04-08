@@ -4,40 +4,35 @@ import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
-import org.springframework.messaging.converter.StringMessageConverter;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
-import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
-import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 import org.springframework.web.socket.sockjs.client.SockJsClient;
-import org.springframework.web.socket.sockjs.client.Transport;
 import org.springframework.web.socket.sockjs.client.WebSocketTransport;
-import reactor.core.publisher.FluxSink;
+import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.controller.client.TestStompFrameHandler;
+import ru.veselov.websocketroomproject.controller.client.TestStompSessionHandlerAdapter;
 import ru.veselov.websocketroomproject.dto.ReceivedChatMessage;
 import ru.veselov.websocketroomproject.dto.SendChatMessage;
-import ru.veselov.websocketroomproject.event.SubscriptionData;
 import ru.veselov.websocketroomproject.listener.WebSocketDisconnectListener;
-import ru.veselov.websocketroomproject.service.EventMessageService;
 import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
 
-import java.lang.reflect.Type;
-import java.util.*;
-import java.util.concurrent.*;
+import java.time.ZonedDateTime;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @Slf4j
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -70,37 +65,42 @@ class ChatMessageControllerTest {
 
     @BeforeEach
     void setUp() {
-        SubscriptionData subscriptionData = Mockito.mock(SubscriptionData.class);
         URL = "ws://localhost:" + port + endpoint;
     }
 
-
     @Test
-    void shouldSendMessageAndSetAuthenticationUsername() throws ExecutionException, InterruptedException, TimeoutException {
+    void shouldReturnCorrectSendMessage() throws ExecutionException, InterruptedException, TimeoutException {
         CompletableFuture<SendChatMessage> resultKeeper = new CompletableFuture<>();
+        ReceivedChatMessage receivedChatMessage = new ReceivedChatMessage(TestConstants.TEST_USERNAME, "message");
+        String destination = chatDestination + "/" + ROOM_ID;
         WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
         String auth = "user1" + ":" + "secret";
         headers.add("Authorization", "Basic " + new String(Base64.getEncoder().encode(auth.getBytes())));
         StompHeaders stompHeaders = new StompHeaders();
-        stompHeaders.add("roomId", ROOM_ID);
-        WebSocketStompClient stompClient = new WebSocketStompClient(new SockJsClient(
-                Collections.singletonList(new WebSocketTransport(new StandardWebSocketClient()))));
+        stompHeaders.add(TestConstants.ROOM_ID_HEADER, ROOM_ID);
+        //Creating and configuring basic WebSocketClient
+        WebSocketStompClient stompClient = new WebSocketStompClient(
+                new SockJsClient(
+                        Collections.singletonList(
+                                new WebSocketTransport(
+                                        new StandardWebSocketClient())
+                        )
+                )
+        );
         stompClient.setMessageConverter(jackson2MessageConverter);
 
         StompSession session = stompClient.connectAsync(URL, headers, stompHeaders,
-                new StompSessionHandlerAdapter() {
-                }).get(100, TimeUnit.SECONDS);
-        String destination = "/topic/messages" + "/" + ROOM_ID;
+                        new TestStompSessionHandlerAdapter())
+                .get();
         session.subscribe(destination, new TestStompFrameHandler(resultKeeper::complete));
-        ReceivedChatMessage receivedChatMessage = new ReceivedChatMessage("Vasya", "message");
         session.send("/app/chat/" + ROOM_ID, receivedChatMessage);
-        Thread.sleep(1000);
+
+        Thread.sleep(1000); //giving time to server for response
         SendChatMessage sendChatMessage = resultKeeper.get(1, TimeUnit.SECONDS);
         Assertions.assertThat(sendChatMessage).isNotNull();
-
-
+        Assertions.assertThat(sendChatMessage.getSentFrom()).isEqualTo(TestConstants.TEST_USERNAME);
+        Assertions.assertThat(sendChatMessage.getContent()).isEqualTo("message");
+        Assertions.assertThat(sendChatMessage.getSentTime()).isNotNull().isInstanceOf(ZonedDateTime.class);
     }
 
-
 }
-

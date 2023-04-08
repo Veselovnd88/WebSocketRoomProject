@@ -17,11 +17,8 @@ public class TestStompFrameHandler implements StompFrameHandler {
         this.frameHandler = frameHandler;
     }
 
-
     @Override
     public Type getPayloadType(StompHeaders headers) {
-
-        log.info("get Payload + {}", headers);
         return SendChatMessage.class;
     }
 
@@ -30,4 +27,5 @@ public class TestStompFrameHandler implements StompFrameHandler {
         log.info("received message: {} with headers: {}", payload, headers);
         frameHandler.accept((SendChatMessage) payload);
     }
+
 }

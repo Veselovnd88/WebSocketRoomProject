@@ -25,25 +25,37 @@ public class ChatMessageController {
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     @MessageMapping("/chat/{id}")
-    public void processMessage(@DestinationVariable("id") String roomId,
-                               @Payload ReceivedChatMessage receivedChatMessage, Authentication authentication) {
-        log.info("Message received {}", receivedChatMessage);
-        SendChatMessage sendChatMessage = new SendChatMessage();
-        sendChatMessage.setSentTime(ZonedDateTime.now());
+    public void processTextMessage(@DestinationVariable("id") String roomId,
+                                   @Payload ReceivedChatMessage receivedChatMessage, Authentication authentication) {
+        log.trace("Message received {}", receivedChatMessage);
         String username = authentication.getName();
-        if (receivedChatMessage.getSentFrom() == null) {
-            sendChatMessage.setSentFrom(username);
-        }
-        sendChatMessage.setSentFrom(receivedChatMessage.getSentFrom());
-        log.info("Отправляет сообщение на {}", toDestination(roomId));
         simpMessagingTemplate.convertAndSend(
                 toDestination(roomId),
-                sendChatMessage
+                createSendChatMessage(receivedChatMessage, username)
         );
+        log.trace("Message sent to {}", toDestination(roomId));
     }
+
+    @MessageMapping("/chat/binary/{id}")
+    public void processBinaryMessage(@DestinationVariable("id") String roomId, byte[] message) {
+
+    }
+
 
     private String toDestination(String roomId) {
         return chatDestination + "/" + roomId;
+    }
+
+    private SendChatMessage createSendChatMessage(ReceivedChatMessage receivedChatMessage, String username) {
+        SendChatMessage sendChatMessage = new SendChatMessage();
+        sendChatMessage.setSentTime(ZonedDateTime.now());
+        sendChatMessage.setContent(receivedChatMessage.getContent());
+        if (receivedChatMessage.getSentFrom() == null) {
+            sendChatMessage.setSentFrom(username);
+        } else {
+            sendChatMessage.setSentFrom(receivedChatMessage.getSentFrom());
+        }
+        return sendChatMessage;
     }
 
 }
