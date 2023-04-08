@@ -43,11 +43,9 @@ public class ChatMessageController {
     public void processBinaryMessage(@DestinationVariable("id") String roomId, byte[] message) {
 
         log.info("Received binary content");
-       // simpMessagingTemplate.setMessageConverter(new ByteArrayMessageConverter());
         simpMessagingTemplate.convertAndSend(
                 toDestination(roomId),
-                message,
-                Collections.singletonMap("content-type", "octet-stream")
+                message
         );
         SendChatMessage sendChatMessage = new SendChatMessage();
         sendChatMessage.setContent("Sent file");

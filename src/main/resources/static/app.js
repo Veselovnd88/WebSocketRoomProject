@@ -90,9 +90,7 @@ function showGreeting(message) {
 function createImage(message) {
     console.log()
     let img = new Image();
-    let blob = new Blob(message, {type: "image/png"});
-    let url = URL.createObjectURL(blob);
-    img.src = url;
+    img.src = JSON.parse(message.body);
     document.getElementById("loadImage").src = img.src;
 }
 
