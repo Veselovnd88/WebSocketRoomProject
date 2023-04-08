@@ -3,16 +3,19 @@ package ru.veselov.websocketroomproject.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.messaging.converter.ByteArrayMessageConverter;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import ru.veselov.websocketroomproject.dto.ReceivedChatMessage;
 import ru.veselov.websocketroomproject.dto.SendChatMessage;
 
 import java.time.ZonedDateTime;
+import java.util.Collections;
 
 @Controller
 @Slf4j
@@ -36,9 +39,27 @@ public class ChatMessageController {
         log.trace("Message sent to {}", toDestination(roomId));
     }
 
-    @MessageMapping("/chat/binary/{id}")
+    @MessageMapping("/chat/{id}/binary")
     public void processBinaryMessage(@DestinationVariable("id") String roomId, byte[] message) {
 
+        log.info("Received binary content");
+       // simpMessagingTemplate.setMessageConverter(new ByteArrayMessageConverter());
+        simpMessagingTemplate.convertAndSend(
+                toDestination(roomId),
+                message,
+                Collections.singletonMap("content-type", "octet-stream")
+        );
+        SendChatMessage sendChatMessage = new SendChatMessage();
+        sendChatMessage.setContent("Sent file");
+        sendChatMessage.setSentFrom("sender");
+        sendChatMessage.setSentTime(ZonedDateTime.now());
+
+        /*simpMessagingTemplate.convertAndSend(
+                toDestination(roomId),
+                sendChatMessage
+        );*/
+
+        log.info("Sent binary content");
     }
 
 

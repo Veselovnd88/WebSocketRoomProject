@@ -28,12 +28,13 @@ function connect() {
 
         });*/
         stompClient.subscribe('/topic/messages/' + roomId, function (greeting) {
+
             showGreeting(JSON.parse(greeting.body).sent + ": " +
                 JSON.parse(greeting.body).sentFrom + ": " + JSON.parse(greeting.body).content);
             console.log(greeting);
             createImage(greeting);
-
         });
+
     });
     eventSource = new EventSource('/api/room?roomId=' + roomId);
     eventSource.onopen = function () {
@@ -75,7 +76,10 @@ function disconnect() {
 }
 
 function sendName() {
-    stompClient.send("/app/chat/" + roomId, {}, JSON.stringify({'content': $("#name").val(), 'zoneId': tz}));
+    stompClient.send("/app/chat/" + roomId, {"content-type": "application/json"}, JSON.stringify({
+        'content': $("#name").val(),
+        'zoneId': tz
+    }));
 }
 
 
@@ -84,8 +88,11 @@ function showGreeting(message) {
 }
 
 function createImage(message) {
+    console.log()
     let img = new Image();
-    img.src = JSON.parse(message.body).content;
+    let blob = new Blob(message, {type: "image/png"});
+    let url = URL.createObjectURL(blob);
+    img.src = url;
     document.getElementById("loadImage").src = img.src;
 }
 
@@ -96,13 +103,13 @@ function showServerMessage(message) {
 function sendMyImage() {
     let fileInput = document.getElementById('file');
     let file = fileInput.files[0];
-    reader.readAsDataURL(file);
+    reader.readAsArrayBuffer(file);
+    //reader.readAsDataURL(file);
 
 
     reader.onloadend = function () {
         let message = reader.result;
-        stompClient.send("/app/chat/" + roomId, {content: 'img'},
-            JSON.stringify({'content': message}));
+        stompClient.send("/app/chat/" + roomId, {'content-type': 'application/octet-stream'}, message);
     }
 
 }

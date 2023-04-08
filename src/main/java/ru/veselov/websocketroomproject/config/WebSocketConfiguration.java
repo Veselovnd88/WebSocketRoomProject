@@ -1,11 +1,8 @@
 package ru.veselov.websocketroomproject.config;
 
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.messaging.converter.ByteArrayMessageConverter;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.converter.MessageConverter;
@@ -16,6 +13,7 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
 import ru.veselov.websocketroomproject.config.interceptor.SocketConnectionInterceptor;
+import ru.veselov.websocketroomproject.config.interceptor.SocketMessageInterceptor;
 import ru.veselov.websocketroomproject.config.interceptor.SocketSubscriptionInterceptor;
 
 import java.util.List;
@@ -26,6 +24,12 @@ import java.util.List;
 public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer {
 
     private final MappingJackson2MessageConverter jackson2MessageConverter;
+
+    private final SocketConnectionInterceptor socketConnectionInterceptor;
+
+    private final SocketSubscriptionInterceptor socketSubscriptionInterceptor;
+
+    private final SocketMessageInterceptor socketMessageInterceptor;
 
     @Value("${socket.endpoint}")
     private String endpoint;
@@ -61,8 +65,9 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
         registration.interceptors(
-                new SocketSubscriptionInterceptor(destinationPrefix),
-                new SocketConnectionInterceptor()
+                socketSubscriptionInterceptor,
+                socketConnectionInterceptor,
+                socketMessageInterceptor
         );
     }
 
