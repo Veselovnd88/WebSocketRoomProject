@@ -13,7 +13,6 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
 import ru.veselov.websocketroomproject.config.interceptor.SocketConnectionInterceptor;
-import ru.veselov.websocketroomproject.config.interceptor.SocketMessageInterceptor;
 import ru.veselov.websocketroomproject.config.interceptor.SocketSubscriptionInterceptor;
 
 import java.util.List;
@@ -28,8 +27,6 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
     private final SocketConnectionInterceptor socketConnectionInterceptor;
 
     private final SocketSubscriptionInterceptor socketSubscriptionInterceptor;
-
-    private final SocketMessageInterceptor socketMessageInterceptor;
 
     @Value("${socket.endpoint}")
     private String endpoint;
@@ -66,8 +63,7 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
     public void configureClientInboundChannel(ChannelRegistration registration) {
         registration.interceptors(
                 socketSubscriptionInterceptor,
-                socketConnectionInterceptor,
-                socketMessageInterceptor
+                socketConnectionInterceptor
         );
     }
 

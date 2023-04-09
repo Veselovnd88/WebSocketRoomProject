@@ -90,7 +90,11 @@ function showGreeting(message) {
 function createImage(message) {
     console.log()
     let img = new Image();
-    img.src = JSON.parse(message.body);
+    //let blob = new Blob(message, {type: "image/png"});
+    //let url = URL.createObjectURL(blob);
+    console.log("I am here tryin to convert image")
+    img.src = JSON.parse((message.body).content);
+    console.log(img.src);
     document.getElementById("loadImage").src = img.src;
 }
 
@@ -101,13 +105,18 @@ function showServerMessage(message) {
 function sendMyImage() {
     let fileInput = document.getElementById('file');
     let file = fileInput.files[0];
-    reader.readAsArrayBuffer(file);
-    //reader.readAsDataURL(file);
+
+    reader.readAsDataURL(file);
 
 
     reader.onloadend = function () {
         let message = reader.result;
-        stompClient.send("/app/chat/" + roomId, {'content-type': 'application/octet-stream'}, message);
+        console.log("Send Image as dataUrl")
+        console.log(message);
+        stompClient.send("/app/chat/" + roomId, {},
+            JSON.stringify({
+                'content': message
+            }));
     }
 
 }

@@ -9,7 +9,7 @@ import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
 
-@Component
+//@Component
 @Slf4j
 public class SocketMessageInterceptor implements ChannelInterceptor {
     @Override
