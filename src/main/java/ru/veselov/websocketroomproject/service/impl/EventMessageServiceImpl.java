@@ -52,7 +52,7 @@ public class EventMessageServiceImpl implements EventMessageService {
     }
 
     private Set<ChatUserDTO> toChatUserDTOs(Set<ChatUser> chatUsers) {
-        return chatUsers.stream().map(chatUserMapper::chatUserToDTO).collect(Collectors.toSet());
+        return chatUserMapper.chatUsersToDTO(chatUsers);
     }
 
     private ChatUserDTO toChatUserDTO(ChatUser chatUser) {

@@ -35,7 +35,8 @@ class UserDisconnectEventHandlerImplTest {
         FluxSink fluxSink = Mockito.mock(FluxSink.class);
         ChatUser chatUser = new ChatUser(TestConstants.TEST_USERNAME, ROOM_ID, TestConstants.TEST_SESSION_ID);
         Mockito.when(roomSubscriptionService.findSubscription(TestConstants.TEST_USERNAME, ROOM_ID)).thenReturn(
-                new SubscriptionData(TestConstants.TEST_USERNAME, ROOM_ID, fluxSink));
+                new SubscriptionData(TestConstants.TEST_USERNAME, ROOM_ID, fluxSink)
+        );
 
         userDisconnectEventHandler.handleDisconnectEvent(chatUser);
 
