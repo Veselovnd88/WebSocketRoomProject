@@ -23,6 +23,7 @@ public class EventSenderImpl implements EventSender {
     public void sendEventToRoomSubscriptions(String roomId, EventMessageDTO eventMessageDTO) {
         Set<SubscriptionData> subscriptionsByRoomId = roomSubscriptionService.findSubscriptionsByRoomId(roomId);
         if (subscriptionsByRoomId.isEmpty()) {
+            log.info("No room or no subscription in such room");
             return;
         }
         EventType eventType = eventMessageDTO.getEventType();
