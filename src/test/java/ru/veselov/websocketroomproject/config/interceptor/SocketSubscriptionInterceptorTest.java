@@ -3,7 +3,7 @@ package ru.veselov.websocketroomproject.config.interceptor;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -18,13 +18,17 @@ import java.util.Map;
 @SpringBootTest
 class SocketSubscriptionInterceptorTest {
 
-    private static final String DESTINATION = "/topic/users/5";
+    @Value("${socket.dest-prefixes}")
+    private String[] prefixes;
 
-    @Autowired
-    SocketSubscriptionInterceptor interceptor;
+    @Value("${socket.user-prefix}")
+    private String userPrefix;
+
+    private static final String DESTINATION = "/topic/users/5";
 
     @Test
     void shouldReturnMessage() {
+        SocketSubscriptionInterceptor interceptor = new SocketSubscriptionInterceptor(prefixes, userPrefix);
         MessageChannel channel = Mockito.mock(MessageChannel.class);
         Message<?> message = Mockito.mock(Message.class);
         Map<String, Object> headers = Map.of(
@@ -39,6 +43,7 @@ class SocketSubscriptionInterceptorTest {
 
     @Test
     void shouldReturnMessageIfAnotherCommand() {
+        SocketSubscriptionInterceptor interceptor = new SocketSubscriptionInterceptor(prefixes, userPrefix);
         MessageChannel channel = Mockito.mock(MessageChannel.class);
         Message<?> message = Mockito.mock(Message.class);
         Map<String, Object> headers = Map.of(
@@ -53,6 +58,7 @@ class SocketSubscriptionInterceptorTest {
 
     @Test
     void shouldThrowMessagingExceptionIfDestinationIsNull() {
+        SocketSubscriptionInterceptor interceptor = new SocketSubscriptionInterceptor(prefixes, userPrefix);
         MessageChannel channel = Mockito.mock(MessageChannel.class);
         Message<?> message = Mockito.mock(Message.class);
         Map<String, Object> headers = Map.of(
@@ -66,6 +72,7 @@ class SocketSubscriptionInterceptorTest {
 
     @Test
     void shouldThrowMessagingExceptionIfDestinationIsNotCorrect() {
+        SocketSubscriptionInterceptor interceptor = new SocketSubscriptionInterceptor(prefixes, userPrefix);
         MessageChannel channel = Mockito.mock(MessageChannel.class);
         Message<?> message = Mockito.mock(Message.class);
         Map<String, Object> headers = Map.of(

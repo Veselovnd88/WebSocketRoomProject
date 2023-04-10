@@ -24,18 +24,17 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
 
     private final MappingJackson2MessageConverter jackson2MessageConverter;
 
-    private final SocketConnectionInterceptor socketConnectionInterceptor;
-
-    private final SocketSubscriptionInterceptor socketSubscriptionInterceptor;
-
     @Value("${socket.endpoint}")
     private String endpoint;
 
-    @Value("${socket.dest-prefix}")
-    private String destinationPrefix;
+    @Value("${socket.dest-prefixes}")
+    private String[] destinationPrefixes;
 
     @Value("${socket.app-prefix}")
     private String appPrefix;
+
+    @Value("${socket.user-prefix}")
+    private String userPrefix;
 
     @Value("${socket.message-size-limit}")
     private Integer messageSizeLimit;
@@ -55,16 +54,16 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker(destinationPrefix, "/queue");
+        registry.enableSimpleBroker(destinationPrefixes);
         registry.setApplicationDestinationPrefixes(appPrefix);
-        registry.setUserDestinationPrefix("/user");
+        registry.setUserDestinationPrefix(userPrefix);
     }
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
         registration.interceptors(
-                socketSubscriptionInterceptor,
-                socketConnectionInterceptor
+                new SocketSubscriptionInterceptor(destinationPrefixes, userPrefix),
+                new SocketConnectionInterceptor()
         );
     }
 

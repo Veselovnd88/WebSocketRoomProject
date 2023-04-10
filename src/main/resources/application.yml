@@ -2,11 +2,12 @@ server:
   port: 9990
 
 socket:
-  dest-prefix: "/topic"
-  app-prefix: "/app"
-  endpoint: "/api/room/chat"
-  chat-topic: "/topic/messages"
-  header-room-id: "roomId"
+  dest-prefixes: /topic, /queue
+  user-prefix: /user
+  app-prefix: /app
+  endpoint: /api/room/chat
+  chat-topic: /topic/messages
+  header-room-id: roomId
   message-size-limit: 65536
   send-time-limit: 100000
   buffer-size-limit: 524288
@@ -27,4 +28,4 @@ spring:
 logging:
   level:
     ru.veselov: INFO
-    org.springframework.web.socket : INFO
+    org.springframework.web.socket: INFO
