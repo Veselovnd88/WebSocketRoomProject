@@ -37,16 +37,21 @@ public class ChatMessageController {
                                    @Payload ReceivedChatMessage receivedChatMessage, Authentication authentication,
                                    Principal principal) {
         log.info("Message received {}", receivedChatMessage);
-        String username = authentication.getName();
-        String name = principal.getName();
-        log.warn(name);
+        String username = principal.getName();
         simpMessagingTemplate.convertAndSend(
                 toDestination(roomId),
                 createSendChatMessage(receivedChatMessage, username)
         );
         log.info("Message sent to {}", toDestination(roomId));
+    }
 
-        simpMessagingTemplate.convertAndSendToUser(name, "/queue/reply",
+    @MessageMapping("/chat-private/{sendTo}")
+    public void processTextMessageToUser(@DestinationVariable("sendTo") String sendTo,
+                                         @Payload ReceivedChatMessage receivedChatMessage,
+                                         Principal principal) {
+        log.info("Received message to {}", sendTo);
+        String username = principal.getName();
+        simpMessagingTemplate.convertAndSendToUser(sendTo, "/queue/reply",
                 createSendChatMessage(receivedChatMessage, username));
     }
 
