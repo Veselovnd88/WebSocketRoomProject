@@ -23,17 +23,22 @@ function connect() {
     stompClient.connect({roomId: roomId}, function (frame) {
         setConnected(true);
         console.log('Connected: ' + frame);
-        /*stompClient.subscribe('/topic/messages/9', function (greeting) {
+        stompClient.subscribe('/topic/messages/9', function (greeting) {
             showGreeting(JSON.parse(greeting.body).username);
 
-        });*/
+        });
         stompClient.subscribe('/topic/messages/' + roomId, function (greeting) {
 
             showGreeting(JSON.parse(greeting.body).sent + ": " +
                 JSON.parse(greeting.body).sentFrom + ": " + JSON.parse(greeting.body).content);
             console.log(greeting);
-            createImage(greeting);
+           // createImage(greeting);
         });
+        stompClient.subscribe('/user/queue/reply', function (greeting) {
+            showGreeting(JSON.parse(greeting.body).sent + ": " +
+                JSON.parse(greeting.body).sentFrom + ": " + JSON.parse(greeting.body).content);
+            console.log(greeting);
+        })
 
     });
     eventSource = new EventSource('/api/room?roomId=' + roomId);

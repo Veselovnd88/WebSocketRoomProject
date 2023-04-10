@@ -38,7 +38,7 @@ public class SocketSubscriptionInterceptor implements ChannelInterceptor {
             log.warn("Destination is null");
             return false;
         }
-        if (!destination.startsWith(destinationPrefix)) {
+        if (!destination.startsWith(destinationPrefix) && !destination.startsWith("/user")) { //FIXME
             log.warn("Destination has not correct prefix: {}", destination);
             return false;
         }

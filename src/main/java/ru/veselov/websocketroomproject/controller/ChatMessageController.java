@@ -16,6 +16,7 @@ import org.springframework.stereotype.Controller;
 import ru.veselov.websocketroomproject.dto.ReceivedChatMessage;
 import ru.veselov.websocketroomproject.dto.SendChatMessage;
 
+import java.security.Principal;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Base64;
@@ -33,15 +34,22 @@ public class ChatMessageController {
 
     @MessageMapping("/chat/{id}")
     public void processTextMessage(@DestinationVariable("id") String roomId,
-                                   @Payload ReceivedChatMessage receivedChatMessage, Authentication authentication) {
-        log.trace("Message received {}", receivedChatMessage);
+                                   @Payload ReceivedChatMessage receivedChatMessage, Authentication authentication,
+                                   Principal principal) {
+        log.info("Message received {}", receivedChatMessage);
         String username = authentication.getName();
+        String name = principal.getName();
+        log.warn(name);
         simpMessagingTemplate.convertAndSend(
                 toDestination(roomId),
                 createSendChatMessage(receivedChatMessage, username)
         );
-        log.trace("Message sent to {}", toDestination(roomId));
+        log.info("Message sent to {}", toDestination(roomId));
+
+        simpMessagingTemplate.convertAndSendToUser(name, "/queue/reply",
+                createSendChatMessage(receivedChatMessage, username));
     }
+
 
     private String toDestination(String roomId) {
         return chatDestination + "/" + roomId;
