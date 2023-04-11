@@ -32,9 +32,9 @@ function connect() {
             showGreeting(JSON.parse(greeting.body).sent + ": " +
                 JSON.parse(greeting.body).sentFrom + ": " + JSON.parse(greeting.body).content);
             console.log(greeting);
-           // createImage(greeting);
+            // createImage(greeting);
         });
-        stompClient.subscribe('/user/queue/reply', function (greeting) {
+        stompClient.subscribe('/user/queue/private', function (greeting) {
             showGreeting(JSON.parse(greeting.body).sent + ": " +
                 JSON.parse(greeting.body).sentFrom + ": " + JSON.parse(greeting.body).content);
             console.log(greeting);
@@ -83,7 +83,13 @@ function disconnect() {
 function sendName() {
     stompClient.send("/app/chat/" + roomId, {"content-type": "application/json"}, JSON.stringify({
         'content': $("#name").val(),
-        'zoneId': tz
+    }));
+}
+
+function sendToUser() {
+    stompClient.send("/app/chat-private", {"content-type": "application/json"}, JSON.stringify({
+        'content': $("#name").val(),
+        'sendTo': "user1"
     }));
 }
 
@@ -143,7 +149,8 @@ $(function () {
         disconnect();
     });
     $("#send").click(function () {
-        sendName();
+        //sendName();
+        sendToUser();
     });
     $("#sendImage").click(function () {
         sendMyImage();

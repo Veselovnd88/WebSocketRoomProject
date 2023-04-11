@@ -7,6 +7,7 @@ socket:
   app-prefix: /app
   endpoint: /api/room/chat
   chat-topic: /topic/messages
+  private-message-topic: /queue/private
   header-room-id: roomId
   message-size-limit: 65536
   send-time-limit: 100000

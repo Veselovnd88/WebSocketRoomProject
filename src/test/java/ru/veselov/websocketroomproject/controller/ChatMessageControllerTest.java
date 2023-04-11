@@ -38,12 +38,15 @@ import java.util.concurrent.TimeoutException;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ChatMessageControllerTest {
 
-    private static String ROOM_ID = "5";
+    private static final String ROOM_ID = "5";
     @LocalServerPort
     private String port;
 
     @Value("${socket.chat-topic}")
-    private String chatDestination;
+    private String chatTopic;
+
+    @Value("{socket.private-message-topic}")
+    private String privateMessageTopic;
 
     @Value("${socket.endpoint}")
     private String endpoint;
@@ -72,8 +75,8 @@ class ChatMessageControllerTest {
     void shouldReturnCorrectSendMessage() throws ExecutionException, InterruptedException, TimeoutException {
         CompletableFuture<SendChatMessage> resultKeeper = new CompletableFuture<>();
         ReceivedChatMessage receivedChatMessage =
-                new ReceivedChatMessage(TestConstants.TEST_USERNAME, "message", null, ROOM_ID);
-        String destination = chatDestination + "/" + ROOM_ID;
+                new ReceivedChatMessage(TestConstants.TEST_USERNAME, "message", null);
+        String destination = chatTopic + "/" + ROOM_ID;
         WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
         String auth = "user1" + ":" + "secret";
         headers.add("Authorization", "Basic " + new String(Base64.getEncoder().encode(auth.getBytes())));
@@ -100,6 +103,41 @@ class ChatMessageControllerTest {
         SendChatMessage sendChatMessage = resultKeeper.get(1, TimeUnit.SECONDS);
         Assertions.assertThat(sendChatMessage).isNotNull();
         Assertions.assertThat(sendChatMessage.getSentFrom()).isEqualTo(TestConstants.TEST_USERNAME);
+        Assertions.assertThat(sendChatMessage.getContent()).isEqualTo("message");
+        Assertions.assertThat(sendChatMessage.getSentTime()).isNotNull().isInstanceOf(ZonedDateTime.class);
+    }
+
+    @Test
+    void shouldReturnCorrectSendMessageToUser() throws ExecutionException, InterruptedException, TimeoutException {
+        CompletableFuture<SendChatMessage> resultKeeper = new CompletableFuture<>();
+        ReceivedChatMessage receivedChatMessage =
+                new ReceivedChatMessage("user1", "message", "user1");
+        WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
+        String auth = "user1" + ":" + "secret";
+        headers.add("Authorization", "Basic " + new String(Base64.getEncoder().encode(auth.getBytes())));
+        StompHeaders stompHeaders = new StompHeaders();
+        stompHeaders.add(TestConstants.ROOM_ID_HEADER, ROOM_ID);
+        //Creating and configuring basic WebSocketClient
+        WebSocketStompClient stompClient = new WebSocketStompClient(
+                new SockJsClient(
+                        Collections.singletonList(
+                                new WebSocketTransport(
+                                        new StandardWebSocketClient())
+                        )
+                )
+        );
+        stompClient.setMessageConverter(jackson2MessageConverter);
+
+        StompSession session = stompClient.connectAsync(URL, headers, stompHeaders,
+                        new TestStompSessionHandlerAdapter())
+                .get();
+        session.subscribe("/user/queue/private", new TestStompFrameHandler(resultKeeper::complete));
+        session.send("/app/chat-private", receivedChatMessage);
+
+        Thread.sleep(1000); //giving time to server for response
+        SendChatMessage sendChatMessage = resultKeeper.get(2, TimeUnit.SECONDS);
+        Assertions.assertThat(sendChatMessage).isNotNull();
+        Assertions.assertThat(sendChatMessage.getSentFrom()).isEqualTo("user1");
         Assertions.assertThat(sendChatMessage.getContent()).isEqualTo("message");
         Assertions.assertThat(sendChatMessage.getSentTime()).isNotNull().isInstanceOf(ZonedDateTime.class);
     }
