@@ -71,7 +71,8 @@ class ChatMessageControllerTest {
     @Test
     void shouldReturnCorrectSendMessage() throws ExecutionException, InterruptedException, TimeoutException {
         CompletableFuture<SendChatMessage> resultKeeper = new CompletableFuture<>();
-        ReceivedChatMessage receivedChatMessage = new ReceivedChatMessage(TestConstants.TEST_USERNAME, "message");
+        ReceivedChatMessage receivedChatMessage =
+                new ReceivedChatMessage(TestConstants.TEST_USERNAME, "message", null, ROOM_ID);
         String destination = chatDestination + "/" + ROOM_ID;
         WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
         String auth = "user1" + ":" + "secret";

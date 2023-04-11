@@ -5,16 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.converter.ByteArrayMessageConverter;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.*;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import ru.veselov.websocketroomproject.dto.ReceivedChatMessage;
 import ru.veselov.websocketroomproject.dto.SendChatMessage;
+import ru.veselov.websocketroomproject.mapper.ChatMessageMapper;
 
 import java.security.Principal;
 import java.time.ZonedDateTime;
@@ -32,9 +30,11 @@ public class ChatMessageController {
 
     private final SimpMessagingTemplate simpMessagingTemplate;
 
+    private final ChatMessageMapper chatMessageMapper;
+
     @MessageMapping("/chat/{id}")
     public void processTextMessage(@DestinationVariable("id") String roomId,
-                                   @Payload ReceivedChatMessage receivedChatMessage, Authentication authentication,
+                                   @Payload ReceivedChatMessage receivedChatMessage,
                                    Principal principal) {
         log.info("Message received {}", receivedChatMessage);
         String username = principal.getName();
@@ -42,13 +42,12 @@ public class ChatMessageController {
                 toDestination(roomId),
                 createSendChatMessage(receivedChatMessage, username)
         );
-        log.info("Message sent to {}", toDestination(roomId));
     }
 
-    @MessageMapping("/chat-private/{sendTo}")
-    public void processTextMessageToUser(@DestinationVariable("sendTo") String sendTo,
-                                         @Payload ReceivedChatMessage receivedChatMessage,
+    @MessageMapping("/chat-private")
+    public void processTextMessageToUser(@Payload ReceivedChatMessage receivedChatMessage,
                                          Principal principal) {
+        String sendTo = receivedChatMessage.getSendTo();
         log.info("Received message to {}", sendTo);
         String username = principal.getName();
         simpMessagingTemplate.convertAndSendToUser(sendTo, "/queue/reply",
@@ -61,6 +60,12 @@ public class ChatMessageController {
     }
 
     private SendChatMessage createSendChatMessage(ReceivedChatMessage receivedChatMessage, String username) {
+        SendChatMessage sendChatMessage1 = chatMessageMapper.toSendChatMessage(receivedChatMessage);
+        if (sendChatMessage1.getSentFrom() == null) {
+            sendChatMessage1.setSentFrom(username);
+        }
+        log.warn("{}", sendChatMessage1);
+
         SendChatMessage sendChatMessage = new SendChatMessage();
         sendChatMessage.setSentTime(ZonedDateTime.now());
         sendChatMessage.setContent(receivedChatMessage.getContent());
@@ -70,6 +75,7 @@ public class ChatMessageController {
             sendChatMessage.setSentFrom(receivedChatMessage.getSentFrom());
         }
         return sendChatMessage;
+
     }
 
 }

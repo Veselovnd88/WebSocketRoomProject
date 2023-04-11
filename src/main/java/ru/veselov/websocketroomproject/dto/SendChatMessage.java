@@ -10,4 +10,7 @@ public class SendChatMessage {
     private String content;
     private ZonedDateTime sentTime;
 
+    private String sendTo;
+    private String roomId;
+
 }
