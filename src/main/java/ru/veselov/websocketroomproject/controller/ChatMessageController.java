@@ -3,22 +3,23 @@ package ru.veselov.websocketroomproject.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.handler.annotation.*;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 import ru.veselov.websocketroomproject.dto.ReceivedChatMessage;
 import ru.veselov.websocketroomproject.dto.SendChatMessage;
 import ru.veselov.websocketroomproject.mapper.ChatMessageMapper;
 
 import java.security.Principal;
+import java.time.ZonedDateTime;
 
 @Controller
 @Slf4j
 @RequiredArgsConstructor
 public class ChatMessageController {
+    @Value("${socket.server-name}")
+    private String serverName;
 
     @Value("${socket.chat-topic}")
     private String chatDestination;
@@ -54,6 +55,19 @@ public class ChatMessageController {
         );
     }
 
+    @MessageExceptionHandler
+    public void handleException(Exception exception, Principal principal) {
+        log.warn("Caught exception: {}", exception.getMessage());
+        String username = principal.getName();
+        SendChatMessage sendChatMessage = new SendChatMessage();
+        sendChatMessage.setSentFrom(serverName);
+        sendChatMessage.setContent("Error occurred, please reconnect: " + exception.getMessage());
+        sendChatMessage.setSentTime(ZonedDateTime.now());
+        simpMessagingTemplate.convertAndSendToUser(username,
+                privateMessageDestination,
+                sendChatMessage
+        );
+    }
 
     private String toDestination(String roomId) {
         return chatDestination + "/" + roomId;

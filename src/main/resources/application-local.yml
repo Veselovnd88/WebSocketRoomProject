@@ -12,6 +12,7 @@ socket:
   message-size-limit: 65536
   send-time-limit: 100000
   buffer-size-limit: 524288
+  server-name: ServerChat
 
 chat-event:
   core-pool-size: 10

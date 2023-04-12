@@ -1,7 +1,6 @@
 package ru.veselov.websocketroomproject.controller;
 
 import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,11 +37,15 @@ import java.util.concurrent.TimeoutException;
 class ChatMessageControllerTest {
 
     private static final String ROOM_ID = "5";
+
     @LocalServerPort
     private String port;
 
     @Value("${socket.chat-topic}")
     private String chatTopic;
+
+    @Value("${socket.server-name}")
+    private String serverName;
 
     @Value("${socket.endpoint}")
     private String endpoint;
@@ -130,15 +133,38 @@ class ChatMessageControllerTest {
         stompHeaders.add(TestConstants.ROOM_ID_HEADER, ROOM_ID);
         //Creating and configuring basic WebSocketClient
         WebSocketStompClient stompClient = createClient();
-        stompClient.setMessageConverter(jackson2MessageConverter);
-
         StompSession session = stompClient.connectAsync(URL, headers, stompHeaders, new TestStompSessionHandlerAdapter()
         ).get();
+
         session.subscribe("/user/queue/private", new TestStompFrameHandler(resultKeeper::complete));
         session.send("/app/chat-private", receivedChatMessage);
 
         //Will be thrown TimeoutException if no message received by User
         Assertions.assertThatThrownBy(() -> resultKeeper.get(1, TimeUnit.SECONDS)).isInstanceOf(TimeoutException.class);
+    }
+
+    @Test
+    @SneakyThrows
+    void shouldHandleExceptionAndSendItToUser() {
+        ReceivedChatMessage receivedChatMessage = new ReceivedChatMessage("user1", "message", null);
+        WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
+        String auth = "user1" + ":" + "secret";
+        headers.add("Authorization", "Basic " + new String(Base64.getEncoder().encode(auth.getBytes())));
+        StompHeaders stompHeaders = new StompHeaders();
+        stompHeaders.add(TestConstants.ROOM_ID_HEADER, ROOM_ID);
+        //Creating and configuring basic WebSocketClient
+        WebSocketStompClient stompClient = createClient();
+        StompSession session = stompClient.connectAsync(URL, headers, stompHeaders, new TestStompSessionHandlerAdapter()
+        ).get();
+
+        session.subscribe("/user/queue/private", new TestStompFrameHandler(resultKeeper::complete));
+        session.send("/app/chat-private", receivedChatMessage);
+
+        SendChatMessage sendChatMessage = resultKeeper.get(1, TimeUnit.SECONDS);
+        Assertions.assertThat(sendChatMessage).isNotNull();
+        Assertions.assertThat(sendChatMessage.getSentFrom()).isEqualTo(serverName);
+        Assertions.assertThat(sendChatMessage.getContent()).startsWith("Error");
+        Assertions.assertThat(sendChatMessage.getSentTime()).isNotNull().isInstanceOf(ZonedDateTime.class);
     }
 
     private WebSocketStompClient createClient() {
