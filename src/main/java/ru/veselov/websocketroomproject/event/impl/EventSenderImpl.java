@@ -22,17 +22,15 @@ public class EventSenderImpl implements EventSender {
     @Override
     public void sendEventToRoomSubscriptions(String roomId, EventMessageDTO eventMessageDTO) {
         Set<SubscriptionData> subscriptionsByRoomId = roomSubscriptionService.findSubscriptionsByRoomId(roomId);
-        if (subscriptionsByRoomId.isEmpty()) {
-            log.info("No room or no subscription in such room");
-            return;
+        if (!subscriptionsByRoomId.isEmpty()) { //if room is empty we don't need to send anything
+            EventType eventType = eventMessageDTO.getEventType();
+            ServerSentEvent event = ServerSentEvent.builder()
+                    .data(eventMessageDTO.getMessage())
+                    .event(eventType.name())
+                    .build();
+            subscriptionsByRoomId.forEach(x -> x.getFluxSink().next(event));
+            log.info("Message for event {} sent to all connected subscriptions of room #{}", eventType, roomId);
         }
-        EventType eventType = eventMessageDTO.getEventType();
-        ServerSentEvent event = ServerSentEvent.builder()
-                .data(eventMessageDTO.getMessage())
-                .event(eventType.name())
-                .build();
-        subscriptionsByRoomId.forEach(x -> x.getFluxSink().next(event));
-        log.info("Message for event {} sent to all connected subscriptions of room #{}", eventType, roomId);
     }
 
 }

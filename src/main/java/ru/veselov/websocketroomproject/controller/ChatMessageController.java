@@ -46,9 +46,10 @@ public class ChatMessageController {
     public void processTextMessageToUser(@Payload ReceivedChatMessage receivedChatMessage,
                                          Principal principal) {
         String sendTo = receivedChatMessage.getSendTo();
-        log.info("Received message to {}", sendTo);
+        log.info("Received private message to {}", sendTo);
         String username = principal.getName();
-        simpMessagingTemplate.convertAndSendToUser(sendTo, privateMessageDestination,
+        simpMessagingTemplate.convertAndSendToUser(sendTo,
+                privateMessageDestination,
                 createSendChatMessage(receivedChatMessage, username)
         );
     }
@@ -60,9 +61,7 @@ public class ChatMessageController {
 
     private SendChatMessage createSendChatMessage(ReceivedChatMessage receivedChatMessage, String username) {
         SendChatMessage sendChatMessage = chatMessageMapper.toSendChatMessage(receivedChatMessage);
-        if (sendChatMessage.getSentFrom() == null) {
-            sendChatMessage.setSentFrom(username);
-        }
+        sendChatMessage.setSentFrom(username);
         return sendChatMessage;
     }
 
