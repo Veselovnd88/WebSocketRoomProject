@@ -32,7 +32,8 @@ public class SocketSubscriptionInterceptor implements ChannelInterceptor {
         StompCommand stompCommand = accessor.getCommand();
         if (isSubscribeCommand(stompCommand)) {
             if (!validateHeaders(accessor)) {
-                throw new MessagingException("Destination cannot be null and should start with prefix [/topic]");
+                throw new MessagingException("Destination cannot be null and should start with prefixes: "
+                        + Arrays.toString(destinationPrefixes));
             }
         }
         return message;

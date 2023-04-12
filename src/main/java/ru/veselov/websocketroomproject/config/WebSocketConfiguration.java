@@ -77,7 +77,7 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
     @Override
     public boolean configureMessageConverters(List<MessageConverter> messageConverters) {
         messageConverters.add(jackson2MessageConverter);
-        messageConverters.add(new ByteArrayMessageConverter());
         return false;
     }
+
 }

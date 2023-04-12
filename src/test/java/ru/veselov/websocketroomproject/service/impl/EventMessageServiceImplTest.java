@@ -58,7 +58,7 @@ class EventMessageServiceImplTest {
                 .sendEventToRoomSubscriptions(ArgumentMatchers.anyString(), eventMessageCaptorSet.capture());
         EventMessageDTO<Set<ChatUserDTO>> capturedMsg = eventMessageCaptorSet.getValue();
         Assertions.assertThat(capturedMsg.getEventType()).isEqualTo(EventType.USERS_REFRESHED);
-        Assertions.assertThat(capturedMsg.getMessage()).contains(chatUserMapper.chatUserToDTO(stubChatUser));
+        Assertions.assertThat(capturedMsg.getData()).contains(chatUserMapper.chatUserToDTO(stubChatUser));
         Mockito.verify(chatUserService, Mockito.times(1)).findChatUsersByRoomId(ROOM_ID);
     }
 
@@ -73,7 +73,7 @@ class EventMessageServiceImplTest {
                 .sendEventToRoomSubscriptions(ArgumentMatchers.anyString(), eventMessageCaptorChatUser.capture());
         EventMessageDTO<ChatUserDTO> capturedMsg = eventMessageCaptorChatUser.getValue();
         Assertions.assertThat(capturedMsg.getEventType()).isEqualTo(EventType.CONNECTED);
-        Assertions.assertThat(capturedMsg.getMessage()).isEqualTo(chatUserMapper.chatUserToDTO(stubChatUser));
+        Assertions.assertThat(capturedMsg.getData()).isEqualTo(chatUserMapper.chatUserToDTO(stubChatUser));
     }
 
     @Test
@@ -87,7 +87,7 @@ class EventMessageServiceImplTest {
                 .sendEventToRoomSubscriptions(ArgumentMatchers.anyString(), eventMessageCaptorChatUser.capture());
         EventMessageDTO<ChatUserDTO> capturedMsg = eventMessageCaptorChatUser.getValue();
         Assertions.assertThat(capturedMsg.getEventType()).isEqualTo(EventType.DISCONNECTED);
-        Assertions.assertThat(capturedMsg.getMessage()).isEqualTo(chatUserMapper.chatUserToDTO(stubChatUser));
+        Assertions.assertThat(capturedMsg.getData()).isEqualTo(chatUserMapper.chatUserToDTO(stubChatUser));
     }
 
 }

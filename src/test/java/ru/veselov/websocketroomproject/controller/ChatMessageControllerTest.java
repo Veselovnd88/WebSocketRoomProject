@@ -24,7 +24,7 @@ import ru.veselov.websocketroomproject.controller.client.TestStompFrameHandler;
 import ru.veselov.websocketroomproject.controller.client.TestStompSessionHandlerAdapter;
 import ru.veselov.websocketroomproject.dto.ReceivedChatMessage;
 import ru.veselov.websocketroomproject.dto.SendChatMessage;
-import ru.veselov.websocketroomproject.listener.WebSocketDisconnectListener;
+import ru.veselov.websocketroomproject.event.UserDisconnectEventHandler;
 import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
 
 import java.time.ZonedDateTime;
@@ -34,7 +34,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-@Slf4j
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ChatMessageControllerTest {
 
@@ -59,9 +58,10 @@ class ChatMessageControllerTest {
     ChatMessageController chatMessageController;
 
     @MockBean
-    WebSocketDisconnectListener webSocketDisconnectListener;
-    @MockBean
     RoomSubscriptionService roomSubscriptionService;
+
+    @MockBean
+    UserDisconnectEventHandler userDisconnectEventHandler;
 
     CompletableFuture<SendChatMessage> resultKeeper;
 
@@ -89,7 +89,6 @@ class ChatMessageControllerTest {
         session.subscribe(destination, new TestStompFrameHandler(resultKeeper::complete));
         session.send("/app/chat/" + ROOM_ID, receivedChatMessage);
 
-        Thread.sleep(1000); //giving time to server for response
         SendChatMessage sendChatMessage = resultKeeper.get(1, TimeUnit.SECONDS);
         Assertions.assertThat(sendChatMessage).isNotNull();
         Assertions.assertThat(sendChatMessage.getSentFrom()).isEqualTo("user1");
@@ -113,7 +112,6 @@ class ChatMessageControllerTest {
         session.subscribe("/user/queue/private", new TestStompFrameHandler(resultKeeper::complete));
         session.send("/app/chat-private", receivedChatMessage);
 
-        Thread.sleep(1000); //giving time to server for response
         SendChatMessage sendChatMessage = resultKeeper.get(1, TimeUnit.SECONDS);
         Assertions.assertThat(sendChatMessage).isNotNull();
         Assertions.assertThat(sendChatMessage.getSentFrom()).isEqualTo("user1");
@@ -139,7 +137,6 @@ class ChatMessageControllerTest {
         session.subscribe("/user/queue/private", new TestStompFrameHandler(resultKeeper::complete));
         session.send("/app/chat-private", receivedChatMessage);
 
-        Thread.sleep(1000); //giving time to server for response
         //Will be thrown TimeoutException if no message received by User
         Assertions.assertThatThrownBy(() -> resultKeeper.get(1, TimeUnit.SECONDS)).isInstanceOf(TimeoutException.class);
     }

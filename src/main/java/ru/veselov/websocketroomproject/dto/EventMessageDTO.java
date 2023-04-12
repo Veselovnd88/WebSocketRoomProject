@@ -9,6 +9,6 @@ import ru.veselov.websocketroomproject.event.EventType;
 public class EventMessageDTO<T> {
     private EventType eventType;
 
-    private T message;
+    private T data;
 
 }

@@ -25,7 +25,7 @@ public class EventSenderImpl implements EventSender {
         if (!subscriptionsByRoomId.isEmpty()) { //if room is empty we don't need to send anything
             EventType eventType = eventMessageDTO.getEventType();
             ServerSentEvent event = ServerSentEvent.builder()
-                    .data(eventMessageDTO.getMessage())
+                    .data(eventMessageDTO.getData())
                     .event(eventType.name())
                     .build();
             subscriptionsByRoomId.forEach(x -> x.getFluxSink().next(event));

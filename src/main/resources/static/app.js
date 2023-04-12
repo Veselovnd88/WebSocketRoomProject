@@ -23,10 +23,6 @@ function connect() {
     stompClient.connect({roomId: roomId}, function (frame) {
         setConnected(true);
         console.log('Connected: ' + frame);
-        stompClient.subscribe('/topic/messages/9', function (greeting) {
-            showGreeting(JSON.parse(greeting.body).username);
-
-        });
         stompClient.subscribe('/topic/messages/' + roomId, function (greeting) {
 
             showGreeting(JSON.parse(greeting.body).sent + ": " +
