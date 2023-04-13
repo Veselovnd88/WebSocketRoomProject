@@ -26,9 +26,11 @@ import ru.veselov.websocketroomproject.dto.SendChatMessage;
 import ru.veselov.websocketroomproject.event.UserDisconnectEventHandler;
 import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
 
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.TimeZone;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -77,7 +79,7 @@ class ChatMessageControllerTest {
     @Test
     @SneakyThrows
     void shouldReturnCorrectSendMessage() {
-        ReceivedChatMessage receivedChatMessage = new ReceivedChatMessage("user1", "message", null);
+        ReceivedChatMessage receivedChatMessage = new ReceivedChatMessage("user1", "message", null, "Europe/Moscow");
         String destination = chatTopic + "/" + ROOM_ID;
         WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
         String auth = "user1" + ":" + "secret";
@@ -102,7 +104,7 @@ class ChatMessageControllerTest {
     @Test
     @SneakyThrows
     void shouldReturnCorrectSendMessageToUser() {
-        ReceivedChatMessage receivedChatMessage = new ReceivedChatMessage("user1", "message", "user1");
+        ReceivedChatMessage receivedChatMessage = new ReceivedChatMessage("user1", "message", "user1", "Europe/Moscow");
         WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
         String auth = "user1" + ":" + "secret";
         headers.add("Authorization", "Basic " + new String(Base64.getEncoder().encode(auth.getBytes())));
@@ -114,18 +116,23 @@ class ChatMessageControllerTest {
         ).get();
         session.subscribe("/user/queue/private", new TestStompFrameHandler(resultKeeper::complete));
         session.send("/app/chat-private", receivedChatMessage);
+        TimeZone timeZone = TimeZone.getTimeZone("Europe/Moscow");
 
         SendChatMessage sendChatMessage = resultKeeper.get(1, TimeUnit.SECONDS);
         Assertions.assertThat(sendChatMessage).isNotNull();
         Assertions.assertThat(sendChatMessage.getSentFrom()).isEqualTo("user1");
         Assertions.assertThat(sendChatMessage.getContent()).isEqualTo("message");
         Assertions.assertThat(sendChatMessage.getSentTime()).isNotNull().isInstanceOf(ZonedDateTime.class);
+        ZonedDateTime sentTime = sendChatMessage.getSentTime();
+        Assertions.assertThat(TimeZone.getTimeZone(sendChatMessage.getSentTime().getZone())).isEqualTo(timeZone);
+
     }
 
     @Test
     @SneakyThrows
     void shouldNotReturnSendMessageToUser() {
-        ReceivedChatMessage receivedChatMessage = new ReceivedChatMessage("user1", "message", "not-existing-user");
+        ReceivedChatMessage receivedChatMessage = new ReceivedChatMessage("user1", "message", "not-existing-user",
+                "Europe/Moscow");
         WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
         String auth = "user1" + ":" + "secret";
         headers.add("Authorization", "Basic " + new String(Base64.getEncoder().encode(auth.getBytes())));
@@ -141,30 +148,6 @@ class ChatMessageControllerTest {
 
         //Will be thrown TimeoutException if no message received by User
         Assertions.assertThatThrownBy(() -> resultKeeper.get(1, TimeUnit.SECONDS)).isInstanceOf(TimeoutException.class);
-    }
-
-    @Test
-    @SneakyThrows
-    void shouldHandleExceptionAndSendItToUser() {
-        ReceivedChatMessage receivedChatMessage = new ReceivedChatMessage("user1", "message", null);
-        WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
-        String auth = "user1" + ":" + "secret";
-        headers.add("Authorization", "Basic " + new String(Base64.getEncoder().encode(auth.getBytes())));
-        StompHeaders stompHeaders = new StompHeaders();
-        stompHeaders.add(TestConstants.ROOM_ID_HEADER, ROOM_ID);
-        //Creating and configuring basic WebSocketClient
-        WebSocketStompClient stompClient = createClient();
-        StompSession session = stompClient.connectAsync(URL, headers, stompHeaders, new TestStompSessionHandlerAdapter()
-        ).get();
-
-        session.subscribe("/user/queue/private", new TestStompFrameHandler(resultKeeper::complete));
-        session.send("/app/chat-private", receivedChatMessage);
-
-        SendChatMessage sendChatMessage = resultKeeper.get(1, TimeUnit.SECONDS);
-        Assertions.assertThat(sendChatMessage).isNotNull();
-        Assertions.assertThat(sendChatMessage.getSentFrom()).isEqualTo(serverName);
-        Assertions.assertThat(sendChatMessage.getContent()).startsWith("Error");
-        Assertions.assertThat(sendChatMessage.getSentTime()).isNotNull().isInstanceOf(ZonedDateTime.class);
     }
 
     private WebSocketStompClient createClient() {

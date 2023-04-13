@@ -78,14 +78,15 @@ function disconnect() {
 
 function sendName() {
     stompClient.send("/app/chat/" + roomId, {"content-type": "application/json"}, JSON.stringify({
-        'content': $("#name").val(),
+        'content': $("#name").val(), 'zoneId' : tz
     }));
 }
 
 function sendToUser() {
     stompClient.send("/app/chat-private", {"content-type": "application/json"}, JSON.stringify({
         'content': $("#name").val(),
-        'sendTo': "user1"
+        'sendTo': "user1",
+        'zoneId' : tz
     }));
 }
 

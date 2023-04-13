@@ -12,5 +12,6 @@ public class ReceivedChatMessage {
     private String sentFrom;
     private String content;
     private String sendTo;
+    private String zoneId;
 
 }
