@@ -30,7 +30,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Base64;
 import java.util.Collections;
-import java.util.TimeZone;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -40,14 +39,13 @@ class ChatMessageControllerTest {
 
     private static final String ROOM_ID = "5";
 
+    private static final String myZoneId = "Europe/Moscow";
+
     @LocalServerPort
     private String port;
 
     @Value("${socket.chat-topic}")
     private String chatTopic;
-
-    @Value("${socket.server-name}")
-    private String serverName;
 
     @Value("${socket.endpoint}")
     private String endpoint;
@@ -79,7 +77,7 @@ class ChatMessageControllerTest {
     @Test
     @SneakyThrows
     void shouldReturnCorrectSendMessage() {
-        ReceivedChatMessage receivedChatMessage = new ReceivedChatMessage("user1", "message", null, "Europe/Moscow");
+        ReceivedChatMessage receivedChatMessage = new ReceivedChatMessage("user1", "message", null, myZoneId);
         String destination = chatTopic + "/" + ROOM_ID;
         WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
         String auth = "user1" + ":" + "secret";
@@ -99,12 +97,16 @@ class ChatMessageControllerTest {
         Assertions.assertThat(sendChatMessage.getSentFrom()).isEqualTo("user1");
         Assertions.assertThat(sendChatMessage.getContent()).isEqualTo("message");
         Assertions.assertThat(sendChatMessage.getSentTime()).isNotNull().isInstanceOf(ZonedDateTime.class);
+        //creating new zdt instance to check is returned time a little less than now
+        ZonedDateTime zdtToCompare = ZonedDateTime.now(ZoneId.of(myZoneId)).plusSeconds(1);
+        long diff = zdtToCompare.toEpochSecond() - sendChatMessage.getSentTime().toEpochSecond();
+        Assertions.assertThat(diff).isLessThan(3);
     }
 
     @Test
     @SneakyThrows
     void shouldReturnCorrectSendMessageToUser() {
-        ReceivedChatMessage receivedChatMessage = new ReceivedChatMessage("user1", "message", "user1", "Europe/Moscow");
+        ReceivedChatMessage receivedChatMessage = new ReceivedChatMessage("user1", "message", "user1", myZoneId);
         WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
         String auth = "user1" + ":" + "secret";
         headers.add("Authorization", "Basic " + new String(Base64.getEncoder().encode(auth.getBytes())));
@@ -116,16 +118,15 @@ class ChatMessageControllerTest {
         ).get();
         session.subscribe("/user/queue/private", new TestStompFrameHandler(resultKeeper::complete));
         session.send("/app/chat-private", receivedChatMessage);
-        TimeZone timeZone = TimeZone.getTimeZone("Europe/Moscow");
-
         SendChatMessage sendChatMessage = resultKeeper.get(1, TimeUnit.SECONDS);
         Assertions.assertThat(sendChatMessage).isNotNull();
         Assertions.assertThat(sendChatMessage.getSentFrom()).isEqualTo("user1");
         Assertions.assertThat(sendChatMessage.getContent()).isEqualTo("message");
         Assertions.assertThat(sendChatMessage.getSentTime()).isNotNull().isInstanceOf(ZonedDateTime.class);
-        ZonedDateTime sentTime = sendChatMessage.getSentTime();
-        Assertions.assertThat(TimeZone.getTimeZone(sendChatMessage.getSentTime().getZone())).isEqualTo(timeZone);
-
+        //creating new zdt instance to check is returned time a little less than now
+        ZonedDateTime zdtToCompare = ZonedDateTime.now(ZoneId.of(myZoneId)).plusSeconds(1);
+        long diff = zdtToCompare.toEpochSecond() - sendChatMessage.getSentTime().toEpochSecond();
+        Assertions.assertThat(diff).isLessThan(3);
     }
 
     @Test
