@@ -19,6 +19,15 @@ chat-event:
   max-pool-size: 10
 
 spring:
+  cache:
+    type: redis
+  data:
+    redis:
+      port: 6379
+      host: localhost
+      username: admin
+      password: admin
+
   security:
     user:
       name: user1
