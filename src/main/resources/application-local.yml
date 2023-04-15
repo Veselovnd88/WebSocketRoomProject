@@ -24,6 +24,11 @@ spring:
       name: user1
       password: secret
       roles: USER
+  data:
+    redis:
+      port: 6379
+      host: localhost
+      password: admin
 
 logging:
   level:

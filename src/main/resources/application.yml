@@ -19,14 +19,12 @@ chat-event:
   max-pool-size: 10
 
 spring:
-  cache:
-    type: redis
   data:
     redis:
       port: 6379
       host: localhost
-      username: admin
       password: admin
+      connect-timeout: 60000
 
   security:
     user:
