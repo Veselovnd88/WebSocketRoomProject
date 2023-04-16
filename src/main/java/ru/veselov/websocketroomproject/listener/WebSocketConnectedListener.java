@@ -14,7 +14,7 @@ import ru.veselov.websocketroomproject.service.EventMessageService;
  * After confirmation of connection from server send message about
  * connected user to messages topic to notify
  */
-@Component
+//@Component don't need
 @Slf4j
 @RequiredArgsConstructor
 public class WebSocketConnectedListener {
@@ -25,12 +25,13 @@ public class WebSocketConnectedListener {
 
     @EventListener
     public void handleConnectedUserEvent(SessionConnectedEvent session) {
+        log.warn("in connected");
         StompHeaderAccessor stompHeaderAccessor = StompHeaderAccessor.wrap(session.getMessage());
         String sessionId = stompHeaderAccessor.getSessionId();
-        ChatUser chatUser = chatUserService.findChatUserBySessionId(sessionId);
+        /*ChatUser chatUser = chatUserService.findChatUserBySessionId(sessionId);
         eventMessageService.sendUserListToAllSubscriptions(chatUser.getRoomId());
-        eventMessageService.sendUserConnectedMessageToAll(chatUser);
-        log.info("User {} is connected", chatUser.getUsername());
+        eventMessageService.sendUserConnectedMessageToAll(chatUser);*/
+        log.info("User {} is connected", sessionId);
     }
 
 }

@@ -1,20 +1,17 @@
 package ru.veselov.websocketroomproject.repository;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.keyvalue.repository.KeyValueRepository;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
 import ru.veselov.websocketroomproject.entity.ChatUserEntity;
-import ru.veselov.websocketroomproject.model.ChatUser;
 
-import java.util.Set;
+import java.util.List;
+import java.util.Optional;
 
-public interface ChatUserRedisRepository {
-    void saveChatUserToRoom(String roomId, ChatUserEntity chatUserEntity);
+@Repository
+public interface ChatUserRedisRepository extends CrudRepository<ChatUserEntity, String> {
 
-    ChatUserEntity findChatUser(String sessionId);
+    List<ChatUserEntity> findAllByRoomId(String roomId);
 
-    void removeChatUserFromRoom(ChatUserEntity chatUserEntity);
-
-    Set<ChatUserEntity> getChatUsersFromRoom(String roomId);
-
+    Optional<ChatUserEntity> findById(String sessionId);
 
 }

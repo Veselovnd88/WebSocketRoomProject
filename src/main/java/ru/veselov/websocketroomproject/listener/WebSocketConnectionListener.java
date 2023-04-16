@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.service.ChatUserService;
+import ru.veselov.websocketroomproject.service.EventMessageService;
 
 /**
  * Handling CONNECTION command from FrontEnd
@@ -24,6 +25,8 @@ public class WebSocketConnectionListener {
 
     private final ChatUserService chatUserService;
 
+    private final EventMessageService eventMessageService;
+
     @EventListener
     public void handleUserConnection(SessionConnectEvent session) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(session.getMessage());
@@ -36,7 +39,9 @@ public class WebSocketConnectionListener {
                 sessionId
         );
         chatUserService.saveChatUser(chatUser);
-        log.info("User {} connecting to room # {}", chatUser.getUsername(), chatUser.getSession());
+        eventMessageService.sendUserListToAllSubscriptions(chatUser.getRoomId());
+        eventMessageService.sendUserConnectedMessageToAll(chatUser);
+        log.info("User {} is connected to room # {}", chatUser.getUsername(), chatUser.getSession());
     }
 
 }
