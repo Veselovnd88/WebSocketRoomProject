@@ -1,6 +1,7 @@
 package ru.veselov.websocketroomproject.config;
 
 import io.lettuce.core.ClientOptions;
+import io.lettuce.core.ReadFrom;
 import io.lettuce.core.resource.ClientResources;
 import io.lettuce.core.resource.DefaultClientResources;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
@@ -9,12 +10,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisPassword;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
+import org.springframework.data.redis.connection.RedisStaticMasterReplicaConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettucePoolingClientConfiguration;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+
+import java.util.List;
 
 @Configuration
 public class RedisConfiguration {
@@ -28,9 +32,18 @@ public class RedisConfiguration {
 
     @Bean
     public LettuceConnectionFactory lettuceConnectionFactory() {
-        RedisStandaloneConfiguration standaloneConfiguration = new RedisStandaloneConfiguration(host, port);
-        standaloneConfiguration.setPassword(RedisPassword.of(password));
-        return new LettuceConnectionFactory(standaloneConfiguration);
+        LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
+                .readFrom(ReadFrom.REPLICA_PREFERRED)
+                .build();
+        final RedisStaticMasterReplicaConfiguration staticMasterReplicaConfiguration = new RedisStaticMasterReplicaConfiguration(host, port);
+        staticMasterReplicaConfiguration.setPassword(RedisPassword.of(password));
+        staticMasterReplicaConfiguration.addNode(host, 6380);
+        staticMasterReplicaConfiguration.addNode(host, 6381);
+        List<RedisStandaloneConfiguration> nodes = staticMasterReplicaConfiguration.getNodes();
+        System.out.println(nodes);
+        //RedisStandaloneConfiguration standaloneConfiguration = new RedisStandaloneConfiguration(host, port);
+        //standaloneConfiguration.setPassword(RedisPassword.of(password));
+        return new LettuceConnectionFactory(staticMasterReplicaConfiguration, clientConfig);
     }
 
     @Bean(destroyMethod = "shutdown")
