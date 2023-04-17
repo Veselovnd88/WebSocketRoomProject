@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.datafaker.Faker;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
-import ru.veselov.websocketroomproject.entity.ChatUserEntity;
 import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.service.ChatUserService;
 
@@ -28,11 +27,6 @@ public class ChatUserServiceStub implements ChatUserService {
 
     public void saveChatUser(ChatUser chatUser) {
         stubRepository.put(chatUser.getSession(), chatUser);
-        ChatUserEntity chatUserEntity = new ChatUserEntity();
-        chatUserEntity.setUsername(chatUser.getUsername());
-        chatUserEntity.setSession(chatUser.getSession());
-        chatUserEntity.setRoomId(chatUser.getRoomId());
-
         log.info("ChatUser {} saved to db", chatUser.getUsername());
     }
 
