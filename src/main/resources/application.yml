@@ -18,13 +18,17 @@ chat-event:
   core-pool-size: 10
   max-pool-size: 10
 
-spring:
-  data:
-    redis:
-      port: 6379
+redis:
+  master:
+    port: 6379
+    host: localhost
+    password: admin
+
+  replicas:
+    - port: 6380
       host: localhost
-      password: admin
-      connect-timeout: 60000
+    - port: 6381
+      host: localhost
 
   security:
     user:

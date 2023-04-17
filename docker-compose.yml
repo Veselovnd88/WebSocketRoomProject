@@ -1,14 +1,14 @@
 version: "3.8"
 services:
   master:
-    container_name: "room-cache-redis-master"
+    container_name: redis-chat-master
     hostname: redis-chat-cache
     image: redis:latest
     ports:
       - "6379:6379"
     restart: on-failure
     volumes:
-      - ./redis-data:/data #change
+      - ./redis-data:/data
     command: redis-server --requirepass admin
 
   replica-1:
@@ -16,14 +16,14 @@ services:
     image: redis:latest
     ports:
       - "6380:6379"
-    command: redis-server --slaveof master 6379 --masterauth admin
+    command: redis-server --slaveof redis-chat-master 6379 --masterauth admin
 
   replica-2:
     container_name: redis-chat-replica-2
     image: redis:latest
     ports:
       - "6381:6379"
-    command: redis-server --slaveof master 6379 --masterauth admin
+    command: redis-server --slaveof redis-chat-master 6379 --masterauth admin
 
   redis-commander:
     container_name: redis-commander
@@ -32,7 +32,5 @@ services:
     restart: always
     environment:
       - REDIS_HOSTS=local:redis-chat-cache:6379:0:admin,redis-chat-replica-1:redis-chat-replica-1,redis-chat-replica-2:redis-chat-replica-2
-      #- REDIS_HOST=redis-chat-cache
-      #- REDIS_PASSWORD=admin
     ports:
       - "8081:8081"

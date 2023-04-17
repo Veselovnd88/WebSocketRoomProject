@@ -4,12 +4,11 @@ import io.lettuce.core.ClientOptions;
 import io.lettuce.core.ReadFrom;
 import io.lettuce.core.resource.ClientResources;
 import io.lettuce.core.resource.DefaultClientResources;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisPassword;
-import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.RedisStaticMasterReplicaConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
@@ -17,33 +16,23 @@ import org.springframework.data.redis.connection.lettuce.LettucePoolingClientCon
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-
-import java.util.List;
+import ru.veselov.websocketroomproject.config.redis.RedisMasterProperty;
+import ru.veselov.websocketroomproject.config.redis.RedisStorageConfig;
 
 @Configuration
+@RequiredArgsConstructor
 public class RedisConfiguration {
-    @Value("${spring.data.redis.host}")
-    private String host;
-    @Value("${spring.data.redis.port}")
-    private int port;
 
-    @Value("${spring.data.redis.password}")
-    private String password;
+    private final RedisStorageConfig redisStorageConfig;
 
     @Bean
     public LettuceConnectionFactory lettuceConnectionFactory() {
         LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
                 .readFrom(ReadFrom.REPLICA_PREFERRED)
                 .build();
-        final RedisStaticMasterReplicaConfiguration staticMasterReplicaConfiguration = new RedisStaticMasterReplicaConfiguration(host, port);
-        staticMasterReplicaConfiguration.setPassword(RedisPassword.of(password));
-        staticMasterReplicaConfiguration.addNode(host, 6380);
-        staticMasterReplicaConfiguration.addNode(host, 6381);
-        List<RedisStandaloneConfiguration> nodes = staticMasterReplicaConfiguration.getNodes();
-        System.out.println(nodes);
-        //RedisStandaloneConfiguration standaloneConfiguration = new RedisStandaloneConfiguration(host, port);
-        //standaloneConfiguration.setPassword(RedisPassword.of(password));
-        return new LettuceConnectionFactory(staticMasterReplicaConfiguration, clientConfig);
+        RedisStaticMasterReplicaConfiguration masterConfig = createRedisMasterReplicaConfig();
+
+        return new LettuceConnectionFactory(masterConfig, clientConfig);
     }
 
     @Bean(destroyMethod = "shutdown")
@@ -79,6 +68,17 @@ public class RedisConfiguration {
         template.setStringSerializer(new StringRedisSerializer());
         template.setEnableTransactionSupport(true);
         return template;
+    }
+
+    private RedisStaticMasterReplicaConfiguration createRedisMasterReplicaConfig() {
+        RedisMasterProperty master = redisStorageConfig.getMaster();
+        final RedisStaticMasterReplicaConfiguration masterConfig =
+                new RedisStaticMasterReplicaConfiguration(master.getHost(), master.getPort());
+        masterConfig.setPassword(RedisPassword.of(redisStorageConfig.getMaster().getPassword()));
+        redisStorageConfig.getReplicas()
+                .forEach(replica -> masterConfig.addNode(replica.getHost(), replica.getPort())
+                );
+        return masterConfig;
     }
 
 }
