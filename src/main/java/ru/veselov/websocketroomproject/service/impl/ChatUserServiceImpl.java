@@ -34,7 +34,11 @@ public class ChatUserServiceImpl implements ChatUserService {
         log.info("ChatUser with [session: {}] retrieved from repository", sessionId);
         Optional<ChatUserEntity> chatUserEntityOptional = repository.findById(sessionId);
         ChatUserEntity userEntity = chatUserEntityOptional.
-                orElseThrow(() -> new ChatUserNotFoundException("No such ChatUser in repository"));
+                orElseThrow(() -> {
+                    log.warn("ChatUser with [session: {}] not found", sessionId);
+                    throw new ChatUserNotFoundException("No such ChatUser in repository");
+                });
+
         return chatUserEntityMapper.toChatUser(userEntity);
     }
 
@@ -53,6 +57,7 @@ public class ChatUserServiceImpl implements ChatUserService {
             repository.delete(foundById.get());
             return chatUserEntityMapper.toChatUser(foundById.get());
         } else {
+            log.warn("ChatUser with [session: {}] not found", sessionId);
             throw new ChatUserNotFoundException("No such ChatUser in repository");
         }
     }

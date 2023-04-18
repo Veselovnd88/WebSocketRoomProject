@@ -17,13 +17,15 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import ru.veselov.websocketroomproject.config.redis.RedisMasterProperty;
-import ru.veselov.websocketroomproject.config.redis.RedisStorageConfig;
+import ru.veselov.websocketroomproject.config.redis.RedisPoolProperty;
+import ru.veselov.websocketroomproject.config.redis.RedisPropertiesConfig;
 
 @Configuration
 @RequiredArgsConstructor
+@SuppressWarnings("rawtypes")
 public class RedisConfiguration {
 
-    private final RedisStorageConfig redisStorageConfig;
+    private final RedisPropertiesConfig redisPropertiesConfig;
 
     @Bean
     public LettuceConnectionFactory lettuceConnectionFactory() {
@@ -43,15 +45,16 @@ public class RedisConfiguration {
     @Bean
     public ClientOptions clientOptions() {
         return ClientOptions.builder()
-                .disconnectedBehavior(ClientOptions.DisconnectedBehavior.REJECT_COMMANDS)
+                .disconnectedBehavior(ClientOptions.DisconnectedBehavior.DEFAULT)
                 .autoReconnect(true)
                 .build();
     }
 
     @Bean
     LettucePoolingClientConfiguration lettucePoolConfig(ClientOptions options, ClientResources dcr) {
+
         return LettucePoolingClientConfiguration.builder()
-                .poolConfig(new GenericObjectPoolConfig())
+                .poolConfig(createGenericObjectPoolConfig())
                 .clientOptions(options)
                 .clientResources(dcr)
                 .build();
@@ -71,14 +74,23 @@ public class RedisConfiguration {
     }
 
     private RedisStaticMasterReplicaConfiguration createRedisMasterReplicaConfig() {
-        RedisMasterProperty master = redisStorageConfig.getMaster();
+        RedisMasterProperty master = redisPropertiesConfig.getMaster();
         final RedisStaticMasterReplicaConfiguration masterConfig =
                 new RedisStaticMasterReplicaConfiguration(master.getHost(), master.getPort());
-        masterConfig.setPassword(RedisPassword.of(redisStorageConfig.getMaster().getPassword()));
-        redisStorageConfig.getReplicas()
+        masterConfig.setPassword(RedisPassword.of(redisPropertiesConfig.getMaster().getPassword()));
+        redisPropertiesConfig.getReplicas()
                 .forEach(replica -> masterConfig.addNode(replica.getHost(), replica.getPort())
                 );
         return masterConfig;
+    }
+
+    private GenericObjectPoolConfig createGenericObjectPoolConfig() {
+        GenericObjectPoolConfig poolConfig = new GenericObjectPoolConfig();
+        RedisPoolProperty poolProperties = redisPropertiesConfig.getPool();
+        poolConfig.setMaxIdle(poolProperties.getMaxIdle());
+        poolConfig.setMaxTotal(poolProperties.getMaxTotal());
+        poolConfig.setMinIdle(poolProperties.getMinIdle());
+        return poolConfig;
     }
 
 }

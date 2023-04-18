@@ -1,12 +1,14 @@
 package ru.veselov.websocketroomproject.config.redis;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class RedisMasterProperty {
+
     private int port;
+
     private String host;
+
     private String password;
+
 }

@@ -40,6 +40,10 @@ redis:
       host: localhost
     - port: 6381
       host: localhost
+  pool:
+    max-total: 8
+    max-idle: 8
+    min-idle: 0
 
 logging:
   level:

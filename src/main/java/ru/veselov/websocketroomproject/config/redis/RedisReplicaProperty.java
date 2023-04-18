@@ -1,10 +1,8 @@
 package ru.veselov.websocketroomproject.config.redis;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class RedisReplicaProperty {
 
     private int port;
