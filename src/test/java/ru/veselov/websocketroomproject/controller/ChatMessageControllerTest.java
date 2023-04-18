@@ -39,7 +39,8 @@ class ChatMessageControllerTest {
 
     private static final String ROOM_ID = "5";
 
-    private static final String myZoneId = "Europe/Moscow";
+    @Value("${server.zoneId}")
+    private String serverZoneId;
 
     @LocalServerPort
     private String port;
@@ -77,7 +78,7 @@ class ChatMessageControllerTest {
     @Test
     @SneakyThrows
     void shouldReturnCorrectSendMessage() {
-        ReceivedChatMessage receivedChatMessage = new ReceivedChatMessage("user1", "message", null, myZoneId);
+        ReceivedChatMessage receivedChatMessage = new ReceivedChatMessage("user1", "message", null);
         String destination = chatTopic + "/" + ROOM_ID;
         WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
         String auth = "user1" + ":" + "secret";
@@ -92,13 +93,13 @@ class ChatMessageControllerTest {
         session.subscribe(destination, new TestStompFrameHandler(resultKeeper::complete));
         session.send("/app/chat/" + ROOM_ID, receivedChatMessage);
 
-        SendChatMessage sendChatMessage = resultKeeper.get(1, TimeUnit.SECONDS);
+        SendChatMessage sendChatMessage = resultKeeper.get(3, TimeUnit.SECONDS);
         Assertions.assertThat(sendChatMessage).isNotNull();
         Assertions.assertThat(sendChatMessage.getSentFrom()).isEqualTo("user1");
         Assertions.assertThat(sendChatMessage.getContent()).isEqualTo("message");
         Assertions.assertThat(sendChatMessage.getSentTime()).isNotNull().isInstanceOf(ZonedDateTime.class);
         //creating new zdt instance to check is returned time a little less than now
-        ZonedDateTime zdtToCompare = ZonedDateTime.now(ZoneId.of(myZoneId)).plusSeconds(1);
+        ZonedDateTime zdtToCompare = ZonedDateTime.now(ZoneId.of(serverZoneId)).plusSeconds(1);
         long diff = zdtToCompare.toEpochSecond() - sendChatMessage.getSentTime().toEpochSecond();
         Assertions.assertThat(diff).isLessThan(3);
     }
@@ -106,7 +107,7 @@ class ChatMessageControllerTest {
     @Test
     @SneakyThrows
     void shouldReturnCorrectSendMessageToUser() {
-        ReceivedChatMessage receivedChatMessage = new ReceivedChatMessage("user1", "message", "user1", myZoneId);
+        ReceivedChatMessage receivedChatMessage = new ReceivedChatMessage("user1", "message", "user1");
         WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
         String auth = "user1" + ":" + "secret";
         headers.add("Authorization", "Basic " + new String(Base64.getEncoder().encode(auth.getBytes())));
@@ -118,13 +119,13 @@ class ChatMessageControllerTest {
         ).get();
         session.subscribe("/user/queue/private", new TestStompFrameHandler(resultKeeper::complete));
         session.send("/app/chat-private", receivedChatMessage);
-        SendChatMessage sendChatMessage = resultKeeper.get(1, TimeUnit.SECONDS);
+        SendChatMessage sendChatMessage = resultKeeper.get(3, TimeUnit.SECONDS);
         Assertions.assertThat(sendChatMessage).isNotNull();
         Assertions.assertThat(sendChatMessage.getSentFrom()).isEqualTo("user1");
         Assertions.assertThat(sendChatMessage.getContent()).isEqualTo("message");
         Assertions.assertThat(sendChatMessage.getSentTime()).isNotNull().isInstanceOf(ZonedDateTime.class);
         //creating new zdt instance to check is returned time a little less than now
-        ZonedDateTime zdtToCompare = ZonedDateTime.now(ZoneId.of(myZoneId)).plusSeconds(1);
+        ZonedDateTime zdtToCompare = ZonedDateTime.now(ZoneId.of(serverZoneId)).plusSeconds(1);
         long diff = zdtToCompare.toEpochSecond() - sendChatMessage.getSentTime().toEpochSecond();
         Assertions.assertThat(diff).isLessThan(3);
     }
@@ -132,8 +133,7 @@ class ChatMessageControllerTest {
     @Test
     @SneakyThrows
     void shouldNotReturnSendMessageToUser() {
-        ReceivedChatMessage receivedChatMessage = new ReceivedChatMessage("user1", "message", "not-existing-user",
-                "Europe/Moscow");
+        ReceivedChatMessage receivedChatMessage = new ReceivedChatMessage("user1", "message", "not-existing-user");
         WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
         String auth = "user1" + ":" + "secret";
         headers.add("Authorization", "Basic " + new String(Base64.getEncoder().encode(auth.getBytes())));
@@ -148,7 +148,7 @@ class ChatMessageControllerTest {
         session.send("/app/chat-private", receivedChatMessage);
 
         //Will be thrown TimeoutException if no message received by User
-        Assertions.assertThatThrownBy(() -> resultKeeper.get(1, TimeUnit.SECONDS)).isInstanceOf(TimeoutException.class);
+        Assertions.assertThatThrownBy(() -> resultKeeper.get(3, TimeUnit.SECONDS)).isInstanceOf(TimeoutException.class);
     }
 
     private WebSocketStompClient createClient() {

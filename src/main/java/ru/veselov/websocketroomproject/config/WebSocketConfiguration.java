@@ -1,9 +1,7 @@
 package ru.veselov.websocketroomproject.config;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.converter.ByteArrayMessageConverter;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.messaging.simp.config.ChannelRegistration;
@@ -24,54 +22,38 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
 
     private final MappingJackson2MessageConverter jackson2MessageConverter;
 
-    @Value("${socket.endpoint}")
-    private String endpoint;
-
-    @Value("${socket.dest-prefixes}")
-    private String[] destinationPrefixes;
-
-    @Value("${socket.app-prefix}")
-    private String appPrefix;
-
-    @Value("${socket.user-prefix}")
-    private String userPrefix;
-
-    @Value("${socket.message-size-limit}")
-    private Integer messageSizeLimit;
-
-    @Value("${socket.send-time-limit}")
-    private Integer sendTimeLimit;
-
-    @Value("${socket.buffer-size-limit}")
-    private Integer bufferSizeLimit;
+    private final WebSocketProperties webSocketProperties;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint(endpoint).setAllowedOriginPatterns("*")
+        registry.addEndpoint(webSocketProperties.getEndpoint()).setAllowedOriginPatterns("*")
                 .withSockJS();
-        registry.addEndpoint(endpoint).setAllowedOrigins("*");
+        registry.addEndpoint(webSocketProperties.getEndpoint()).setAllowedOrigins("*");
     }
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker(destinationPrefixes);
-        registry.setApplicationDestinationPrefixes(appPrefix);
-        registry.setUserDestinationPrefix(userPrefix);
+        registry.enableSimpleBroker(webSocketProperties.getDestPrefixes());
+        registry.setApplicationDestinationPrefixes(webSocketProperties.getAppPrefix());
+        registry.setUserDestinationPrefix(webSocketProperties.getUserPrefix());
     }
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
         registration.interceptors(
-                new SocketSubscriptionInterceptor(destinationPrefixes, userPrefix),
+                new SocketSubscriptionInterceptor(
+                        webSocketProperties.getDestPrefixes(),
+                        webSocketProperties.getUserPrefix()
+                ),
                 new SocketConnectionInterceptor()
         );
     }
 
     @Override
     public void configureWebSocketTransport(WebSocketTransportRegistration registry) {
-        registry.setMessageSizeLimit(messageSizeLimit);
-        registry.setSendBufferSizeLimit(bufferSizeLimit);
-        registry.setSendTimeLimit(sendTimeLimit);
+        registry.setMessageSizeLimit(webSocketProperties.getMessageSizeLimit());
+        registry.setSendBufferSizeLimit(webSocketProperties.getBufferSizeLimit());
+        registry.setSendTimeLimit(webSocketProperties.getSendTimeLimit());
     }
 
     @Override

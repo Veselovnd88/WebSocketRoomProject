@@ -30,7 +30,7 @@ class ChatMessageServiceImplTest {
     void shouldSendMessageToTopic() {
         Principal principal = Mockito.mock(Principal.class);
         Mockito.when(principal.getName()).thenReturn("user1");
-        ReceivedChatMessage receivedChatMessage = new ReceivedChatMessage("user1", "msg", null, "Europe/Moscow");
+        ReceivedChatMessage receivedChatMessage = new ReceivedChatMessage("user1", "msg", null);
 
         chatMessageService.sendToTopic(ROOM_ID, receivedChatMessage, principal);
 
@@ -42,7 +42,7 @@ class ChatMessageServiceImplTest {
     void shouldSendMessageToUser() {
         Principal principal = Mockito.mock(Principal.class);
         Mockito.when(principal.getName()).thenReturn("user1");
-        ReceivedChatMessage receivedChatMessage = new ReceivedChatMessage("user1", "msg", "user1", "Europe/Moscow");
+        ReceivedChatMessage receivedChatMessage = new ReceivedChatMessage("user1", "msg", "user1");
 
         chatMessageService.sendToUser(receivedChatMessage, principal);
 

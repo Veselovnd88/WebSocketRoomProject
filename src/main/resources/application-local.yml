@@ -1,5 +1,6 @@
 server:
   port: 9990
+  zoneId: "Europe/Moscow"
 
 socket:
   dest-prefixes: /topic, /queue

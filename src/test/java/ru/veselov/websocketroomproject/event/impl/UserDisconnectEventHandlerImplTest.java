@@ -10,11 +10,8 @@ import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.event.SubscriptionData;
 import ru.veselov.websocketroomproject.event.UserDisconnectEventHandler;
 import ru.veselov.websocketroomproject.model.ChatUser;
-import ru.veselov.websocketroomproject.service.ChatUserService;
 import ru.veselov.websocketroomproject.service.EventMessageService;
 import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class UserDisconnectEventHandlerImplTest {

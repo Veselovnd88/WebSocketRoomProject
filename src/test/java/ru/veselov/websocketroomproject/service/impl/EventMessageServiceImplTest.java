@@ -22,7 +22,6 @@ import ru.veselov.websocketroomproject.service.EventMessageService;
 import java.util.Set;
 
 @SpringBootTest
-@SuppressWarnings({"rawtypes", "unchecked"})
 class EventMessageServiceImplTest {
 
     private static final String ROOM_ID = "5";
