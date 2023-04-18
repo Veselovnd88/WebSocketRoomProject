@@ -44,6 +44,7 @@ dependencies {
     testImplementation 'org.projectlombok:lombok:1.18.22'
     // https://mvnrepository.com/artifact/io.projectreactor/reactor-test
     testImplementation 'io.projectreactor:reactor-test:3.5.4'
+    testImplementation 'org.testcontainers:junit-jupiter:1.18.0'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
 
