@@ -13,8 +13,7 @@ import org.testcontainers.utility.DockerImageName;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.entity.ChatUserEntity;
 
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @SpringBootTest
 @Testcontainers
@@ -33,10 +32,6 @@ class ChatUserRedisRepositoryIntegrationTest {
     private static void registerRedisProperties(DynamicPropertyRegistry registry) {
         registry.add("redis.master.host", REDIS_MASTER_CONTAINER::getHost);
         registry.add("redis.master.port", () -> REDIS_MASTER_CONTAINER.getMappedPort(6379).toString());
-        registry.add("redis.replica.host", REDIS_MASTER_CONTAINER::getHost);
-        registry.add("redis.replica.port", () -> REDIS_MASTER_CONTAINER.getMappedPort(6380).toString());
-        registry.add("redis.replica.host", REDIS_MASTER_CONTAINER::getHost);
-        registry.add("redis.replica.port", () -> REDIS_MASTER_CONTAINER.getMappedPort(6381).toString());
     }
 
     @Test
