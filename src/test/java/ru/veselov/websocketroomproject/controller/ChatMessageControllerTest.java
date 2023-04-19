@@ -24,6 +24,7 @@ import ru.veselov.websocketroomproject.controller.client.TestStompSessionHandler
 import ru.veselov.websocketroomproject.dto.ReceivedChatMessage;
 import ru.veselov.websocketroomproject.dto.SendChatMessage;
 import ru.veselov.websocketroomproject.event.UserDisconnectEventHandler;
+import ru.veselov.websocketroomproject.service.ChatUserService;
 import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
 
 import java.time.ZoneId;
@@ -66,6 +67,9 @@ class ChatMessageControllerTest {
 
     @MockBean
     UserDisconnectEventHandler userDisconnectEventHandler;
+
+    @MockBean
+    ChatUserService chatUserService;
 
     CompletableFuture<SendChatMessage> resultKeeper;
 

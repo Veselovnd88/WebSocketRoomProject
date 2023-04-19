@@ -40,5 +40,6 @@ redis:
 logging:
   level:
     ru.veselov: INFO
+    org.testcontainers: INFO
 
 local.stub: disabled
