@@ -7,9 +7,9 @@ import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
+import ru.veselov.websocketroomproject.event.UserConnectEventHandler;
 import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.service.ChatUserService;
-import ru.veselov.websocketroomproject.service.EventMessageService;
 
 /**
  * Handling CONNECTION command from FrontEnd
@@ -23,9 +23,9 @@ public class WebSocketConnectionListener {
     @Value("${socket.header-room-id}")
     private String roomIdHeader;
 
-    private final ChatUserService chatUserService;
+    private final UserConnectEventHandler userConnectEventHandler;
 
-    private final EventMessageService eventMessageService;
+    private final ChatUserService chatUserService;
 
     @EventListener
     public void handleUserConnection(SessionConnectEvent session) {
@@ -39,9 +39,8 @@ public class WebSocketConnectionListener {
                 sessionId
         );
         chatUserService.saveChatUser(chatUser);
-        eventMessageService.sendUserListToAllSubscriptions(chatUser.getRoomId());
-        eventMessageService.sendUserConnectedMessageToAll(chatUser);
-        log.info("User {} is connected to room # {}", chatUser.getUsername(), chatUser.getSession());
+        userConnectEventHandler.handleConnectEvent(chatUser);
+        log.info("[User {}] is connected to [room: {}]", chatUser.getUsername(), chatUser.getSession());
     }
 
 }
