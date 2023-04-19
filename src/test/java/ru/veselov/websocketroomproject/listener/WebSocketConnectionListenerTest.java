@@ -17,6 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import ru.veselov.websocketroomproject.TestConstants;
+import ru.veselov.websocketroomproject.event.UserConnectEventHandler;
 import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.service.ChatUserService;
 
@@ -25,6 +26,7 @@ import java.util.Map;
 
 @SpringBootTest
 @WithMockUser(username = "user1")
+@SuppressWarnings("unchecked")
 class WebSocketConnectionListenerTest {
 
     private static final String ROOM_ID = "5";
@@ -38,11 +40,15 @@ class WebSocketConnectionListenerTest {
     private WebSocketConnectionListener webSocketConnectionListener;
     @MockBean
     ChatUserService chatUserService;
+
+    @MockBean
+    UserConnectEventHandler userConnectEventHandler;
+
     @Captor
     ArgumentCaptor<ChatUser> chatUserArgumentCaptor;
 
     @Test
-    void shouldSaveUser() {
+    void shouldSaveUserAndNotifyUsers() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         Message<byte[]> message = Mockito.mock(Message.class);
@@ -63,6 +69,7 @@ class WebSocketConnectionListenerTest {
         Assertions.assertThat(chatUserFromCaptor.getSession()).isEqualTo(TestConstants.TEST_SESSION_ID);
         Assertions.assertThat(chatUserFromCaptor.getUsername()).isEqualTo(username);
         Assertions.assertThat(chatUserFromCaptor.getRoomId()).isEqualTo(ROOM_ID);
+        Mockito.verify(userConnectEventHandler, Mockito.times(1)).handleConnectEvent(chatUserFromCaptor);
     }
 
 }
