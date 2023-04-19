@@ -1,5 +1,13 @@
 // Select elements here
+
+addVideoLink();
 const video = document.getElementById('video');
+
+function addVideoLink() {
+    console.log("link for video added");
+    document.getElementById("videoSource").src = "/api/room/" + 5;
+}
+
 const videoControls = document.getElementById('video-controls');
 const playButton = document.getElementById('play');
 const playbackIcons = document.querySelectorAll('.playback-icons use');
@@ -240,7 +248,7 @@ function showControls() {
 // keyboardShortcuts executes the relevant functions for
 // each supported shortcut key
 function keyboardShortcuts(event) {
-    const { key } = event;
+    const {key} = event;
     switch (key) {
         case 'k':
             togglePlay();
