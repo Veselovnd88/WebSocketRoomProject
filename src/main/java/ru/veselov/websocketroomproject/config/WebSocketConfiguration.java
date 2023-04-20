@@ -28,6 +28,7 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint(webSocketProperties.getEndpoint()).setAllowedOriginPatterns("*")
                 .withSockJS();
+        registry.addEndpoint("/api/room/youtube").withSockJS();
         registry.addEndpoint(webSocketProperties.getEndpoint()).setAllowedOrigins("*");
     }
 

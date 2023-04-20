@@ -2,13 +2,18 @@ var stompClient = null;
 //let roomId = Math.floor((Math.random() * 1000) + 1);
 let roomId = "5";
 let eventSource = null;
-const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
+var tag = document.createElement('script');
+tag.src = "https://www.youtube.com/player_api";
+var firstScriptTag = document.getElementsByTagName('script')[0];
+firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
 addVideoLink();
 
 function addVideoLink() {
     console.log("link for video added");
-    document.getElementById("ytplayer").src="https://www.youtube.com/embed/_PEPaWFs064";
+    document.getElementById("ytplayer").src = "https://www.youtube.com/embed/_PEPaWFs064";
     //console.log(document.getElementById("loadImage"));
 
 }
@@ -37,45 +42,57 @@ function connect() {
             showGreeting(JSON.parse(greeting.body).sent + ": " +
                 JSON.parse(greeting.body).sentFrom + ": " + JSON.parse(greeting.body).content);
             console.log(greeting);
-           // createImage(greeting);
-           // addVideoLink(greeting);
+            // createImage(greeting);
+            // addVideoLink(greeting);
         });
         stompClient.subscribe('/user/queue/private', function (greeting) {
             showGreeting(JSON.parse(greeting.body).sent + ": " +
                 JSON.parse(greeting.body).sentFrom + ": " + JSON.parse(greeting.body).content);
             console.log(greeting);
-        })
+        });
 
+        stompClient.subscribe('/topic/youtube/' + roomId, function (message) {
+            console.log(message);
+            let state = JSON.parse(message.body).playerState;
+            let time = JSON.parse(message.body).currentTime;
+            player.seekTo(time, true);
+            if (state === 1) {
+                player.playVideo();
+            }
+            if (state === 2) {
+                player.pauseVideo();
+            }
+
+        });
     });
-    eventSource = new EventSource('/api/room?roomId=' + roomId);
-    eventSource.onopen = function () {
-        console.log("connection is ok")
-    }
-    eventSource.onmessage = (e) => {
-        console.log(e.data);
-    };
-
-    eventSource.addEventListener('init', (e) => {
-        console.log(e.data);
-    });
-
-    eventSource.addEventListener('USERS_REFRESHED', (e) => {
-        showUsers(e.data);
-        console.log(e.data);
-    });
-
-    eventSource.addEventListener('CONNECTED', (e) => {
-        showServerMessage("Connected " + JSON.parse(e.data).username);
-        console.log(e.data);
-    });
-
-    eventSource.addEventListener('DISCONNECTED', (e) => {
-        showServerMessage("Disconnected " + JSON.parse(e.data).username);
-        console.log(e.data);
-    });
-
-
 }
+
+eventSource = new EventSource('/api/room?roomId=' + roomId);
+eventSource.onopen = function () {
+    console.log("connection is ok")
+}
+eventSource.onmessage = (e) => {
+    console.log(e.data);
+};
+
+eventSource.addEventListener('init', (e) => {
+    console.log(e.data);
+});
+
+eventSource.addEventListener('USERS_REFRESHED', (e) => {
+    showUsers(e.data);
+    console.log(e.data);
+});
+
+eventSource.addEventListener('CONNECTED', (e) => {
+    showServerMessage("Connected " + JSON.parse(e.data).username);
+    console.log(e.data);
+});
+
+eventSource.addEventListener('DISCONNECTED', (e) => {
+    showServerMessage("Disconnected " + JSON.parse(e.data).username);
+    console.log(e.data);
+});
 
 function disconnect() {
     if (stompClient !== null) {
@@ -163,3 +180,51 @@ $(function () {
         sendMyImage();
     });
 });
+
+
+// Replace the 'ytplayer' element with an <iframe> and
+// YouTube player after the API code downloads.
+var player;
+
+function onYouTubePlayerAPIReady() {
+    player = new YT.Player('ytplayer', {
+        height: '360',
+        width: '640',
+        videoId: '_PEPaWFs064',
+        playerVars: {'autoplay': 1, 'controls': 1},
+        events: {
+            'onReady': onPlayerReady,
+            'onStateChange': onPlayerStateChange
+
+        }
+    });
+}
+
+
+function onPlayerReady(event) {
+    /*stompClient.subscribe('/topic/youtube/' + roomId, function (greeting) {
+        console.log(greeting);*/
+    // createImage(greeting);
+    // addVideoLink(greeting);
+}
+
+
+// 5. The API calls this function when the player's state changes.
+//    The function indicates that when playing a video (state=1),
+//    the player should play for six seconds and then stop.
+var done = false;
+
+function onPlayerStateChange(event) {
+    console.log(player.getCurrentTime());
+    let state = event.data;
+    stompClient.send("/app/youtube/" + roomId, {"content-type": "application/json"}, JSON.stringify({
+        'playerState': state,
+        'currentTime': player.getCurrentTime()
+    }));
+
+    console.log("send get query to endpoint")
+}
+
+function stopVideo() {
+    player.stopVideo();
+}
