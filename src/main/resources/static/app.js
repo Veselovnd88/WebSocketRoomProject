@@ -4,6 +4,15 @@ let roomId = "5";
 let eventSource = null;
 const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
+addVideoLink();
+
+function addVideoLink() {
+    console.log("link for video added");
+    document.getElementById("ytplayer").src="https://www.youtube.com/embed/_PEPaWFs064";
+    //console.log(document.getElementById("loadImage"));
+
+}
+
 const reader = new FileReader();
 
 function setConnected(connected) {
@@ -28,7 +37,7 @@ function connect() {
             showGreeting(JSON.parse(greeting.body).sent + ": " +
                 JSON.parse(greeting.body).sentFrom + ": " + JSON.parse(greeting.body).content);
             console.log(greeting);
-            // createImage(greeting);
+           // createImage(greeting);
            // addVideoLink(greeting);
         });
         stompClient.subscribe('/user/queue/private', function (greeting) {
@@ -105,11 +114,6 @@ function createImage(message) {
     img.src = JSON.parse((message.body).content);
     console.log(img.src);
     document.getElementById("loadImage").src = img.src;
-}
-
-function addVideoLink(message) {
-    console.log("link for video added");
-    document.getElementById("videoSource").src = "/api/room/" + roomId;
 }
 
 function showServerMessage(message) {

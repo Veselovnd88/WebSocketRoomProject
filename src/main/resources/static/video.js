@@ -1,7 +1,7 @@
 // Select elements here
 
-addVideoLink();
-const video = document.getElementById('video');
+//addVideoLink();
+//const video = document.getElementById('video');
 
 function addVideoLink() {
     console.log("link for video added");
