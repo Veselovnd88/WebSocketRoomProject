@@ -1,8 +1,9 @@
 var stompClient = null;
 //let roomId = Math.floor((Math.random() * 1000) + 1);
 let roomId = "5";
-let eventSource = null;
 
+let owner = null;
+let username = null;
 var tag = document.createElement('script');
 tag.src = "https://www.youtube.com/player_api";
 var firstScriptTag = document.getElementsByTagName('script')[0];
@@ -32,11 +33,23 @@ function setConnected(connected) {
 }
 
 function connect() {
+    fetch("/api/room/getInfo/" + roomId).then(r =>
+        r.json())
+        .then(data => {
+                console.log(data)
+                owner = data.owner;
+                username = data.username;
+                console.log(owner)
+            }
+        )
     var socket = new SockJS('/api/room/chat');
     stompClient = Stomp.over(socket);
     stompClient.connect({roomId: roomId}, function (frame) {
         setConnected(true);
         console.log('Connected: ' + frame);
+        console.log(socket._transport.url);
+        var sessionId = /\/([^\/]+)\/websocket/.exec(socket._transport.url)[1];
+        console.log(sessionId)
         stompClient.subscribe('/topic/messages/' + roomId, function (greeting) {
 
             showGreeting(JSON.parse(greeting.body).sent + ": " +
@@ -53,14 +66,26 @@ function connect() {
 
         stompClient.subscribe('/topic/youtube/' + roomId, function (message) {
             console.log(message);
+
             let state = JSON.parse(message.body).playerState;
             let time = JSON.parse(message.body).currentTime;
-            player.seekTo(time, true);
-            if (state === 1) {
-                player.playVideo();
-            }
-            if (state === 2) {
-                player.pauseVideo();
+            let quality = JSON.parse(message.body).playbackQuality;
+            let rate = JSON.parse(message.body).playbackRate;
+            console.log("go action for" + username)
+            if (username !== owner) {
+                player.seekTo(time, true);
+                if (state === 1) {
+                    player.playVideo();
+                }
+                if (state === 2) {
+                    player.pauseVideo();
+                }
+                if (quality != null) {
+                    player.playbackQuality = quality;
+                }
+                if (rate != null) {
+                    player.playbackRate = rate;
+                }
             }
 
         });
@@ -110,6 +135,7 @@ function sendName() {
 }
 
 function sendToUser() {
+
     stompClient.send("/app/chat-private", {"content-type": "application/json"}, JSON.stringify({
         'content': $("#name").val(),
         'sendTo': "user1",
@@ -190,14 +216,18 @@ function onYouTubePlayerAPIReady() {
     player = new YT.Player('ytplayer', {
         height: '360',
         width: '640',
-        videoId: '_PEPaWFs064',
-        playerVars: {'autoplay': 1, 'controls': 1},
+        videoId: 'cY9nFsx4q0I',
+        playerVars: {'autoplay': 0, 'controls': 1},
         events: {
             'onReady': onPlayerReady,
-            'onStateChange': onPlayerStateChange
-
+            'onStateChange': onPlayerStateChange,
+            'onPlaybackQualityChange': onPlaybackQualityChange,
+            'onPlaybackRateChange': onPlaybackRateChange,
         }
     });
+    if (username !== owner) {
+        player.controls = 0;
+    }
 }
 
 
@@ -215,14 +245,40 @@ function onPlayerReady(event) {
 var done = false;
 
 function onPlayerStateChange(event) {
-    console.log(player.getCurrentTime());
-    let state = event.data;
-    stompClient.send("/app/youtube/" + roomId, {"content-type": "application/json"}, JSON.stringify({
-        'playerState': state,
-        'currentTime': player.getCurrentTime()
-    }));
+    console.log(username + " make action ")
+    if (username === owner) {
+        console.log(player.getCurrentTime());
+        let state = event.data;
+        if (state === YT.PlayerState.PAUSED || state === YT.PlayerState.PLAYING)
+            stompClient.send("/app/youtube/" + roomId, {"content-type": "application/json"}, JSON.stringify({
+                'playerState': state,
+                'currentTime': player.getCurrentTime()
+            }));
 
-    console.log("send get query to endpoint")
+        console.log("send get query to endpoint")
+    }
+}
+
+function onPlaybackQualityChange(event) {
+    if (username === owner) {
+        console.log(player.getCurrentTime());
+        let quality = event.data;
+        stompClient.send("/app/youtube/" + roomId, {"content-type": "application/json"}, JSON.stringify({
+            'playbackQuality': quality
+        }));
+        console.log("send get query to endpoint")
+    }
+}
+
+function onPlaybackRateChange(event) {
+    if (username === owner) {
+        let rate = event.data;
+        console.log(rate);
+        stompClient.send("/app/youtube/" + roomId, {"content-type": "application/json"}, JSON.stringify({
+            'playbackRate': rate
+        }));
+        console.log("send get query to endpoint")
+    }
 }
 
 function stopVideo() {

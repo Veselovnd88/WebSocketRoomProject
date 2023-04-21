@@ -40,7 +40,7 @@ public class WebSocketConnectionListener {
         );
         chatUserService.saveChatUser(chatUser);
         userConnectEventHandler.handleConnectEvent(chatUser);
-        log.info("[User {}] is connected to [room: {}]", chatUser.getUsername(), chatUser.getSession());
+        log.info("[User {} with session {}] is connected to room", chatUser.getUsername(), chatUser.getSession());
     }
 
 }

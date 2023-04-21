@@ -7,30 +7,30 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
 import ru.veselov.websocketroomproject.dto.PlayerStateDTO;
+import ru.veselov.websocketroomproject.service.PlayerStateMessageService;
 
 import java.security.Principal;
 
 @Controller
 @RequiredArgsConstructor
 @Slf4j
-public class YouTubeVideoController {
+public class YouTubePlayerController {
 
-    private final SimpMessagingTemplate simpMessagingTemplate;
+    private final PlayerStateMessageService playerStateMessageService;
+
+    /**
+     * Handling YouTubePlayer states, only room owner, or responsible user should send messages here,
+     * this state will be broadcasted to all clients and set their players
+     */
 
     @MessageMapping("/youtube/{roomId}")
     public void manageYouTubePlayerState(@DestinationVariable("roomId") String roomId,
-                                         @Payload PlayerStateDTO playerStateDTO,
+                                         @Payload PlayerStateDTO message,
                                          Principal principal) {
-        log.info("Received YTPlayer state {} of room {}", playerStateDTO, roomId);
-        simpMessagingTemplate.convertAndSend("/topic/youtube/" + roomId, playerStateDTO);
+        log.info("Received YTPlayer state {} of room {} from principal {}", message, roomId, principal.getName());
+
+        playerStateMessageService.sendToTopic(roomId, message);
     }
 
-    @GetMapping(value = "/room/{roomId}")
-    public void getVideos(@PathVariable String roomId, @RequestParam(value = "scroll", required = false) String scroll) {
-        log.info("Paused");
-        log.info("scrolled to: {}", scroll);
-
-    }
 }

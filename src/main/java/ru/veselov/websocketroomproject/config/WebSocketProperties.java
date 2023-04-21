@@ -13,6 +13,7 @@ public class WebSocketProperties {
     private String appPrefix;
     private String endpoint;
     private String chatTopic;
+    private String youtubeTopic;
     private String privateMessageTopic;
     private String headerRoomId;
     private int messageSizeLimit;

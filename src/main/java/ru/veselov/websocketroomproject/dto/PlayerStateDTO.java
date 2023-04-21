@@ -5,6 +5,10 @@ import lombok.Data;
 @Data
 public class PlayerStateDTO {
     private int playerState;
-    private Double currentTime;
+    private String currentTime;
+
+    private String playbackQuality;
+
+    private String playbackRate;
 
 }
