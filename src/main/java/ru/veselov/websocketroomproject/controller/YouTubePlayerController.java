@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import ru.veselov.websocketroomproject.dto.PlayerStateDTO;
 import ru.veselov.websocketroomproject.service.PlayerStateMessageService;
@@ -21,7 +20,8 @@ public class YouTubePlayerController {
 
     /**
      * Handling YouTubePlayer states, only room owner, or responsible user should send messages here,
-     * this state will be broadcasted to all clients and set their players
+     * this state will be broadcasted to all clients and set their players:
+     * Play/Paused, PlayingTime, Quality, Rate will be synchronized based on Owner's player
      */
 
     @MessageMapping("/youtube/{roomId}")
@@ -29,7 +29,6 @@ public class YouTubePlayerController {
                                          @Payload PlayerStateDTO message,
                                          Principal principal) {
         log.info("Received YTPlayer state {} of room {} from principal {}", message, roomId, principal.getName());
-
         playerStateMessageService.sendToTopic(roomId, message);
     }
 

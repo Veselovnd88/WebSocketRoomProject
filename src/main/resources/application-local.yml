@@ -6,8 +6,9 @@ socket:
   dest-prefixes: /topic, /queue
   user-prefix: /user
   app-prefix: /app
-  endpoint: /api/room/chat
+  endpoint: /api/room
   chat-topic: /topic/messages
+  youtube-topic: /topic/youtube
   private-message-topic: /queue/private
   header-room-id: roomId
   message-size-limit: 65536

@@ -23,7 +23,7 @@ import ru.veselov.websocketroomproject.controller.client.TestStompFrameHandler;
 import ru.veselov.websocketroomproject.controller.client.TestStompSessionHandlerAdapter;
 import ru.veselov.websocketroomproject.dto.ReceivedChatMessage;
 import ru.veselov.websocketroomproject.dto.SendChatMessage;
-import ru.veselov.websocketroomproject.event.UserDisconnectEventHandler;
+import ru.veselov.websocketroomproject.listener.WebSocketDisconnectListener;
 import ru.veselov.websocketroomproject.service.ChatUserService;
 import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
 
@@ -66,7 +66,7 @@ class ChatMessageControllerTest {
     RoomSubscriptionService roomSubscriptionService;
 
     @MockBean
-    UserDisconnectEventHandler userDisconnectEventHandler;
+    WebSocketDisconnectListener webSocketDisconnectListener;
 
     @MockBean
     ChatUserService chatUserService;
@@ -94,7 +94,8 @@ class ChatMessageControllerTest {
         StompSession session = stompClient.connectAsync(URL, headers, stompHeaders, new TestStompSessionHandlerAdapter()
         ).get();
 
-        session.subscribe(destination, new TestStompFrameHandler(resultKeeper::complete));
+        session.subscribe(destination,
+                new TestStompFrameHandler<>(resultKeeper::complete, SendChatMessage.class));
         session.send("/app/chat/" + ROOM_ID, receivedChatMessage);
 
         SendChatMessage sendChatMessage = resultKeeper.get(3, TimeUnit.SECONDS);
@@ -121,7 +122,8 @@ class ChatMessageControllerTest {
         WebSocketStompClient stompClient = createClient();
         StompSession session = stompClient.connectAsync(URL, headers, stompHeaders, new TestStompSessionHandlerAdapter()
         ).get();
-        session.subscribe("/user/queue/private", new TestStompFrameHandler(resultKeeper::complete));
+        session.subscribe("/user/queue/private",
+                new TestStompFrameHandler<>(resultKeeper::complete, SendChatMessage.class));
         session.send("/app/chat-private", receivedChatMessage);
         SendChatMessage sendChatMessage = resultKeeper.get(3, TimeUnit.SECONDS);
         Assertions.assertThat(sendChatMessage).isNotNull();
@@ -148,7 +150,8 @@ class ChatMessageControllerTest {
         StompSession session = stompClient.connectAsync(URL, headers, stompHeaders, new TestStompSessionHandlerAdapter()
         ).get();
 
-        session.subscribe("/user/queue/private", new TestStompFrameHandler(resultKeeper::complete));
+        session.subscribe("/user/queue/private",
+                new TestStompFrameHandler<>(resultKeeper::complete, SendChatMessage.class));
         session.send("/app/chat-private", receivedChatMessage);
 
         //Will be thrown TimeoutException if no message received by User
