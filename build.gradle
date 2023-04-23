@@ -33,6 +33,10 @@ dependencies {
     // https://mvnrepository.com/artifact/org.apache.commons/commons-pool2
     implementation 'org.apache.commons:commons-pool2:2.11.1'
     implementation 'com.redis.testcontainers:testcontainers-redis:1.6.4'
+    implementation 'com.auth0:java-jwt:4.0.0'
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-thymeleaf
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf:3.0.6'
+
 
 
     annotationProcessor 'org.projectlombok:lombok'
