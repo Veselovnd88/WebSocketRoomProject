@@ -12,6 +12,7 @@ import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/room")
+@CrossOrigin(origins = "http://localhost:8080")
 @Slf4j
 public class RoomController {
 

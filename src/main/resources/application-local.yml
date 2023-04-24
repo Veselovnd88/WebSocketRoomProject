@@ -42,5 +42,6 @@ logging:
   level:
     ru.veselov: INFO
     org.testcontainers: INFO
+    org.springframework.security: INFO
 
 local.stub: disabled
