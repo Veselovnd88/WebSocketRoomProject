@@ -6,7 +6,7 @@ socket:
   dest-prefixes: /topic, /queue
   user-prefix: /user
   app-prefix: /app
-  endpoint: /api/room
+  endpoint: /api/room/chat
   chat-topic: /topic/messages
   youtube-topic: /topic/youtube
   private-message-topic: /queue/private
