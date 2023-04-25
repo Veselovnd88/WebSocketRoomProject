@@ -11,6 +11,7 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
 import ru.veselov.websocketroomproject.config.interceptor.SocketConnectionInterceptor;
+import ru.veselov.websocketroomproject.config.interceptor.SocketMessageInterceptor;
 import ru.veselov.websocketroomproject.config.interceptor.SocketSubscriptionInterceptor;
 import ru.veselov.websocketroomproject.security.JWTUtils;
 
@@ -48,7 +49,8 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
                         webSocketProperties.getDestPrefixes(),
                         webSocketProperties.getUserPrefix()
                 ),
-                new SocketConnectionInterceptor(jwtUtils)
+                new SocketConnectionInterceptor(jwtUtils),
+                new SocketMessageInterceptor(jwtUtils)
         );
     }
 

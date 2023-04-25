@@ -9,4 +9,7 @@ import lombok.Data;
 public class ChatUserDTO {
     @JsonProperty("username")
     private String username;
+
+    private String session;
+
 }
