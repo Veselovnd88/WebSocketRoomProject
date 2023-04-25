@@ -3,6 +3,7 @@ package ru.veselov.websocketroomproject.config.interceptor;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.messaging.Message;
@@ -15,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import ru.veselov.websocketroomproject.TestConstants;
+import ru.veselov.websocketroomproject.security.JWTUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -28,9 +30,12 @@ class SocketConnectionInterceptorTest {
     @Value("${socket.header-room-id}")
     private String roomIdHeader;
 
+    @Autowired
+    JWTUtils jwtUtils;
+
     @Test
     void shouldReturnMessage() {
-        SocketConnectionInterceptor interceptor = new SocketConnectionInterceptor();
+        SocketConnectionInterceptor interceptor = new SocketConnectionInterceptor(jwtUtils);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         MessageChannel channel = Mockito.mock(MessageChannel.class);
         Message<?> message = Mockito.mock(Message.class);
@@ -47,7 +52,7 @@ class SocketConnectionInterceptorTest {
 
     @Test
     void shouldReturnMessageIfAnotherCommand() {
-        SocketConnectionInterceptor interceptor = new SocketConnectionInterceptor();
+        SocketConnectionInterceptor interceptor = new SocketConnectionInterceptor(jwtUtils);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         MessageChannel channel = Mockito.mock(MessageChannel.class);
         Message<?> message = Mockito.mock(Message.class);
@@ -64,7 +69,7 @@ class SocketConnectionInterceptorTest {
 
     @Test
     void shouldThrowMessagingExceptionWithNoAuthenticatedUser() {
-        SocketConnectionInterceptor interceptor = new SocketConnectionInterceptor();
+        SocketConnectionInterceptor interceptor = new SocketConnectionInterceptor(jwtUtils);
         MessageChannel channel = Mockito.mock(MessageChannel.class);
         Message<?> message = Mockito.mock(Message.class);
         Map<String, Object> headers = Map.of(
@@ -79,7 +84,7 @@ class SocketConnectionInterceptorTest {
 
     @Test
     void shouldThrowMessagingExceptionWithRoomIdIsNull() {
-        SocketConnectionInterceptor interceptor = new SocketConnectionInterceptor();
+        SocketConnectionInterceptor interceptor = new SocketConnectionInterceptor(jwtUtils);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         MessageChannel channel = Mockito.mock(MessageChannel.class);
         Message<?> message = Mockito.mock(Message.class);
@@ -95,7 +100,7 @@ class SocketConnectionInterceptorTest {
 
     @Test
     void shouldThrowMessagingExceptionWithRoomIdIsEmpty() {
-        SocketConnectionInterceptor interceptor = new SocketConnectionInterceptor();
+        SocketConnectionInterceptor interceptor = new SocketConnectionInterceptor(jwtUtils);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         MessageChannel channel = Mockito.mock(MessageChannel.class);
         Message<?> message = Mockito.mock(Message.class);

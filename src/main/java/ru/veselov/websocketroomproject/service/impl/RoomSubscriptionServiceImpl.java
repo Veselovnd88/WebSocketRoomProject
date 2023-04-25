@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.veselov.websocketroomproject.cache.SubscriptionCache;
-import ru.veselov.websocketroomproject.exception.SubscriptionNotFoundException;
 import ru.veselov.websocketroomproject.event.SubscriptionData;
+import ru.veselov.websocketroomproject.exception.SubscriptionNotFoundException;
 import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
 
 import java.util.Optional;
@@ -25,9 +25,9 @@ public class RoomSubscriptionServiceImpl implements RoomSubscriptionService {
     public void saveSubscription(SubscriptionData subscriptionData) {
         String username = subscriptionData.getUsername();
         String roomId = subscriptionData.getRoomId();
-        if (subscriptionCache.findSubscription(username, roomId).isPresent()) {
-            subscriptionData.getFluxSink().complete(); //if flux already exists we should complete it
-        }
+        Optional<SubscriptionData> storedSubscription = subscriptionCache.findSubscription(username, roomId);
+        //if flux already exists we should complete it
+        storedSubscription.ifPresent(data -> data.getFluxSink().complete());
         subscriptionCache.saveSubscription(subscriptionData);
     }
 
