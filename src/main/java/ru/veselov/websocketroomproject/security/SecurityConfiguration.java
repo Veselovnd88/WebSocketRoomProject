@@ -26,13 +26,14 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.csrf().disable()
                 .authorizeHttpRequests(
-                       // r-> r.anyRequest().permitAll()
-                       r -> r.anyRequest().authenticated()
+                        r -> r.requestMatchers("/api/room/chat/**").permitAll()
+                                .anyRequest().authenticated()
                 );
         httpSecurity
                 .cors()
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.ALWAYS);
+
         httpSecurity.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return httpSecurity.build();
     }

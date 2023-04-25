@@ -12,6 +12,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
 import ru.veselov.websocketroomproject.config.interceptor.SocketConnectionInterceptor;
 import ru.veselov.websocketroomproject.config.interceptor.SocketSubscriptionInterceptor;
+import ru.veselov.websocketroomproject.security.JWTUtils;
 
 import java.util.List;
 
@@ -23,6 +24,8 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
     private final MappingJackson2MessageConverter jackson2MessageConverter;
 
     private final WebSocketProperties webSocketProperties;
+
+    private final JWTUtils jwtUtils;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -45,7 +48,7 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
                         webSocketProperties.getDestPrefixes(),
                         webSocketProperties.getUserPrefix()
                 ),
-                new SocketConnectionInterceptor()
+                new SocketConnectionInterceptor(jwtUtils)
         );
     }
 

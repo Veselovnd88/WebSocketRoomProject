@@ -34,7 +34,7 @@ public class JWTFilter extends OncePerRequestFilter {
         final String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith(BEARER)) {
             filterChain.doFilter(request, response);
-            log.info("No authenticated");
+            log.info("No Authrorization header");
             return;
         }
 
