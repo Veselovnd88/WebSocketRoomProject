@@ -43,5 +43,6 @@ logging:
     ru.veselov: INFO
     org.testcontainers: INFO
     org.springframework.security: INFO
+    org.springframework.web.socket: INFO
 
 local.stub: disabled

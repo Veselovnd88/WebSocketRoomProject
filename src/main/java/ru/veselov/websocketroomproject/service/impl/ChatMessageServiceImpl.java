@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import ru.veselov.websocketroomproject.dto.ReceivedChatMessage;
 import ru.veselov.websocketroomproject.dto.SendChatMessage;
 import ru.veselov.websocketroomproject.mapper.ChatMessageMapper;
+import ru.veselov.websocketroomproject.security.JWTUtils;
 import ru.veselov.websocketroomproject.service.ChatMessageService;
 
 import java.security.Principal;
@@ -27,6 +28,8 @@ public class ChatMessageServiceImpl implements ChatMessageService {
 
     private final ChatMessageMapper chatMessageMapper;
 
+    private final JWTUtils jwtUtils;
+
 
     @Override
     public void sendToTopic(String roomId, ReceivedChatMessage receivedChatMessage, Principal principal) {
@@ -39,12 +42,12 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     }
 
     @Override
-    public void sendToUser(ReceivedChatMessage receivedChatMessage, Principal principal) {
+    public void sendToUser(ReceivedChatMessage receivedChatMessage, String sentFrom) {
         String sendTo = receivedChatMessage.getSendTo();
-        String username = principal.getName();
+        jwtUtils.getUsername(sentFrom.substring(7));
         simpMessagingTemplate.convertAndSendToUser(sendTo,
                 privateMessageDestination,
-                createSendChatMessage(receivedChatMessage, username)
+                createSendChatMessage(receivedChatMessage, sentFrom)
         );
         log.info("Private message sent to user {}", sendTo);
     }

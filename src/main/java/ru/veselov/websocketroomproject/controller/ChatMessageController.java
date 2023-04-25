@@ -3,6 +3,7 @@ package ru.veselov.websocketroomproject.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Controller;
@@ -27,9 +28,10 @@ public class ChatMessageController {
     }
 
     @MessageMapping("/chat-private")
-    public void processTextMessageToUser(@Payload ReceivedChatMessage receivedChatMessage, Principal principal) {
+    public void processTextMessageToUser(@Payload ReceivedChatMessage receivedChatMessage,
+                                         @Header("Authorization") String auth) {
         log.info("Private message to {} received", receivedChatMessage.getSendTo());
-        chatMessageService.sendToUser(receivedChatMessage, principal);
+        chatMessageService.sendToUser(receivedChatMessage, auth);
     }
 
 }

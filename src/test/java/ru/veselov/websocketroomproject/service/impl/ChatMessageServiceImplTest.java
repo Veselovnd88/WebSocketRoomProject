@@ -44,7 +44,7 @@ class ChatMessageServiceImplTest {
         Mockito.when(principal.getName()).thenReturn("user1");
         ReceivedChatMessage receivedChatMessage = new ReceivedChatMessage("user1", "msg", "user1");
 
-        chatMessageService.sendToUser(receivedChatMessage, principal);
+        chatMessageService.sendToUser(receivedChatMessage, "vasya");
 
         Mockito.verify(simpMessagingTemplate, Mockito.times(1))
                 .convertAndSendToUser(ArgumentMatchers.anyString(),

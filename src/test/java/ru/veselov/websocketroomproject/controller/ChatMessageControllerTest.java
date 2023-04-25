@@ -40,6 +40,11 @@ class ChatMessageControllerTest {
 
     private static final String ROOM_ID = "5";
 
+    private static final String AUTH_HEADER = "Authorization";
+
+    private static final String BEARER_JWT = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwidX" +
+            "Nlcm5hbWUiOiJ1c2VyMSIsInJvbGUiOiJhZG1pbiJ9.vDluIRzAjSOxbq8I4tLPUR_koUl7GPkAq34xjsuA1Ds";
+
     @Value("${server.zoneId}")
     private String serverZoneId;
 
@@ -84,14 +89,15 @@ class ChatMessageControllerTest {
     void shouldReturnCorrectSendMessage() {
         ReceivedChatMessage receivedChatMessage = new ReceivedChatMessage("user1", "message", null);
         String destination = chatTopic + "/" + ROOM_ID;
-        WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
-        String auth = "user1" + ":" + "secret";
-        headers.add("Authorization", "Basic " + new String(Base64.getEncoder().encode(auth.getBytes())));
         StompHeaders stompHeaders = new StompHeaders();
         stompHeaders.add(TestConstants.ROOM_ID_HEADER, ROOM_ID);
+        stompHeaders.add(AUTH_HEADER, BEARER_JWT);
         //Creating and configuring basic WebSocketClient
         WebSocketStompClient stompClient = createClient();
-        StompSession session = stompClient.connectAsync(URL, headers, stompHeaders, new TestStompSessionHandlerAdapter()
+        StompSession session = stompClient.connectAsync(URL,
+                new WebSocketHttpHeaders(),
+                stompHeaders,
+                new TestStompSessionHandlerAdapter()
         ).get();
 
         session.subscribe(destination,
