@@ -9,13 +9,17 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class JWTUtils {
 
+    private static final String USERNAME_CLAIM = "username";
+
+    private static final String ROLE_CLAIM = "role";
+
     public String getUsername(String token) {
         DecodedJWT decoded = JWT.decode(token);
-        return decoded.getClaim("username").asString();
+        return decoded.getClaim(USERNAME_CLAIM).asString();
     }
 
     public String getRole(String token) {
         DecodedJWT decoded = JWT.decode(token);
-        return decoded.getClaim("role").asString();
+        return decoded.getClaim(ROLE_CLAIM).asString();
     }
 }

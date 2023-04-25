@@ -49,10 +49,11 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
                         webSocketProperties.getDestPrefixes(),
                         webSocketProperties.getUserPrefix()
                 ),
-                new SocketConnectionInterceptor(jwtUtils),
+                new SocketConnectionInterceptor(),
                 new SocketMessageInterceptor(jwtUtils)
         );
     }
+
 
     @Override
     public void configureWebSocketTransport(WebSocketTransportRegistration registry) {

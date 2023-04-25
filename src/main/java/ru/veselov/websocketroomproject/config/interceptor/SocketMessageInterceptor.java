@@ -2,16 +2,15 @@ package ru.veselov.websocketroomproject.config.interceptor;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.NonNull;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
-import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 import ru.veselov.websocketroomproject.security.JWTUtils;
 
 import java.util.Collections;
@@ -21,11 +20,12 @@ import java.util.Collections;
 public class SocketMessageInterceptor implements ChannelInterceptor {
 
     private final JWTUtils jwtUtils;
+
     @Override
-    public Message<?> preSend(Message<?> message, MessageChannel channel) {
+    public Message<?> preSend(@NonNull Message<?> message, @NonNull MessageChannel channel) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
         if (accessor.getCommand() == StompCommand.SEND) {
-            String authorization = accessor.getFirstNativeHeader("Authorization");
+            String authorization = accessor.getFirstNativeHeader("Authorization");//checked before connection
             String jwt = authorization.substring(7);
             UsernamePasswordAuthenticationToken authenticationToken =
                     new UsernamePasswordAuthenticationToken(

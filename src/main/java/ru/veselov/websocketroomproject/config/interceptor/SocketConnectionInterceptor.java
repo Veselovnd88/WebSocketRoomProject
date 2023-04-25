@@ -3,65 +3,47 @@ package ru.veselov.websocketroomproject.config.interceptor;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.NonNull;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
-import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
-import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import ru.veselov.websocketroomproject.security.JWTUtils;
-
-import java.security.Principal;
-import java.util.Collections;
 
 /**
- * Interceptor validates authentication and correct roomId
+ * Interceptor validates headers in connect messages
  */
 @Slf4j
 @RequiredArgsConstructor
 public class SocketConnectionInterceptor implements ChannelInterceptor {
 
-    private final JWTUtils jwtUtils;
-
     @Override
-    public Message<?> preSend(Message<?> message, MessageChannel channel) {
+    public Message<?> preSend(@NonNull Message<?> message, @NonNull MessageChannel channel) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
         if (isConnectCommand(accessor)) {
-            String authorization = accessor.getFirstNativeHeader("Authorization");
-            String jwt = authorization.substring(7);
-            UsernamePasswordAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(
-                            jwtUtils.getUsername(jwt),
-                            null,
-                            Collections.singletonList(new SimpleGrantedAuthority(jwtUtils.getRole(jwt)))
-                    );
-            accessor.setUser(authenticationToken);
-            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-            accessor.setLeaveMutable(true);
-            String roomId = accessor.getFirstNativeHeader("roomId");
-            if (!isValidRoomId(roomId)) {
+            if (!isValidRoomId(accessor)) {
                 throw new MessagingException("Room Id should be integer value");
             }
+            if (!isValidAuthHeader(accessor)) {
+                throw new MessagingException("Message should have Authorization header");
+            }
         }
-        MessageHeaders messageHeaders = accessor.getMessageHeaders();
-        Message<?> message1 = MessageBuilder.createMessage(message.getPayload(), accessor.getMessageHeaders());
-        return MessageBuilder.createMessage(message.getPayload(), accessor.getMessageHeaders());
+
+        return message;
     }
 
-    private boolean validateAuthentication(Principal principal) {
-        if (principal == null) {
-            log.warn("No authenticated user in session");
+    private boolean isValidAuthHeader(StompHeaderAccessor accessor) {
+        String authHeader = accessor.getFirstNativeHeader("Authorization");
+        if (authHeader == null) {
+            log.warn("No authHeader in message");
             return false;
         }
         return true;
     }
 
-    private boolean isValidRoomId(String roomId) {
+    private boolean isValidRoomId(StompHeaderAccessor accessor) {
+        String roomId = accessor.getFirstNativeHeader("roomId");
         if (StringUtils.isBlank(roomId)) {
             log.warn("RoomId can't be null or empty");
             return false;
