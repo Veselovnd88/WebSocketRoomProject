@@ -20,12 +20,24 @@ public class SocketConnectionInterceptor implements ChannelInterceptor {
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
         if (isConnectCommand(accessor)) {
+            Principal principal = accessor.getUser();
+            if (!validateAuthentication(principal)) {
+                throw new MessagingException("No permission for no authenticated user");
+            }
             String roomId = accessor.getFirstNativeHeader("roomId");
             if (!isValidRoomId(roomId)) {
                 throw new MessagingException("Room Id should be integer value");
             }
         }
         return message;
+    }
+
+    private boolean validateAuthentication(Principal principal) {
+        if (principal == null) {
+            log.warn("No authenticated user in session");
+            return false;
+        }
+        return true;
     }
 
     private boolean isValidRoomId(String roomId) {

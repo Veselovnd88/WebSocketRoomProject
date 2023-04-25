@@ -31,7 +31,7 @@ public class WebSocketConnectionListener {
     public void handleUserConnection(SessionConnectEvent session) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(session.getMessage());
         String roomId = accessor.getFirstNativeHeader(roomIdHeader);
-        String username = accessor.getFirstNativeHeader("Authorization");
+        String username = session.getUser().getName();
         String sessionId = accessor.getSessionId();
         ChatUser chatUser = new ChatUser(
                 username,

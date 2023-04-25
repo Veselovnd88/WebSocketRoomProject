@@ -1,7 +1,11 @@
 var stompClient = null;
 //let roomId = Math.floor((Math.random() * 1000) + 1);
 let roomId = "5";
-fetch("/api/room/" + roomId,
+let jwt = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwidXNlcm5hbWUiOiJ1c2VyMSIsInJvbGUiOiJhZG1pbiJ9.vDluIRzAjSOxbq8I4tLPUR_koUl7GPkAq34xjsuA1Ds;
+fetch("/api/room/getInfo/" + roomId, {
+    headers: {
+        Authorization : 'Bearer '+jwt
+    }}
     ).then(r =>
     r.json())
     .then(data => {
