@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import ru.veselov.websocketroomproject.event.UserConnectEventHandler;
 import ru.veselov.websocketroomproject.model.ChatUser;
+import ru.veselov.websocketroomproject.security.JWTProperties;
 import ru.veselov.websocketroomproject.security.JWTUtils;
 import ru.veselov.websocketroomproject.service.ChatUserService;
 
@@ -30,6 +31,8 @@ public class WebSocketConnectionListener {
 
     private final JWTUtils jwtUtils;
 
+    private final JWTProperties jwtProperties;
+
     @EventListener
     public void handleUserConnection(SessionConnectEvent session) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(session.getMessage());
@@ -46,9 +49,8 @@ public class WebSocketConnectionListener {
     }
 
     private String getUsernameFromHeader(StompHeaderAccessor accessor) {
-        String authorization = accessor.getFirstNativeHeader("Authorization");
-        String username = jwtUtils.getUsername(authorization.substring(7));
-        return username;
+        String authorization = accessor.getFirstNativeHeader(jwtProperties.getHeader());
+        return jwtUtils.getUsername(authorization.substring(7));//checked before connection
     }
 
 }

@@ -133,6 +133,8 @@ class ChatMessageControllerTest {
         ).get();
         session.subscribe("/user/queue/private",
                 new TestStompFrameHandler<>(resultKeeper::complete, SendChatMessage.class));
+        String sessionId = session.getSessionId();
+
         session.send("/app/chat-private", receivedChatMessage);
         SendChatMessage sendChatMessage = resultKeeper.get(3, TimeUnit.SECONDS);
         Assertions.assertThat(sendChatMessage).isNotNull();

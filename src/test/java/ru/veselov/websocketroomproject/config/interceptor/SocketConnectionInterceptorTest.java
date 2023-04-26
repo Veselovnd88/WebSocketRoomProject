@@ -40,7 +40,7 @@ class SocketConnectionInterceptorTest {
                 StompHeaderAccessor.SESSION_ID_HEADER, TestConstants.TEST_SESSION_ID,
                 StompHeaderAccessor.NATIVE_HEADERS, Map.of(
                         roomIdHeader, List.of(ROOM_ID),
-                        AUTH_HEADER, List.of("asdf")
+                        AUTH_HEADER, List.of("Bearer ")
                 )
         );
         Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(headers));

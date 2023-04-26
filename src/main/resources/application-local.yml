@@ -19,12 +19,11 @@ chat-event:
   core-pool-size: 10
   max-pool-size: 10
 
-spring:
-  security:
-    user:
-      name: user1
-      password: secret
-      roles: USER
+jwt:
+  header: Authorization
+  prefix: "Bearer "
+  username-claim: username
+  role-claim: role
 
 redis:
   master:

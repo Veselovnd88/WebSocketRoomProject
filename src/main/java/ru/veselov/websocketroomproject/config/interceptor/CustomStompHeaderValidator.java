@@ -1,20 +1,23 @@
 package ru.veselov.websocketroomproject.config.interceptor;
 
-import io.micrometer.common.util.StringUtils;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
-import org.springframework.validation.Validator;
+import ru.veselov.websocketroomproject.security.JWTProperties;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class CustomStompHeaderValidator {
 
+    private final JWTProperties jwtProperties;
 
     public void validateAuthHeader(StompHeaderAccessor accessor) {
         if (!isValidAuthHeader(accessor)) {
-            throw new MessagingException("Message should have Authorization header");
+            throw new MessagingException("Message should have Authorization header with valid prefix");
         }
     }
 
@@ -24,11 +27,10 @@ public class CustomStompHeaderValidator {
         }
     }
 
-
     private boolean isValidAuthHeader(StompHeaderAccessor accessor) {
-        String authHeader = accessor.getFirstNativeHeader("Authorization");
-        if (authHeader == null) {
-            log.warn("No authHeader in message");
+        String authHeader = accessor.getFirstNativeHeader(jwtProperties.getHeader());
+        if (authHeader == null || !authHeader.startsWith(jwtProperties.getPrefix())) {
+            log.warn("AuthHeader is null or doesn't start with [{}] prefix", jwtProperties.getPrefix());
             return false;
         }
         return true;
