@@ -3,6 +3,9 @@ package ru.veselov.websocketroomproject.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.messaging.MessageHeaders;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -46,10 +49,11 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     @Override
     public void sendToUser(ReceivedChatMessage receivedChatMessage, String sentFrom) {
         String sendTo = receivedChatMessage.getSendTo();
-        jwtUtils.getUsername(sentFrom.substring(7));
-        simpMessagingTemplate.convertAndSendToUser(sendTo,
-                privateMessageDestination,
-                createSendChatMessage(receivedChatMessage, sentFrom)
+        String username = jwtUtils.getUsername(sentFrom.substring(7));
+        log.info("Send from username {}", username);
+        simpMessagingTemplate.convertAndSend(
+                privateMessageDestination+"-"+sendTo,
+                receivedChatMessage
         );
         log.info("Private message sent to user {}", sendTo);
     }
@@ -62,6 +66,13 @@ public class ChatMessageServiceImpl implements ChatMessageService {
 
     private String toDestination(String roomId) {
         return chatDestination + "/" + roomId;
+    }
+
+    private MessageHeaders createHeaders(String sessionId) {
+        SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.create(SimpMessageType.MESSAGE);
+        headerAccessor.setSessionId(sessionId);
+        headerAccessor.setLeaveMutable(true);
+        return headerAccessor.getMessageHeaders();
     }
 
 }

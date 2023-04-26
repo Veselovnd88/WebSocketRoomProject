@@ -30,7 +30,7 @@ public class SocketMessageInterceptor implements ChannelInterceptor {
     public Message<?> preSend(@NonNull Message<?> message, @NonNull MessageChannel channel) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
         if (accessor.getCommand() == StompCommand.SEND) {
-            customStompHeaderValidator.validate(accessor);
+          //  customStompHeaderValidator.validate(accessor);
             String authorization = accessor.getFirstNativeHeader("Authorization");
             String jwt = authorization.substring(7);
             UsernamePasswordAuthenticationToken authenticationToken =

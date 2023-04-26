@@ -89,21 +89,23 @@ class ChatMessageControllerTest {
     void shouldReturnCorrectSendMessage() {
         ReceivedChatMessage receivedChatMessage = new ReceivedChatMessage("user1", "message", null);
         String destination = chatTopic + "/" + ROOM_ID;
-        StompHeaders stompHeaders = new StompHeaders();
-        stompHeaders.add(TestConstants.ROOM_ID_HEADER, ROOM_ID);
-        stompHeaders.add(AUTH_HEADER, BEARER_JWT);
-        stompHeaders.add(StompHeaders.DESTINATION, "/app/chat/" + ROOM_ID);
+        StompHeaders stompHeadersConnect = new StompHeaders();
+        stompHeadersConnect.add(TestConstants.ROOM_ID_HEADER, ROOM_ID);
+        stompHeadersConnect.add(AUTH_HEADER, BEARER_JWT);
         //Creating and configuring basic WebSocketClient
         WebSocketStompClient stompClient = createClient();
         StompSession session = stompClient.connectAsync(URL,
                 new WebSocketHttpHeaders(),
-                stompHeaders,
+                stompHeadersConnect,
                 new TestStompSessionHandlerAdapter()
         ).get();
 
         session.subscribe(destination,
                 new TestStompFrameHandler<>(resultKeeper::complete, SendChatMessage.class));
-        session.send(stompHeaders, receivedChatMessage);
+        StompHeaders stompHeadersSend = new StompHeaders();
+        stompHeadersSend.add(AUTH_HEADER, BEARER_JWT);
+        stompHeadersSend.add(StompHeaders.DESTINATION, "/app/chat/" + ROOM_ID);
+        session.send(stompHeadersSend, receivedChatMessage);
 
         SendChatMessage sendChatMessage = resultKeeper.get(3, TimeUnit.SECONDS);
         Assertions.assertThat(sendChatMessage).isNotNull();

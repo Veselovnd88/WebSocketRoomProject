@@ -8,6 +8,7 @@ import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.security.config.annotation.web.socket.EnableWebSocketSecurity;
 import org.springframework.web.socket.config.annotation.*;
+import ru.veselov.websocketroomproject.config.interceptor.CustomStompHeaderValidator;
 import ru.veselov.websocketroomproject.config.interceptor.SocketConnectionInterceptor;
 import ru.veselov.websocketroomproject.config.interceptor.SocketMessageInterceptor;
 import ru.veselov.websocketroomproject.config.interceptor.SocketSubscriptionInterceptor;
@@ -25,6 +26,7 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
     private final WebSocketProperties webSocketProperties;
 
     private final JWTUtils jwtUtils;
+    private final CustomStompHeaderValidator customStompHeaderValidator;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -47,8 +49,8 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
                         webSocketProperties.getDestPrefixes(),
                         webSocketProperties.getUserPrefix()
                 ),
-                new SocketConnectionInterceptor(),
-                new SocketMessageInterceptor(jwtUtils)
+                new SocketConnectionInterceptor(customStompHeaderValidator),
+                new SocketMessageInterceptor(jwtUtils,customStompHeaderValidator)
         );
     }
 

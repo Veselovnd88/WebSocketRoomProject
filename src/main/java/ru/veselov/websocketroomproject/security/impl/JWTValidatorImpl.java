@@ -19,8 +19,6 @@ public class JWTValidatorImpl<T extends RuntimeException> implements JWTValidato
 
     @Override
     public void validate(String authHeader, T exception) {
-        if (authHeader == null || !authHeader.startsWith(BEARER)) {
-            throw  T("Not correct JWT in auth");
-        }
+
     }
 }

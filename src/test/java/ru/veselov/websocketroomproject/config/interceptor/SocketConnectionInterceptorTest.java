@@ -3,6 +3,7 @@ package ru.veselov.websocketroomproject.config.interceptor;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.messaging.Message;
@@ -26,9 +27,12 @@ class SocketConnectionInterceptorTest {
     @Value("${socket.header-room-id}")
     private String roomIdHeader;
 
+    @Autowired
+    private CustomStompHeaderValidator customStompHeaderValidator;
+
     @Test
     void shouldReturnMessage() {
-        SocketConnectionInterceptor interceptor = new SocketConnectionInterceptor();
+        SocketConnectionInterceptor interceptor = new SocketConnectionInterceptor(customStompHeaderValidator);
         MessageChannel channel = Mockito.mock(MessageChannel.class);
         Message<?> message = Mockito.mock(Message.class);
         Map<String, Object> headers = Map.of(
@@ -46,7 +50,7 @@ class SocketConnectionInterceptorTest {
 
     @Test
     void shouldReturnMessageIfAnotherCommand() {
-        SocketConnectionInterceptor interceptor = new SocketConnectionInterceptor();
+        SocketConnectionInterceptor interceptor = new SocketConnectionInterceptor(customStompHeaderValidator);
         MessageChannel channel = Mockito.mock(MessageChannel.class);
         Message<?> message = Mockito.mock(Message.class);
         Map<String, Object> headers = Map.of(
@@ -64,7 +68,7 @@ class SocketConnectionInterceptorTest {
 
     @Test
     void shouldThrowMessagingExceptionWithNoAuthHeader() {
-        SocketConnectionInterceptor interceptor = new SocketConnectionInterceptor();
+        SocketConnectionInterceptor interceptor = new SocketConnectionInterceptor(customStompHeaderValidator);
         MessageChannel channel = Mockito.mock(MessageChannel.class);
         Message<?> message = Mockito.mock(Message.class);
         Map<String, Object> headers = Map.of(
@@ -79,7 +83,7 @@ class SocketConnectionInterceptorTest {
 
     @Test
     void shouldThrowMessagingExceptionWithRoomIdIsNull() {
-        SocketConnectionInterceptor interceptor = new SocketConnectionInterceptor();
+        SocketConnectionInterceptor interceptor = new SocketConnectionInterceptor(customStompHeaderValidator);
         MessageChannel channel = Mockito.mock(MessageChannel.class);
         Message<?> message = Mockito.mock(Message.class);
         Map<String, Object> headers = Map.of(
@@ -94,7 +98,7 @@ class SocketConnectionInterceptorTest {
 
     @Test
     void shouldThrowMessagingExceptionWithRoomIdIsEmpty() {
-        SocketConnectionInterceptor interceptor = new SocketConnectionInterceptor();
+        SocketConnectionInterceptor interceptor = new SocketConnectionInterceptor(customStompHeaderValidator);
         MessageChannel channel = Mockito.mock(MessageChannel.class);
         Message<?> message = Mockito.mock(Message.class);
         Map<String, Object> headers = Map.of(
