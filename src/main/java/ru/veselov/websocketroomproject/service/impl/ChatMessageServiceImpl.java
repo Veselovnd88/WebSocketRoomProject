@@ -3,12 +3,7 @@ package ru.veselov.websocketroomproject.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.messaging.MessageHeaders;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import ru.veselov.websocketroomproject.dto.ReceivedChatMessage;
 import ru.veselov.websocketroomproject.dto.SendChatMessage;
@@ -52,8 +47,8 @@ public class ChatMessageServiceImpl implements ChatMessageService {
         String username = jwtUtils.getUsername(sentFrom.substring(7));
         log.info("Send from username {}", username);
         simpMessagingTemplate.convertAndSend(
-                privateMessageDestination+"-"+sendTo,
-                receivedChatMessage
+                privateMessageDestination + "-" + sendTo,
+                createSendChatMessage(receivedChatMessage, username)
         );
         log.info("Private message sent to user {}", sendTo);
     }

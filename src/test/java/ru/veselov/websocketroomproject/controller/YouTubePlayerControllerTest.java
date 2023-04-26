@@ -26,7 +26,6 @@ import ru.veselov.websocketroomproject.event.UserDisconnectEventHandler;
 import ru.veselov.websocketroomproject.service.ChatUserService;
 import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
 
-import java.util.Base64;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -35,6 +34,11 @@ import java.util.concurrent.TimeUnit;
 class YouTubePlayerControllerTest {
 
     private static final String ROOM_ID = "5";
+
+    private static final String AUTH_HEADER = "Authorization";
+
+    private static final String BEARER_JWT = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwidX" +
+            "Nlcm5hbWUiOiJ1c2VyMSIsInJvbGUiOiJhZG1pbiJ9.vDluIRzAjSOxbq8I4tLPUR_koUl7GPkAq34xjsuA1Ds";
 
     @LocalServerPort
     private String port;
@@ -77,19 +81,22 @@ class YouTubePlayerControllerTest {
     void shouldReturnSentPlayerStateDTO() {
         PlayerStateDTO playerStateDTO = new PlayerStateDTO(1, "111.111", "low", "1");
         String destination = youtubeTopic + "/" + ROOM_ID;
-        WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
-        String auth = "user1" + ":" + "secret";
-        headers.add("Authorization", "Basic " + new String(Base64.getEncoder().encode(auth.getBytes())));
-        StompHeaders stompHeaders = new StompHeaders();
-        stompHeaders.add(TestConstants.ROOM_ID_HEADER, ROOM_ID);
+        StompHeaders stompHeadersConnect = createConnectStompHeaders();
+
         //Creating and configuring basic WebSocketClient
         WebSocketStompClient stompClient = createClient();
-        StompSession session = stompClient.connectAsync(URL, headers, stompHeaders, new TestStompSessionHandlerAdapter()
+        StompSession session = stompClient.connectAsync(URL,
+                new WebSocketHttpHeaders(),
+                stompHeadersConnect,
+                new TestStompSessionHandlerAdapter()
         ).get();
 
         session.subscribe(destination,
                 new TestStompFrameHandler<>(playerStateResultKeeper::complete, PlayerStateDTO.class));
-        session.send("/app/youtube/" + ROOM_ID, playerStateDTO);
+        StompHeaders stompHeadersSend = new StompHeaders();
+        stompHeadersSend.add(AUTH_HEADER, BEARER_JWT);
+        stompHeadersSend.add(StompHeaders.DESTINATION, "/app/youtube/" + ROOM_ID);
+        session.send(stompHeadersSend, playerStateDTO);
 
         PlayerStateDTO receivedPlayerState = playerStateResultKeeper.get(3, TimeUnit.SECONDS);
         Assertions.assertThat(receivedPlayerState).isNotNull().isEqualTo(playerStateDTO);
@@ -107,6 +114,13 @@ class YouTubePlayerControllerTest {
         );
         stompClient.setMessageConverter(jackson2MessageConverter);
         return stompClient;
+    }
+
+    private StompHeaders createConnectStompHeaders() {
+        StompHeaders stompHeaders = new StompHeaders();
+        stompHeaders.add(TestConstants.ROOM_ID_HEADER, ROOM_ID);
+        stompHeaders.add(AUTH_HEADER, BEARER_JWT);
+        return stompHeaders;
     }
 
 }

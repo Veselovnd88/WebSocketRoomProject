@@ -26,7 +26,6 @@ public class ChatEventServiceImpl implements ChatEventService {
                     fluxSink.onDispose(removeSubscription(subscriptionData));
                     fluxSink.next(ServerSentEvent.builder()
                             .event("init")
-                            .data("init message")
                             .build());  //send init event to notify successful connection
                     roomSubscriptionService.saveSubscription(subscriptionData);
                 }

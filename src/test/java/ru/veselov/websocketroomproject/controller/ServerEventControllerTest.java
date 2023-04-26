@@ -19,6 +19,12 @@ class ServerEventControllerTest {
 
     private final static String ROOM_ID = "5";
 
+    private static final String AUTH_HEADER = "Authorization";
+
+    private static final String BEARER_JWT = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwidX" +
+            "Nlcm5hbWUiOiJ1c2VyMSIsInJvbGUiOiJhZG1pbiJ9.vDluIRzAjSOxbq8I4tLPUR_koUl7GPkAq34xjsuA1Ds";
+
+
     @Autowired
     WebTestClient webTestClient;
 
@@ -29,7 +35,7 @@ class ServerEventControllerTest {
     @SneakyThrows
     void shouldReturnSuccessfulCodeAndEventStream() {
         FluxExchangeResult<ServerSentEvent> fluxResult = webTestClient.get().uri("/api/room?roomId=" + ROOM_ID)
-                .headers(headers -> headers.setBasicAuth("user1", "secret"))
+                .headers(headers -> headers.add(AUTH_HEADER, BEARER_JWT))
                 //after implementing header with JWT - need to change header
                 .exchange().expectStatus().is2xxSuccessful()
                 .expectHeader().contentType(MediaType.TEXT_EVENT_STREAM_VALUE)

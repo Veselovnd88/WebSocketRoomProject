@@ -1,6 +1,5 @@
 package ru.veselov.websocketroomproject.security;
 
-import com.auth0.jwt.exceptions.JWTDecodeException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,16 +28,9 @@ public class JWTFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-        String jwt = authHeader.substring(7);
-        if (jwt.isBlank()) {
-            log.warn("Empty jwt in bearer header");
-            throw new JWTDecodeException("Empty JWT in Bearer header");
-        } else {
-            JWTAuthToken token = authTokenManager.createToken(jwt);
-            authTokenManager.setAuthentication(token);
-            log.info("Authentication created and set to context");
-            filterChain.doFilter(request, response);
-        }
+        JWTAuthToken token = authTokenManager.createToken(authHeader);
+        authTokenManager.setAuthentication(token);
+        log.info("Authentication created and set to context");
+        filterChain.doFilter(request, response);
     }
-
 }
