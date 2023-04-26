@@ -1,7 +1,7 @@
 package ru.veselov.websocketroomproject.security;
 
-public interface JWTValidator<T extends RuntimeException> {
+public interface JWTValidator {
 
-    void validate(String authHeader, T exception);
+    void validate(String authHeader);
 
 }

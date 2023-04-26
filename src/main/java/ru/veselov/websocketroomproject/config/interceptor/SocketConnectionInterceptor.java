@@ -24,7 +24,7 @@ public class SocketConnectionInterceptor implements ChannelInterceptor {
     public Message<?> preSend(@NonNull Message<?> message, @NonNull MessageChannel channel) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
         if (isConnectCommand(accessor)) {
-            customStompHeaderValidator.validate(accessor);
+            customStompHeaderValidator.validateRoomIdHeader(accessor);
         }
         return message;
     }

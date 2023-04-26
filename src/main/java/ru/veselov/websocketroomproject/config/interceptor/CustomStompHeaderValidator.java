@@ -12,14 +12,18 @@ import org.springframework.validation.Validator;
 public class CustomStompHeaderValidator {
 
 
-    public void validate(StompHeaderAccessor accessor) {
-        if (!isValidRoomId(accessor)) {
-            throw new MessagingException("Room Id should be integer value");
-        }
+    public void validateAuthHeader(StompHeaderAccessor accessor) {
         if (!isValidAuthHeader(accessor)) {
             throw new MessagingException("Message should have Authorization header");
         }
     }
+
+    public void validateRoomIdHeader(StompHeaderAccessor accessor) {
+        if (!isValidRoomId(accessor)) {
+            throw new MessagingException("Room Id should be integer value");
+        }
+    }
+
 
     private boolean isValidAuthHeader(StompHeaderAccessor accessor) {
         String authHeader = accessor.getFirstNativeHeader("Authorization");
