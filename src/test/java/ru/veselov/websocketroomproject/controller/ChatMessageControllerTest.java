@@ -92,6 +92,7 @@ class ChatMessageControllerTest {
         StompHeaders stompHeaders = new StompHeaders();
         stompHeaders.add(TestConstants.ROOM_ID_HEADER, ROOM_ID);
         stompHeaders.add(AUTH_HEADER, BEARER_JWT);
+        stompHeaders.add(StompHeaders.DESTINATION, "/app/chat/" + ROOM_ID);
         //Creating and configuring basic WebSocketClient
         WebSocketStompClient stompClient = createClient();
         StompSession session = stompClient.connectAsync(URL,
@@ -102,7 +103,7 @@ class ChatMessageControllerTest {
 
         session.subscribe(destination,
                 new TestStompFrameHandler<>(resultKeeper::complete, SendChatMessage.class));
-        session.send("/app/chat/" + ROOM_ID, receivedChatMessage);
+        session.send(stompHeaders, receivedChatMessage);
 
         SendChatMessage sendChatMessage = resultKeeper.get(3, TimeUnit.SECONDS);
         Assertions.assertThat(sendChatMessage).isNotNull();

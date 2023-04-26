@@ -18,37 +18,15 @@ import org.springframework.messaging.support.ChannelInterceptor;
 @RequiredArgsConstructor
 public class SocketConnectionInterceptor implements ChannelInterceptor {
 
+    private final CustomStompHeaderValidator customStompHeaderValidator;
+
     @Override
     public Message<?> preSend(@NonNull Message<?> message, @NonNull MessageChannel channel) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
         if (isConnectCommand(accessor)) {
-            if (!isValidRoomId(accessor)) {
-                throw new MessagingException("Room Id should be integer value");
-            }
-            if (!isValidAuthHeader(accessor)) {
-                throw new MessagingException("Message should have Authorization header");
-            }
+            customStompHeaderValidator.validate(accessor);
         }
-
         return message;
-    }
-
-    private boolean isValidAuthHeader(StompHeaderAccessor accessor) {
-        String authHeader = accessor.getFirstNativeHeader("Authorization");
-        if (authHeader == null) {
-            log.warn("No authHeader in message");
-            return false;
-        }
-        return true;
-    }
-
-    private boolean isValidRoomId(StompHeaderAccessor accessor) {
-        String roomId = accessor.getFirstNativeHeader("roomId");
-        if (StringUtils.isBlank(roomId)) {
-            log.warn("RoomId can't be null or empty");
-            return false;
-        }
-        return true;
     }
 
     private boolean isConnectCommand(StompHeaderAccessor accessor) {
