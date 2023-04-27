@@ -22,4 +22,5 @@ public class JWTUtils {
         DecodedJWT decoded = JWT.decode(token);
         return decoded.getClaim(jwtProperties.getRoleClaim()).asString();
     }
+
 }

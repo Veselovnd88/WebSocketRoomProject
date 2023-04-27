@@ -1,6 +1,5 @@
 package ru.veselov.websocketroomproject.security;
 
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.converter.Converter;
@@ -17,15 +16,12 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class JWTConverter implements Converter<String, UsernamePasswordAuthenticationToken> {
 
-    private final JWTProperties jwtProperties;
-
     private final JWTUtils jwtUtils;
-
 
     @Override
     public UsernamePasswordAuthenticationToken convert(@NonNull String jwt) {
-        String username = jwtUtils.getUsername(jwtProperties.getUsernameClaim());
-        String role = jwtUtils.getRole(jwtProperties.getRoleClaim());
+        String username = jwtUtils.getUsername(jwt);
+        String role = jwtUtils.getRole(jwt);
         return new UsernamePasswordAuthenticationToken(username,
                 jwt,
                 Collections.singletonList(new SimpleGrantedAuthority(role)));

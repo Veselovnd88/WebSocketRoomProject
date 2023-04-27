@@ -34,4 +34,5 @@ public class JWTFilter extends OncePerRequestFilter {
         log.info("Authentication created and set to context");
         filterChain.doFilter(request, response);
     }
+
 }

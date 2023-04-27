@@ -8,6 +8,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import ru.veselov.websocketroomproject.security.AuthTokenManager;
+import ru.veselov.websocketroomproject.security.JWTConverter;
 import ru.veselov.websocketroomproject.security.JWTUtils;
 
 import java.util.Collections;
@@ -17,7 +18,7 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class AuthTokenManagerImpl implements AuthTokenManager {
 
-    private final JWTUtils jwtUtils;
+    private final JWTConverter jwtConverter;
 
     @Override
     public UsernamePasswordAuthenticationToken createToken(String authHeader) {
@@ -26,11 +27,7 @@ public class AuthTokenManagerImpl implements AuthTokenManager {
             log.warn("Empty jwt in bearer header");
             throw new JWTDecodeException("Empty JWT in Bearer header");
         }
-        return new UsernamePasswordAuthenticationToken(
-                jwtUtils.getUsername(jwt), jwt,
-                Collections.singletonList(new SimpleGrantedAuthority(jwtUtils.getRole(jwt))
-                )
-        );
+        return jwtConverter.convert(jwt);
     }
 
     @Override
