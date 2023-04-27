@@ -14,7 +14,6 @@ import ru.veselov.websocketroomproject.service.PlayerStateMessageService;
 import java.security.Principal;
 
 @SpringBootTest
-@WithMockUser(username = "user1")
 class PlayerStateMessageServiceImplTest {
 
     private static final String ROOM_ID = "5";

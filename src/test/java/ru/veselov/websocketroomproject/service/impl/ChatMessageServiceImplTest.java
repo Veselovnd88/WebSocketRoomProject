@@ -15,7 +15,6 @@ import ru.veselov.websocketroomproject.service.ChatMessageService;
 import java.security.Principal;
 
 @SpringBootTest
-@WithMockUser(username = "user1")
 class ChatMessageServiceImplTest {
 
     private static final String ROOM_ID = "5";
@@ -40,17 +39,12 @@ class ChatMessageServiceImplTest {
 
     @Test
     void shouldSendMessageToUser() {
-        Principal principal = Mockito.mock(Principal.class);
-        Mockito.when(principal.getName()).thenReturn("user1");
-        ReceivedChatMessage receivedChatMessage = new ReceivedChatMessage("user1", "msg", "user1");
+        ReceivedChatMessage receivedChatMessage = new ReceivedChatMessage("user1", "msg", "session1");
 
-        chatMessageService.sendToUser(receivedChatMessage, "vasya");
+        chatMessageService.sendToUser(receivedChatMessage, "session1");
 
         Mockito.verify(simpMessagingTemplate, Mockito.times(1))
-                .convertAndSendToUser(ArgumentMatchers.anyString(),
-                        ArgumentMatchers.anyString(),
-                        ArgumentMatchers.any(SendChatMessage.class)
-                );
+                .convertAndSend(ArgumentMatchers.anyString(), ArgumentMatchers.any(SendChatMessage.class));
     }
 
 }

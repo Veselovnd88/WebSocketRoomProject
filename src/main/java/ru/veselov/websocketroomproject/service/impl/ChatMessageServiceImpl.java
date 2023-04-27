@@ -44,11 +44,10 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     @Override
     public void sendToUser(ReceivedChatMessage receivedChatMessage, String sentFrom) {
         String sendTo = receivedChatMessage.getSendTo();
-        String username = jwtUtils.getUsername(sentFrom.substring(7));
-        log.info("Send from username {}", username);
+        log.info("Send from username {}", sentFrom);
         simpMessagingTemplate.convertAndSend(
                 privateMessageDestination + "-" + sendTo,
-                createSendChatMessage(receivedChatMessage, username)
+                createSendChatMessage(receivedChatMessage, sentFrom)
         );
         log.info("Private message sent to user {}", sendTo);
     }

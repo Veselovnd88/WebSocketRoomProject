@@ -2,24 +2,24 @@ package ru.veselov.websocketroomproject.security;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class JWTUtils {
 
-    private static final String USERNAME_CLAIM = "username";
-
-    private static final String ROLE_CLAIM = "role";
+    private final JWTProperties jwtProperties;
 
     public String getUsername(String token) {
         DecodedJWT decoded = JWT.decode(token);
-        return decoded.getClaim(USERNAME_CLAIM).asString();
+        return decoded.getClaim(jwtProperties.getUsernameClaim()).asString();
     }
 
     public String getRole(String token) {
         DecodedJWT decoded = JWT.decode(token);
-        return decoded.getClaim(ROLE_CLAIM).asString();
+        return decoded.getClaim(jwtProperties.getRoleClaim()).asString();
     }
 }

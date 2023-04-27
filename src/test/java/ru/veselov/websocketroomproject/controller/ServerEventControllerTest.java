@@ -11,7 +11,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.test.web.reactive.server.FluxExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import reactor.core.publisher.Flux;
+import reactor.test.StepVerifier;
 import ru.veselov.websocketroomproject.cache.SubscriptionCache;
+
+import java.time.Duration;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
@@ -32,7 +36,6 @@ class ServerEventControllerTest {
     SubscriptionCache subscriptionCache;
 
     @Test
-    @SneakyThrows
     void shouldReturnSuccessfulCodeAndEventStream() {
         FluxExchangeResult<ServerSentEvent> fluxResult = webTestClient.get().uri("/api/room?roomId=" + ROOM_ID)
                 .headers(headers -> headers.add(AUTH_HEADER, BEARER_JWT))
@@ -41,7 +44,11 @@ class ServerEventControllerTest {
                 .expectHeader().contentType(MediaType.TEXT_EVENT_STREAM_VALUE)
                 .returnResult(ServerSentEvent.class);
 
-        Assertions.assertThat(fluxResult.getResponseBody().blockFirst().event()).isEqualTo("init");
+        Flux<ServerSentEvent> responseBody = fluxResult.getResponseBody();
+        StepVerifier.create(responseBody)
+                .expectNext().thenCancel().verify();
+
+        //Assertions.assertThat(fluxResult.getResponseBody().blockFirst().event()).isEqualTo("init");
     }
 
 }

@@ -29,9 +29,10 @@ public class ChatMessageController {
 
     @MessageMapping("/chat-private")
     public void processTextMessageToUser(@Payload ReceivedChatMessage receivedChatMessage,
-                                         @Header("Authorization") String auth) {
+                                         Principal principal) {
+        String sentFrom = principal.getName();
         log.info("Private message to {} received", receivedChatMessage.getSendTo());
-        chatMessageService.sendToUser(receivedChatMessage, auth);
+        chatMessageService.sendToUser(receivedChatMessage, sentFrom);
     }
 
 }

@@ -9,8 +9,8 @@ import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import ru.veselov.websocketroomproject.security.AuthTokenManager;
-import ru.veselov.websocketroomproject.security.JWTAuthToken;
 import ru.veselov.websocketroomproject.security.JWTProperties;
 
 @Slf4j
@@ -29,7 +29,7 @@ public class SocketMessageInterceptor implements ChannelInterceptor {
         if (accessor.getCommand() == StompCommand.SEND) {
             customStompHeaderValidator.validateAuthHeader(accessor);
             String authHeader = accessor.getFirstNativeHeader(jwtProperties.getHeader());
-            JWTAuthToken token = authTokenManager.createToken(authHeader);//checked in validator
+            UsernamePasswordAuthenticationToken token = authTokenManager.createToken(authHeader);
             accessor.setUser(token);
             authTokenManager.setAuthentication(token);
         }

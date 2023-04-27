@@ -17,6 +17,7 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.csrf().disable()
+                .httpBasic().disable()
                 .authorizeHttpRequests(
                         r -> r.requestMatchers("/api/room/chat/**").permitAll()
                                 .anyRequest().authenticated()

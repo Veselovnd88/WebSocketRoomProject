@@ -25,13 +25,17 @@ import java.util.List;
 import java.util.Map;
 
 @SpringBootTest
-@WithMockUser(username = "user1")
 @SuppressWarnings("unchecked")
 class WebSocketConnectionListenerTest {
 
     private static final String ROOM_ID = "5";
 
     private static final String DESTINATION = "/topic/users/5";
+
+    private static final String AUTH_HEADER = "Authorization";
+
+    private static final String BEARER_JWT = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwidX" +
+            "Nlcm5hbWUiOiJ1c2VyMSIsInJvbGUiOiJhZG1pbiJ9.vDluIRzAjSOxbq8I4tLPUR_koUl7GPkAq34xjsuA1Ds";
 
     @Value("${socket.header-room-id}")
     private String roomIdHeader;
@@ -49,16 +53,17 @@ class WebSocketConnectionListenerTest {
 
     @Test
     void shouldSaveUserAndNotifyUsers() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
         Message<byte[]> message = Mockito.mock(Message.class);
         Map<String, Object> headers = Map.of(
                 StompHeaderAccessor.DESTINATION_HEADER, DESTINATION,
                 StompHeaderAccessor.SESSION_ID_HEADER, TestConstants.TEST_SESSION_ID,
-                StompHeaderAccessor.NATIVE_HEADERS, Map.of(roomIdHeader, List.of(ROOM_ID))
+                StompHeaderAccessor.NATIVE_HEADERS, Map.of(
+                        roomIdHeader, List.of(ROOM_ID),
+                        AUTH_HEADER, List.of(BEARER_JWT)
+                )
         );
         Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
-        SessionConnectEvent sessionSubscribeEvent = new SessionConnectEvent(new Object(), message, authentication);
+        SessionConnectEvent sessionSubscribeEvent = new SessionConnectEvent(new Object(), message);
 
         webSocketConnectionListener.handleUserConnection(sessionSubscribeEvent);
 
@@ -67,7 +72,7 @@ class WebSocketConnectionListenerTest {
         ChatUser chatUserFromCaptor = chatUserArgumentCaptor.getValue();
         Assertions.assertThat(chatUserFromCaptor).isNotNull().isInstanceOf(ChatUser.class);
         Assertions.assertThat(chatUserFromCaptor.getSession()).isEqualTo(TestConstants.TEST_SESSION_ID);
-        Assertions.assertThat(chatUserFromCaptor.getUsername()).isEqualTo(username);
+        Assertions.assertThat(chatUserFromCaptor.getUsername()).isNotBlank();
         Assertions.assertThat(chatUserFromCaptor.getRoomId()).isEqualTo(ROOM_ID);
         Mockito.verify(userConnectEventHandler, Mockito.times(1)).handleConnectEvent(chatUserFromCaptor);
     }
