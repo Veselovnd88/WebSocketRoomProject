@@ -15,7 +15,7 @@ public class JWTUtils {
 
     public String getUsername(String token) {
         DecodedJWT decoded = JWT.decode(token);
-        return decoded.getClaim(jwtProperties.getUsernameClaim()).asString();
+        return decoded.getSubject();
     }
 
     public String getRole(String token) {

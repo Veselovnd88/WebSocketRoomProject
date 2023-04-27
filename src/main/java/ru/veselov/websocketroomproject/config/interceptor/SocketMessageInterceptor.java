@@ -29,12 +29,11 @@ public class SocketMessageInterceptor implements ChannelInterceptor {
         if (accessor.getCommand() == StompCommand.SEND) {
             customStompHeaderValidator.validateAuthHeader(accessor);
             String authHeader = accessor.getFirstNativeHeader(jwtProperties.getHeader());
-            UsernamePasswordAuthenticationToken token = authTokenManager.createToken(authHeader);
+            UsernamePasswordAuthenticationToken token = authTokenManager.createAndAuthenticateToken(authHeader);
             accessor.setUser(token);
-            authTokenManager.setAuthentication(token);
+            return MessageBuilder.createMessage(message.getPayload(), accessor.getMessageHeaders());
         }
-
-        return MessageBuilder.createMessage(message.getPayload(), accessor.getMessageHeaders());
+        return message;
     }
 
 }

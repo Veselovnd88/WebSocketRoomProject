@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -29,8 +30,8 @@ public class JWTFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-        UsernamePasswordAuthenticationToken token = authTokenManager.createToken(authHeader);
-        authTokenManager.setAuthentication(token);
+        UsernamePasswordAuthenticationToken token = authTokenManager.createAndAuthenticateToken(authHeader);
+        SecurityContextHolder.getContext().setAuthentication(token);
         log.info("Authentication created and set to context");
         filterChain.doFilter(request, response);
     }

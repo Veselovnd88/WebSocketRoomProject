@@ -4,13 +4,11 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import ru.veselov.websocketroomproject.TestConstants;
 
 @SpringBootTest
 class JWTUtilsTest {
-
-    private static final String JWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwidX" +
-            "Nlcm5hbWUiOiJ1c2VyMSIsInJvbGUiOiJhZG1pbiJ9.vDluIRzAjSOxbq8I4tLPUR_koUl7GPkAq34xjsuA1Ds";
-
+    private final String JWT = TestConstants.BEARER_JWT.substring(7);
     @Autowired
     JWTUtils jwtUtils;
 

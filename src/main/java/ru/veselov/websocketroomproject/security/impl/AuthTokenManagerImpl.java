@@ -21,20 +21,15 @@ public class AuthTokenManagerImpl implements AuthTokenManager {
     private final JWTConverter jwtConverter;
 
     @Override
-    public UsernamePasswordAuthenticationToken createToken(String authHeader) {
+    public UsernamePasswordAuthenticationToken createAndAuthenticateToken(String authHeader) {
         String jwt = authHeader.substring(7);
         if (jwt.isBlank()) {
             log.warn("Empty jwt in bearer header");
             throw new JWTDecodeException("Empty JWT in Bearer header");
         }
-        return jwtConverter.convert(jwt);
-    }
-
-    @Override
-    public void setAuthentication(UsernamePasswordAuthenticationToken jwtAuthToken) {
-        if (SecurityContextHolder.getContext().getAuthentication() == null) {
-            SecurityContextHolder.getContext().setAuthentication(jwtAuthToken);
-        }
+        UsernamePasswordAuthenticationToken token = jwtConverter.convert(jwt);
+        SecurityContextHolder.getContext().setAuthentication(token);
+        return token;
     }
 
 }

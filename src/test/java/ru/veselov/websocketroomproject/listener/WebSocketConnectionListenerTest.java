@@ -12,9 +12,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.event.UserConnectEventHandler;
@@ -31,11 +28,6 @@ class WebSocketConnectionListenerTest {
     private static final String ROOM_ID = "5";
 
     private static final String DESTINATION = "/topic/users/5";
-
-    private static final String AUTH_HEADER = "Authorization";
-
-    private static final String BEARER_JWT = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwidX" +
-            "Nlcm5hbWUiOiJ1c2VyMSIsInJvbGUiOiJhZG1pbiJ9.vDluIRzAjSOxbq8I4tLPUR_koUl7GPkAq34xjsuA1Ds";
 
     @Value("${socket.header-room-id}")
     private String roomIdHeader;
@@ -59,7 +51,7 @@ class WebSocketConnectionListenerTest {
                 StompHeaderAccessor.SESSION_ID_HEADER, TestConstants.TEST_SESSION_ID,
                 StompHeaderAccessor.NATIVE_HEADERS, Map.of(
                         roomIdHeader, List.of(ROOM_ID),
-                        AUTH_HEADER, List.of(BEARER_JWT)
+                        TestConstants.AUTH_HEADER, List.of(TestConstants.BEARER_JWT)
                 )
         );
         Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(headers));

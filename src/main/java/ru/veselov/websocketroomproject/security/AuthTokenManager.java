@@ -4,8 +4,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 
 public interface AuthTokenManager {
 
-    UsernamePasswordAuthenticationToken createToken(String authHeader);
-
-    void setAuthentication(UsernamePasswordAuthenticationToken token);
+    UsernamePasswordAuthenticationToken createAndAuthenticateToken(String authHeader);
 
 }

@@ -22,7 +22,6 @@ chat-event:
 jwt:
   header: Authorization
   prefix: "Bearer "
-  username-claim: username
   role-claim: role
 
   profiles:
