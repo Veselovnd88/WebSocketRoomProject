@@ -29,7 +29,7 @@ public class EventSenderImpl implements EventSender {
                     .event(eventType.name())
                     .build();
             subscriptionsByRoomId.forEach(x -> x.getFluxSink().next(event));
-            log.info("Message for event {} sent to all connected subscriptions of room #{}", eventType, roomId);
+            log.info("Message for event [{}] sent to all connected subscriptions of [room #{}]", eventType, roomId);
         }
     }
 

@@ -1,5 +1,6 @@
 package ru.veselov.websocketroomproject.security;
 
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -7,8 +8,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -17,22 +16,28 @@ import java.io.IOException;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class JWTFilter extends OncePerRequestFilter {
+public class JwtFilter extends OncePerRequestFilter {
 
     private final AuthTokenManager authTokenManager;
 
-    private final JWTProperties jwtProperties;
+    private final JwtProperties jwtProperties;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
         final String authHeader = request.getHeader(jwtProperties.getHeader());
         if (authHeader == null || !authHeader.startsWith(jwtProperties.getPrefix())) {
+            String requestURI = request.getRequestURI();
+            if (requestURI.equals("/api/room/event")) {
+                log.warn("Wrong authorization prefix to connect [{}]", requestURI);
+                throw new JWTDecodeException(
+                        "Cannot connect to [/api/room/event]: Authorization header not exists or has wrong prefix"
+                );
+            }
             filterChain.doFilter(request, response);
             return;
         }
-        JwtAuthenticationToken token = authTokenManager.createAndAuthenticateToken(authHeader);
-        SecurityContextHolder.getContext().setAuthentication(token);
-        log.info("Authentication created and set to context");
+        authTokenManager.createAndAuthenticateToken(authHeader);
+        log.info("Authentication for [{}] created and set to context", request.getRemoteAddr());
         filterChain.doFilter(request, response);
     }
 

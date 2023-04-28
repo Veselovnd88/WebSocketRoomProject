@@ -12,7 +12,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
-    private final JWTFilter jwtFilter;
+    private final JwtFilter jwtFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -20,6 +20,7 @@ public class SecurityConfiguration {
                 .httpBasic().disable()
                 .authorizeHttpRequests(
                         r -> r.requestMatchers("/api/room/chat/**").permitAll()
+                                .requestMatchers("/api/room/event/**").permitAll()
                                 .anyRequest().authenticated()
                 );
         httpSecurity
@@ -30,5 +31,6 @@ public class SecurityConfiguration {
         httpSecurity.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return httpSecurity.build();
     }
+
 
 }

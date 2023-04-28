@@ -1,6 +1,7 @@
 package ru.veselov.websocketroomproject.config.interceptor;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.NonNull;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessagingException;
@@ -27,7 +28,7 @@ public class SocketSubscriptionInterceptor implements ChannelInterceptor {
     }
 
     @Override
-    public Message<?> preSend(Message<?> message, MessageChannel channel) {
+    public Message<?> preSend(@NonNull Message<?> message, @NonNull MessageChannel channel) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
         StompCommand stompCommand = accessor.getCommand();
         if (isSubscribeCommand(stompCommand)) {
@@ -47,7 +48,7 @@ public class SocketSubscriptionInterceptor implements ChannelInterceptor {
         }
 
         if (!isPrefixExists(destination)) {
-            log.warn("Destination has not correct prefix: {}", destination);
+            log.warn("Destination has not correct prefix: [{}]", destination);
             return false;
         }
         return true;

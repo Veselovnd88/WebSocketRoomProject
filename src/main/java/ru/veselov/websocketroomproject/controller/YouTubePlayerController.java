@@ -28,7 +28,7 @@ public class YouTubePlayerController {
     public void manageYouTubePlayerState(@DestinationVariable("roomId") String roomId,
                                          @Payload PlayerStateDTO message,
                                          Principal principal) {
-        log.info("Received YTPlayer state {} of room {} from principal {}", message, roomId, principal.getName());
+        log.info("Received YTPlayer state [{} of room {} from principal {}]", message, roomId, principal.getName());
         playerStateMessageService.sendToTopic(roomId, message);
     }
 

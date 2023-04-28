@@ -20,7 +20,7 @@ public class ChatEventServiceImpl implements ChatEventService {
     @Override
     public Flux<ServerSentEvent> createEventStream(String username, String roomId) {
         return Flux.create(fluxSink -> {
-                    log.info("Subscription for user {} of room {} created", username, roomId);
+                    log.info("Subscription for [user {} of room {}] created", username, roomId);
                     SubscriptionData subscriptionData = new SubscriptionData(username, roomId, fluxSink);
                     fluxSink.onCancel(removeSubscription(subscriptionData));
                     fluxSink.onDispose(removeSubscription(subscriptionData));

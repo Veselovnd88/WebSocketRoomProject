@@ -1,6 +1,7 @@
 package ru.veselov.websocketroomproject.repository;
 
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 import ru.veselov.websocketroomproject.entity.ChatUserEntity;
 
@@ -11,7 +12,7 @@ import java.util.Set;
 public interface ChatUserRedisRepository extends CrudRepository<ChatUserEntity, String> {
 
     Set<ChatUserEntity> findAllByRoomId(String roomId);
-
-    Optional<ChatUserEntity> findById(String sessionId);
+    @NonNull
+    Optional<ChatUserEntity> findById(@NonNull String sessionId);
 
 }

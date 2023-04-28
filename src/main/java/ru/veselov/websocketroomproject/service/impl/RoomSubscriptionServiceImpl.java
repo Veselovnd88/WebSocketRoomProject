@@ -47,7 +47,7 @@ public class RoomSubscriptionServiceImpl implements RoomSubscriptionService {
         Optional<SubscriptionData> subscription = subscriptionCache.findSubscription(username, roomId);
         return subscription.orElseThrow(
                 () -> {
-                    log.warn("No user's {} subscription found for room", username);
+                    log.warn("[No user's {} subscription] found for room", username);
                     return new SubscriptionNotFoundException("No such user found for room");
                 }
         );

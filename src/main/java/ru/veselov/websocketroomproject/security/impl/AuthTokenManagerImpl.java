@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import ru.veselov.websocketroomproject.security.AuthTokenManager;
-import ru.veselov.websocketroomproject.security.JWTConverter;
+import ru.veselov.websocketroomproject.security.JwtConverter;
 import ru.veselov.websocketroomproject.security.JwtAuthenticationToken;
 
 @Service
@@ -14,17 +14,20 @@ import ru.veselov.websocketroomproject.security.JwtAuthenticationToken;
 @RequiredArgsConstructor
 public class AuthTokenManagerImpl implements AuthTokenManager {
 
-    private final JWTConverter jwtConverter;
+    private final JwtConverter jwtConverter;
 
     @Override
     public JwtAuthenticationToken createAndAuthenticateToken(String authHeader) {
         String jwt = authHeader.substring(7);
         if (jwt.isBlank()) {
             log.warn("Empty jwt in bearer header");
-            throw new JWTDecodeException("Empty JWT in Bearer header");
+            throw new JWTDecodeException("Jw in Bearer header cannot be empty or null");
         }
         JwtAuthenticationToken token = jwtConverter.convert(jwt);
-        SecurityContextHolder.getContext().setAuthentication(token);
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+            SecurityContextHolder.getContext().setAuthentication(token);
+        }
+
         return token;
     }
 

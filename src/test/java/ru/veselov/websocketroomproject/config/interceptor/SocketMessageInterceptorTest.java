@@ -15,7 +15,7 @@ import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.security.AuthTokenManager;
-import ru.veselov.websocketroomproject.security.JWTProperties;
+import ru.veselov.websocketroomproject.security.JwtProperties;
 import ru.veselov.websocketroomproject.security.JwtAuthenticationToken;
 
 import java.util.List;
@@ -31,7 +31,7 @@ class SocketMessageInterceptorTest {
     AuthTokenManager authTokenManager;
 
     @Autowired
-    JWTProperties jwtProperties;
+    JwtProperties jwtProperties;
 
     @Test
     void shouldReturnMessageWithCorrectedHeader() {
@@ -58,7 +58,8 @@ class SocketMessageInterceptorTest {
         Mockito.verify(customStompHeaderValidator, Mockito.times(1))
                 .validateAuthHeader(ArgumentMatchers.any(StompHeaderAccessor.class));
         Assertions.assertThat(processedMessage).isInstanceOf(Message.class);
-        Assertions.assertThat(processedMessage.getHeaders().get(SimpMessageHeaderAccessor.USER_HEADER)).isEqualTo(token);
+        Assertions.assertThat(processedMessage.getHeaders())
+                .containsEntry(SimpMessageHeaderAccessor.USER_HEADER, token);
     }
 
     @Test

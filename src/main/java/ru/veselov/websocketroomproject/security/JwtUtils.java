@@ -9,9 +9,9 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class JWTUtils {
+public class JwtUtils {
 
-    private final JWTProperties jwtProperties;
+    private final JwtProperties jwtProperties;
 
     public String getUsername(String token) {
         DecodedJWT decoded = JWT.decode(token);

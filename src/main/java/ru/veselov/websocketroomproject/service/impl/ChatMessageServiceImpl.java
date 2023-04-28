@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import ru.veselov.websocketroomproject.dto.ReceivedChatMessage;
 import ru.veselov.websocketroomproject.dto.SendChatMessage;
 import ru.veselov.websocketroomproject.mapper.ChatMessageMapper;
-import ru.veselov.websocketroomproject.security.JWTUtils;
+import ru.veselov.websocketroomproject.security.JwtUtils;
 import ru.veselov.websocketroomproject.service.ChatMessageService;
 
 import java.security.Principal;
@@ -28,8 +28,6 @@ public class ChatMessageServiceImpl implements ChatMessageService {
 
     private final ChatMessageMapper chatMessageMapper;
 
-    private final JWTUtils jwtUtils;
-
 
     @Override
     public void sendToTopic(String roomId, ReceivedChatMessage receivedChatMessage, Principal principal) {
@@ -38,18 +36,18 @@ public class ChatMessageServiceImpl implements ChatMessageService {
                 toDestination(roomId),
                 createSendChatMessage(receivedChatMessage, username)
         );
-        log.info("Message sent to topic {}", toDestination(roomId));
+        log.info("Message sent to [topic {}]", toDestination(roomId));
     }
 
     @Override
     public void sendToUser(ReceivedChatMessage receivedChatMessage, String sentFrom) {
         String sendTo = receivedChatMessage.getSendTo();
-        log.info("Send from username {}", sentFrom);
+        log.info("Send from [session {}]", sentFrom);
         simpMessagingTemplate.convertAndSend(
                 privateMessageDestination + "-" + sendTo,
                 createSendChatMessage(receivedChatMessage, sentFrom)
         );
-        log.info("Private message sent to user {}", sendTo);
+        log.info("Private message sent to [session {}]", sendTo);
     }
 
     private SendChatMessage createSendChatMessage(ReceivedChatMessage receivedChatMessage, String username) {

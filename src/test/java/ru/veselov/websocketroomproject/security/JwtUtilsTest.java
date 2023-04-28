@@ -7,10 +7,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import ru.veselov.websocketroomproject.TestConstants;
 
 @SpringBootTest
-class JWTUtilsTest {
+class JwtUtilsTest {
     private final String JWT = TestConstants.BEARER_JWT.substring(7);
     @Autowired
-    JWTUtils jwtUtils;
+    JwtUtils jwtUtils;
 
     @Test
     void shouldReturnUsername() {
@@ -21,7 +21,7 @@ class JWTUtilsTest {
     @Test
     void shouldReturnRole() {
         String role = jwtUtils.getRole(JWT);
-        Assertions.assertThat(role).isEqualTo("admin");
+        Assertions.assertThat(role).isEqualTo("ADMIN");
     }
 
 }

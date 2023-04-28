@@ -9,9 +9,9 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class JWTConverter implements Converter<String, JwtAuthenticationToken> {
+public class JwtConverter implements Converter<String, JwtAuthenticationToken> {
 
-    private final JWTUtils jwtUtils;
+    private final JwtUtils jwtUtils;
 
     @Override
     public JwtAuthenticationToken convert(@NonNull String jwt) {

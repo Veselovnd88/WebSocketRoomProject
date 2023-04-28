@@ -30,7 +30,7 @@ public class SubscriptionCacheImpl implements SubscriptionCache {
         roomSubscriptionsMap.putIfAbsent(roomId, new CopyOnWriteArraySet<>());
         Set<SubscriptionData> subscriptionSet = roomSubscriptionsMap.get(roomId);
         subscriptionSet.add(subscriptionData);
-        log.info("New subscription of {} added to room #{}", subscriptionData.getUsername(), roomId);
+        log.info("New subscription of [{}] added to [room #{}]", subscriptionData.getUsername(), roomId);
     }
 
     @Override
@@ -41,10 +41,10 @@ public class SubscriptionCacheImpl implements SubscriptionCache {
         if (!removed) {
             return; //if subscription already removed don't need to go further
         }
-        log.info("Subscription of {} removed from room #{}", subscriptionData.getUsername(), roomId);
+        log.info("Subscription of [{}] removed from [room #{}]", subscriptionData.getUsername(), roomId);
         if (roomSubscriptionsMap.get(roomId).isEmpty()) {
             roomSubscriptionsMap.remove(roomId);
-            log.info("Room #{} removed from subscribe storage", roomId);
+            log.info("[Room #{}] removed from subscribe storage", roomId);
         }
     }
 

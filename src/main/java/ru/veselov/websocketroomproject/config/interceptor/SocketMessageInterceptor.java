@@ -10,14 +10,14 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageBuilder;
 import ru.veselov.websocketroomproject.security.AuthTokenManager;
-import ru.veselov.websocketroomproject.security.JWTProperties;
+import ru.veselov.websocketroomproject.security.JwtProperties;
 import ru.veselov.websocketroomproject.security.JwtAuthenticationToken;
 
 @Slf4j
 @RequiredArgsConstructor
 public class SocketMessageInterceptor implements ChannelInterceptor {
 
-    private final JWTProperties jwtProperties;
+    private final JwtProperties jwtProperties;
 
     private final CustomStompHeaderValidator customStompHeaderValidator;
 

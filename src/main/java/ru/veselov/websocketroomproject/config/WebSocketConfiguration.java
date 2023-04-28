@@ -6,15 +6,14 @@ import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.security.config.annotation.web.socket.EnableWebSocketSecurity;
 import org.springframework.web.socket.config.annotation.*;
 import ru.veselov.websocketroomproject.config.interceptor.CustomStompHeaderValidator;
 import ru.veselov.websocketroomproject.config.interceptor.SocketConnectionInterceptor;
 import ru.veselov.websocketroomproject.config.interceptor.SocketMessageInterceptor;
 import ru.veselov.websocketroomproject.config.interceptor.SocketSubscriptionInterceptor;
 import ru.veselov.websocketroomproject.security.AuthTokenManager;
-import ru.veselov.websocketroomproject.security.JWTProperties;
-import ru.veselov.websocketroomproject.security.JWTUtils;
+import ru.veselov.websocketroomproject.security.JwtProperties;
+import ru.veselov.websocketroomproject.security.JwtUtils;
 
 import java.util.List;
 
@@ -27,12 +26,11 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
 
     private final WebSocketProperties webSocketProperties;
 
-    private final JWTUtils jwtUtils;
     private final CustomStompHeaderValidator customStompHeaderValidator;
 
     private final AuthTokenManager authTokenManager;
 
-    private final JWTProperties jwtProperties;
+    private final JwtProperties jwtProperties;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {

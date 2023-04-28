@@ -5,7 +5,6 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EmptySource;
-import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
@@ -14,7 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.security.AuthTokenManager;
-import ru.veselov.websocketroomproject.security.JWTConverter;
+import ru.veselov.websocketroomproject.security.JwtConverter;
 
 @SpringBootTest
 class AuthTokenManagerImplTest {
@@ -23,7 +22,7 @@ class AuthTokenManagerImplTest {
     AuthTokenManager authTokenManager;
 
     @MockBean
-    JWTConverter jwtConverter;
+    JwtConverter jwtConverter;
 
     @Captor
     ArgumentCaptor<String> substringCaptor;

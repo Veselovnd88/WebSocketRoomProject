@@ -8,10 +8,10 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import ru.veselov.websocketroomproject.TestConstants;
 
 @SpringBootTest
-class JWTConverterTest {
+class JwtConverterTest {
 
     @Autowired
-    JWTConverter jwtConverter;
+    JwtConverter jwtConverter;
 
     @Test
     void shouldConvertJwtToToken() {
@@ -19,7 +19,7 @@ class JWTConverterTest {
 
         Assertions.assertThat(token.getPrincipal()).isEqualTo("user1");
         Assertions.assertThat(token.getCredentials()).isEqualTo(TestConstants.BEARER_JWT.substring(7));
-        Assertions.assertThat(token.getAuthorities().contains(new SimpleGrantedAuthority("admin"))).isTrue();
+        Assertions.assertThat(token.getAuthorities().contains(new SimpleGrantedAuthority("ADMIN"))).isTrue();
     }
 
 }

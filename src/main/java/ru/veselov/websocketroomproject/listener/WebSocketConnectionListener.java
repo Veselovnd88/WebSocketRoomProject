@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import ru.veselov.websocketroomproject.event.UserConnectEventHandler;
 import ru.veselov.websocketroomproject.model.ChatUser;
-import ru.veselov.websocketroomproject.security.JWTProperties;
-import ru.veselov.websocketroomproject.security.JWTUtils;
+import ru.veselov.websocketroomproject.security.JwtProperties;
+import ru.veselov.websocketroomproject.security.JwtUtils;
 import ru.veselov.websocketroomproject.service.ChatUserService;
 
 /**
@@ -29,9 +29,9 @@ public class WebSocketConnectionListener {
 
     private final ChatUserService chatUserService;
 
-    private final JWTUtils jwtUtils;
+    private final JwtUtils jwtUtils;
 
-    private final JWTProperties jwtProperties;
+    private final JwtProperties jwtProperties;
 
     @EventListener
     public void handleUserConnection(SessionConnectEvent session) {
