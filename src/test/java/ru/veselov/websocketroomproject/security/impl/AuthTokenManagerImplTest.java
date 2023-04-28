@@ -3,12 +3,18 @@ package ru.veselov.websocketroomproject.security.impl;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EmptySource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.security.AuthTokenManager;
+import ru.veselov.websocketroomproject.security.JWTConverter;
 
 @SpringBootTest
 class AuthTokenManagerImplTest {
@@ -16,22 +22,26 @@ class AuthTokenManagerImplTest {
     @Autowired
     AuthTokenManager authTokenManager;
 
+    @MockBean
+    JWTConverter jwtConverter;
+
+    @Captor
+    ArgumentCaptor<String> substringCaptor;
+
     @Test
     void shouldCreateAndAuthenticateToken() {
+        authTokenManager.createAndAuthenticateToken(TestConstants.BEARER_JWT);
 
-        UsernamePasswordAuthenticationToken token = authTokenManager
-                .createAndAuthenticateToken(TestConstants.BEARER_JWT);
-
-        Assertions.assertThat(token.getPrincipal()).isEqualTo("user1");
-        Assertions.assertThat(token.getCredentials()).isEqualTo(TestConstants.BEARER_JWT.substring(7));
-        Assertions.assertThat(token.getAuthorities()).contains(new SimpleGrantedAuthority("admin"));
+        Mockito.verify(jwtConverter, Mockito.times(1)).convert(substringCaptor.capture());
+        String value = substringCaptor.getValue();
+        Assertions.assertThat(value).isEqualTo(TestConstants.BEARER_JWT.substring(7));
     }
 
-    @Test
-    void shouldThrowException() {
-
+    @ParameterizedTest
+    @EmptySource
+    void shouldThrowException(String jwt) {
         Assertions.assertThatThrownBy(
-                () -> authTokenManager.createAndAuthenticateToken("Bearer ")).isInstanceOf(JWTDecodeException.class);
+                () -> authTokenManager.createAndAuthenticateToken("Bearer " + jwt)).isInstanceOf(JWTDecodeException.class);
     }
 
 }

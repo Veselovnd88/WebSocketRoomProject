@@ -10,14 +10,13 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHeaders;
-import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.security.AuthTokenManager;
 import ru.veselov.websocketroomproject.security.JWTProperties;
+import ru.veselov.websocketroomproject.security.JwtAuthenticationToken;
 
 import java.util.List;
 import java.util.Map;
@@ -50,7 +49,7 @@ class SocketMessageInterceptorTest {
         MessageHeaders messageHeaders = new MessageHeaders(headers);
         Mockito.when(message.getHeaders()).thenReturn(messageHeaders);
         Mockito.when(message.getPayload()).thenReturn(new Object());
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user1", null);
+        JwtAuthenticationToken token = new JwtAuthenticationToken("user1", null, null);
         Mockito.when(authTokenManager.createAndAuthenticateToken(ArgumentMatchers.anyString())).thenReturn(token);
 
         Message<?> processedMessage = interceptor.preSend(message, channel);
