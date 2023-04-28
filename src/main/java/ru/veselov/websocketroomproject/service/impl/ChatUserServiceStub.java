@@ -15,7 +15,7 @@ import java.util.Set;
 
 @Slf4j
 @Service
-@ConditionalOnProperty(prefix = "local", name = "stub", havingValue = "enabled")
+@ConditionalOnProperty(prefix = "local", name = "chatUserStub", havingValue = "enabled")
 @RequiredArgsConstructor
 public class ChatUserServiceStub implements ChatUserService {
 

@@ -24,6 +24,7 @@ jwt:
   prefix: "Bearer "
   role-claim: role
 
+spring:
   profiles:
     active: local
 

@@ -1,18 +1,20 @@
 package ru.veselov.websocketroomproject.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.util.Date;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
 public class Room {
-    private Integer id;
+    private UUID uuid;
     private String name;
-    private Boolean isPublic;
+    @JsonProperty("isPrivate")
+    private boolean isPrivate;
     private String sourceUrl;
     private String roomToken;
-    private Date deleteTime;
-    private User owner;
+    private String ownerName;
+
 }
