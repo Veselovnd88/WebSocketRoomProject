@@ -6,7 +6,7 @@ import java.util.UUID;
 
 public interface RoomService {
 
-    Room createRoom(String roomName, String ownerName, boolean isPrivate);
+    Room createRoom(Room room);
 
     Room getRoom(UUID uuid);
 

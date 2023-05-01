@@ -2,6 +2,25 @@ server:
   port: 9990
   zoneId: "Europe/Moscow"
 
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/HarvexDB
+    username: admin
+    password: admin
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQL95Dialect
+        show_sql: true
+        format_sql: true
+        hbm2ddl:
+          auto: validate
+  flyway:
+    baseline-on-migrate: true
+    locations: db/migration
+
+
 socket:
   dest-prefixes: /topic, /queue
   user-prefix: /user
@@ -45,5 +64,5 @@ logging:
     org.springframework.messaging: INFO
 
 local:
-  roomServiceStub: enabled
+  roomServiceStub: disabled
   chatUserStub: disabled

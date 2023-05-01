@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.veselov.websocketroomproject.dto.RoomCreationDTO;
-import ru.veselov.websocketroomproject.dto.RoomInfoDTO;
 import ru.veselov.websocketroomproject.model.Room;
 import ru.veselov.websocketroomproject.service.RoomService;
 
@@ -30,12 +29,13 @@ public class RoomController {
     }
 
     @PostMapping(value = "/create")
-    public ResponseEntity<Room> createRoom(@RequestBody RoomCreationDTO roomCreationDTO,
+    public ResponseEntity<Room> createRoom(@RequestBody Room room,
                                            Principal principal) {
-        log.info("Create [room {}]", roomCreationDTO.getRoomName());
-        Room room = roomService.createRoom(roomCreationDTO.getRoomName(),
-                principal.getName(), roomCreationDTO.getIsPrivate());
-        return new ResponseEntity<>(room, HttpStatus.CREATED);
+        log.info("Create [room {}]", room.getName());
+        room.setOwnerName(principal.getName());
+        log.warn("[{}]", room);
+        Room saved = roomService.createRoom(room);
+        return new ResponseEntity<>(saved, HttpStatus.CREATED);
     }
 
 }

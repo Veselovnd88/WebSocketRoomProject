@@ -1,5 +1,19 @@
 version: "3.8"
 services:
+  database:
+    image: "postgres:15.2"
+    restart: always
+    env_file:
+      - database.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./database-data:/var/lib/postgresql/data/
+
+
+
+
+
   master:
     container_name: redis-chat-master
     hostname: redis-chat-cache
