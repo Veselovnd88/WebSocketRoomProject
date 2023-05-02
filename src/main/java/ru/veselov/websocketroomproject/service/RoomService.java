@@ -2,16 +2,21 @@ package ru.veselov.websocketroomproject.service;
 
 import ru.veselov.websocketroomproject.model.Room;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface RoomService {
 
     Room createRoom(Room room);
 
-    Room getRoom(UUID uuid);
+    Room getRoomById(UUID id);
 
-    Room changeOwner(UUID uuid, String currentOwner, String newOwnerName);
+    Room getRoomByName(String name);
 
-    Room changeStatus(UUID uuid, String ownerName, boolean isPrivate);
+    Room changeOwner(Room room, String newOwnerName);
+
+    Room changeStatus(Room room, boolean isPrivate);
+
+    List<Room> getAllRooms();
 
 }

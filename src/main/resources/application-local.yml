@@ -5,7 +5,7 @@ server:
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/HarvexDB
+    url: jdbc:postgresql://localhost:5435/HarvexDB
     username: admin
     password: admin
   jpa:
@@ -64,5 +64,4 @@ logging:
     org.springframework.messaging: INFO
 
 local:
-  roomServiceStub: disabled
   chatUserStub: disabled
