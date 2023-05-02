@@ -1,7 +1,8 @@
 package ru.veselov.websocketroomproject.exception;
 
-public class RoomNotFoundException extends RuntimeException {
+import jakarta.persistence.EntityNotFoundException;
 
+public class RoomNotFoundException extends EntityNotFoundException {
     public RoomNotFoundException(String message) {
         super(message);
     }

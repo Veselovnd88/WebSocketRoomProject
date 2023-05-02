@@ -1,5 +1,6 @@
 package ru.veselov.websocketroomproject.service.impl;
 
+import jakarta.persistence.TableGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,7 @@ import ru.veselov.websocketroomproject.model.Room;
 import ru.veselov.websocketroomproject.repository.RoomRepository;
 import ru.veselov.websocketroomproject.service.RoomService;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -49,8 +51,9 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public Room getRoomById(UUID id) {
-        RoomEntity roomEntity = findRoomById(id);
+    public Room getRoomById(String id) {
+        UUID uuid = UUID.fromString(id);
+        RoomEntity roomEntity = findRoomById(uuid);
         return roomMapper.entityToRoom(roomEntity);
     }
 
@@ -67,10 +70,11 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public Room changeOwner(Room room, String newOwnerName) {
+    @Transactional
+    public Room changeOwner(Room room, Principal principal) {
         RoomEntity roomEntity = findRoomById(room.getId());
-        if (roomEntity.getOwnerName().equals(room.getOwnerName())) {
-            roomEntity.setOwnerName(newOwnerName);
+        if (roomEntity.getOwnerName().equals(principal.getName())) {
+            roomEntity.setOwnerName(room.getOwnerName());
             RoomEntity saved = roomRepository.save(roomEntity);
             return roomMapper.entityToRoom(saved);
         } else {
@@ -79,10 +83,11 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public Room changeStatus(Room room, boolean isPrivate) {
+    @Transactional
+    public Room changeStatus(Room room, Principal principal) {
         RoomEntity roomEntity = findRoomById(room.getId());
-        if (roomEntity.getOwnerName().equals(room.getOwnerName())) {
-            roomEntity.setIsPrivate(isPrivate);
+        if (roomEntity.getOwnerName().equals(principal.getName())) {
+            roomEntity.setIsPrivate(room.getIsPrivate());
             RoomEntity saved = roomRepository.save(roomEntity);
             return roomMapper.entityToRoom(saved);
 

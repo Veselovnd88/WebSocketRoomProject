@@ -4,11 +4,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 @Data
 @NoArgsConstructor
-public class Room {
+public class Room implements Serializable {
     private UUID id;
     private String name;
     @JsonProperty("isPrivate")

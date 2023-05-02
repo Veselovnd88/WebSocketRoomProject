@@ -1,34 +1,51 @@
 package ru.veselov.websocketroomproject.controller;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import ru.veselov.websocketroomproject.dto.ExceptionResponse;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import ru.veselov.websocketroomproject.dto.ErrorResponse;
+import ru.veselov.websocketroomproject.exception.ErrorConstants;
 import ru.veselov.websocketroomproject.exception.NotCorrectOwnerException;
 import ru.veselov.websocketroomproject.exception.RoomAlreadyExistsException;
-import ru.veselov.websocketroomproject.exception.RoomNotFoundException;
 
 @ControllerAdvice
 @Slf4j
 public class ExceptionController {
 
     @ExceptionHandler({RoomAlreadyExistsException.class})
-    public ResponseEntity<ExceptionResponse> handleConflictException(RuntimeException e) {
-        log.warn("[{}] handled", e.getClass());
-        return new ResponseEntity<>(new ExceptionResponse(e.getMessage()), HttpStatus.CONFLICT);
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseBody
+    public ErrorResponse handleConflictException(RuntimeException exception) {
+        log.error("Error [handled: {}]", exception.getMessage());
+        return new ErrorResponse(ErrorConstants.ERROR_CONFLICT, exception.getMessage());
     }
 
     @ExceptionHandler({NotCorrectOwnerException.class})
-    public ResponseEntity<ExceptionResponse> handleNotAuthorizedException(RuntimeException e) {
-        log.warn("[{}] handled", e.getClass());
-        return new ResponseEntity<>(new ExceptionResponse(e.getMessage()), HttpStatus.UNAUTHORIZED);
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseBody
+    public ErrorResponse handleNotAuthorizedException(RuntimeException exception) {
+        log.error("Error [handled: {}]", exception.getMessage());
+        return new ErrorResponse(ErrorConstants.ERROR_NOT_AUTHORIZED, exception.getMessage());
     }
 
-    @ExceptionHandler({RoomNotFoundException.class})
-    public ResponseEntity<ExceptionResponse> handleNoFoundException(RuntimeException e) {
-        log.warn("[{}] handled", e.getClass());
-        return new ResponseEntity<>(new ExceptionResponse(e.getMessage()), HttpStatus.NOT_FOUND);
+    @ExceptionHandler({EntityNotFoundException.class})
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseBody
+    public ErrorResponse handleNoFoundException(RuntimeException exception) {
+        log.error("Error [handled: {}]", exception.getMessage());
+        return new ErrorResponse(ErrorConstants.ERROR_NOT_FOUND, exception.getMessage());
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ErrorResponse handleIllegalArgumentException(RuntimeException exception) {
+        log.error("Error [handled: {}]", exception.getMessage());
+        return new ErrorResponse(ErrorConstants.ERROR_ILLEGAL_ARG, exception.getMessage());
+    }
+
 }
