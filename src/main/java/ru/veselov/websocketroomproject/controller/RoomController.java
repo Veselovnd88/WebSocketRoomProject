@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.veselov.websocketroomproject.dto.RoomSettingsDTO;
 import ru.veselov.websocketroomproject.model.Room;
 import ru.veselov.websocketroomproject.service.RoomService;
 
@@ -26,19 +27,14 @@ public class RoomController {
         return new ResponseEntity<>(room, HttpStatus.OK);
     }
 
-    @PatchMapping("/change-owner")
-    public ResponseEntity<Room> changeOwner(@RequestBody Room room, Principal principal) {
-        Room editedRoom = roomService.changeOwner(room, principal);
-        log.info("[Room {}] owner changed to [{}]", room.getId(), room.getOwnerName());
+    @PutMapping("/{roomId}")
+    public ResponseEntity<Room> changeSetting(@PathVariable("roomId") String roomId,
+                                              @RequestBody RoomSettingsDTO settings, Principal principal) {
+        Room editedRoom = roomService.changeSettings(roomId, settings, principal);
+        log.info("[Room {}] settings changed to {}", roomId, settings);
         return new ResponseEntity<>(editedRoom, HttpStatus.ACCEPTED);
     }
 
-    @PatchMapping("/change-status")
-    public ResponseEntity<Room> changeStatus(@RequestBody Room room, Principal principal) {
-        Room editedRoom = roomService.changeStatus(room, principal);
-        log.info("[Room {}] status changed to [{}]", room.getId(), room.getIsPrivate());
-        return new ResponseEntity<>(editedRoom, HttpStatus.ACCEPTED);
-    }
 
     @PostMapping(value = "/create")
     public ResponseEntity<Room> createRoom(@RequestBody Room room, Principal principal) {

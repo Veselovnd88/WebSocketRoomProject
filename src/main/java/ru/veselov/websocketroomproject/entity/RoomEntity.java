@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.Type;
 import org.mapstruct.ap.internal.model.GeneratedType;
 
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 @Entity
@@ -35,6 +36,17 @@ public class RoomEntity {
 
     @Column(name = "owner_name")
     private String ownerName;
+    @Column(name = "player_type")
+    @Enumerated(EnumType.STRING)
+    private PlayerType playerType;
+
+    @Column(name = "created_at")
+    @Temporal(TemporalType.TIMESTAMP)
+    private ZonedDateTime createdAt;
+
+    @Column(name = "changed_at")
+    @Temporal(TemporalType.TIMESTAMP)
+    private ZonedDateTime changedAt;
 
 
 }

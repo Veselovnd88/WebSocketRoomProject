@@ -1,5 +1,6 @@
 package ru.veselov.websocketroomproject.service;
 
+import ru.veselov.websocketroomproject.dto.RoomSettingsDTO;
 import ru.veselov.websocketroomproject.model.Room;
 
 import java.security.Principal;
@@ -13,9 +14,7 @@ public interface RoomService {
 
     Room getRoomByName(String name);
 
-    Room changeOwner(Room room, Principal principal);
-
-    Room changeStatus(Room room, Principal principal);
+    Room changeSettings(String roomId, RoomSettingsDTO settings, Principal principal);
 
     List<Room> getAllRooms();
 

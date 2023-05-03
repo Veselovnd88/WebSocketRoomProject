@@ -7,7 +7,7 @@ CREATE TABLE room
     is_private boolean             NOT NULL DEFAULT FALSE,
     owner_name varchar(255)        NOT NULL,
     room_token varchar(255) UNIQUE,
-    source_url varchar             NOT NULL,
+    source_url varchar,
     CONSTRAINT rooms_pk PRIMARY KEY (id)
 );
 
