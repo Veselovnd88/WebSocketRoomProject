@@ -8,11 +8,7 @@ services:
     ports:
       - "5435:5432"
     volumes:
-      - ./database-data:/var/lib/postgresql/data/
-
-
-
-
+      - /var/docker-volumes/postgres-data:/var/lib/postgresql/data/
 
   master:
     container_name: redis-chat-master
@@ -22,7 +18,7 @@ services:
       - "6379:6379"
     restart: on-failure
     volumes:
-      - ./redis-data:/data
+      - /var/docker-volumes/redis-data:/data
     command: redis-server --requirepass admin
 
   replica-1:

@@ -4,7 +4,6 @@ import ru.veselov.websocketroomproject.model.Room;
 
 import java.security.Principal;
 import java.util.List;
-import java.util.UUID;
 
 public interface RoomService {
 

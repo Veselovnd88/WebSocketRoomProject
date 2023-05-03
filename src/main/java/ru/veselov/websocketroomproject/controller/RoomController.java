@@ -48,5 +48,4 @@ public class RoomController {
         return new ResponseEntity<>(saved, HttpStatus.CREATED);
     }
 
-
 }

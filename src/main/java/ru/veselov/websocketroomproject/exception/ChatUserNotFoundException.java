@@ -1,6 +1,8 @@
 package ru.veselov.websocketroomproject.exception;
 
-public class ChatUserNotFoundException extends RuntimeException {
+import jakarta.persistence.EntityNotFoundException;
+
+public class ChatUserNotFoundException extends EntityNotFoundException {
 
     public ChatUserNotFoundException(String message) {
         super(message);

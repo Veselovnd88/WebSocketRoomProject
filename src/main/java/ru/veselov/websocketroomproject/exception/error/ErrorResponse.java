@@ -1,4 +1,4 @@
-package ru.veselov.websocketroomproject.dto;
+package ru.veselov.websocketroomproject.exception.error;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
