@@ -1,12 +1,12 @@
 CREATE
-EXTENSION IF NOT EXISTS "uuid-ossp";
+    EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE room
 (
     id          UUID                NOT NULL DEFAULT gen_random_uuid(),
     name        varchar(100) UNIQUE NOT NULL,
     is_private  boolean             NOT NULL DEFAULT FALSE,
     owner_name  varchar(255)        NOT NULL,
-    room_token  varchar(255) UNIQUE,
+    room_token  varchar(255),
     active_url  varchar,
     player_type varchar,
     created_at  timestamp with time zone,
@@ -24,8 +24,8 @@ create table url
 
 alter table if exists url
     add constraint urls_pk
-    foreign key (room_id)
-    references room;
+        foreign key (room_id)
+            references room;
 
 
 

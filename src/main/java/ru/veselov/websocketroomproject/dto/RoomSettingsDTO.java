@@ -12,4 +12,7 @@ public class RoomSettingsDTO {
     private Boolean isPrivate;
 
     private String playerType;
+
+    private String token;
+
 }

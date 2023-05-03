@@ -10,14 +10,14 @@ public interface RoomService {
 
     Room createRoom(Room room);
 
-    Room getRoomById(String id);
+    Room getRoomById(String id, String token);
 
     Room getRoomByName(String name);
 
     Room changeSettings(String roomId, RoomSettingsDTO settings, Principal principal);
 
-    List<Room> getAllRooms();
+    List<Room> getAllPublicRooms();
 
-    void addUrl(String roomId, String url);
+    void addUrl(String roomId, String url, Principal principal);
 
 }

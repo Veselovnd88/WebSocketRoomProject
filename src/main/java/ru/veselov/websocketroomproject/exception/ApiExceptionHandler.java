@@ -19,7 +19,7 @@ public class ApiExceptionHandler {
         return new ErrorResponse(ErrorConstants.ERROR_CONFLICT, exception.getMessage());
     }
 
-    @ExceptionHandler({NotCorrectOwnerException.class})
+    @ExceptionHandler({NotCorrectOwnerException.class, NotCorrectTokenException.class})
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ResponseBody
     public ErrorResponse handleNotAuthorizedException(RuntimeException exception) {

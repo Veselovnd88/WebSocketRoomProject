@@ -23,8 +23,9 @@ public class RoomController {
     private final RoomService roomService;
 
     @GetMapping("/{roomId}")
-    public ResponseEntity<Room> getRoom(@PathVariable("roomId") String id) {
-        Room room = roomService.getRoomById(id);
+    public ResponseEntity<Room> getRoom(@PathVariable("roomId") String id,
+                                        @RequestParam(required = false, name = "token") String token) {
+        Room room = roomService.getRoomById(id, token);
         log.info("[Room {}] retrieved", id);
         return new ResponseEntity<>(room, HttpStatus.OK);
     }
@@ -49,14 +50,14 @@ public class RoomController {
     @PostMapping(value = "/{roomId}")
     public ResponseEntity<UrlDto> processUrl(@PathVariable("roomId") String roomId,
                                              @RequestBody UrlDto urlDto, Principal principal) {
-        roomService.addUrl(roomId, urlDto.getUrl());
+        roomService.addUrl(roomId, urlDto.getUrl(), principal);
         log.info("Url added [{}]", urlDto.getUrl());
         return new ResponseEntity<>(urlDto, HttpStatus.ACCEPTED);
     }
 
     @GetMapping
     public ResponseEntity<List<Room>> getAllRooms() {
-        return new ResponseEntity<>(roomService.getAllRooms(), HttpStatus.OK);
+        return new ResponseEntity<>(roomService.getAllPublicRooms(), HttpStatus.OK);
     }
 
 }
