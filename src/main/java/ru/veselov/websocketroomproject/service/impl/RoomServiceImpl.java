@@ -31,8 +31,6 @@ public class RoomServiceImpl implements RoomService {
     @Value("${server.zoneId}")
     private String zoneId;
 
-    private static final String URL = "/api/room/";
-
     private final RoomMapper roomMapper;
 
     private final RoomRepository roomRepository;
@@ -58,8 +56,7 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public Room getRoomById(String id) {
-        UUID uuid = UUID.fromString(id);
-        RoomEntity roomEntity = findRoomById(uuid);
+        RoomEntity roomEntity = findRoomById(id);
         log.info("Retrieving [room {}] from repo", id);
         return roomMapper.entityToRoom(roomEntity);
     }
@@ -80,11 +77,14 @@ public class RoomServiceImpl implements RoomService {
     @Override
     @Transactional
     public Room changeSettings(String roomId, RoomSettingsDTO settingsDTO, Principal principal) {
-        UUID uuid = UUID.fromString(roomId);
-        RoomEntity roomEntity = findRoomById(uuid);
+        RoomEntity roomEntity = findRoomById(roomId);
         if (roomEntity.getOwnerName().equals(principal.getName())) {
-            roomEntity.setOwnerName(settingsDTO.getOwnerName());
-            roomEntity.setIsPrivate(settingsDTO.getIsPrivate());
+            if (settingsDTO.getOwnerName() != null) {
+                roomEntity.setOwnerName(settingsDTO.getOwnerName());
+            }
+            if (settingsDTO.getIsPrivate() != null) {
+                roomEntity.setIsPrivate(settingsDTO.getIsPrivate());
+            }
             roomEntity.setChangedAt(ZonedDateTime.now(ZoneId.of(zoneId)));
             RoomEntity saved = roomRepository.save(roomEntity);
             log.info("[Room {}] settings changed", roomId);
@@ -97,11 +97,21 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public List<Room> getAllRooms() {
-        return null;
+        return roomMapper.entitiesToRooms(roomRepository.findAll());
     }
 
-    private RoomEntity findRoomById(UUID id) {
-        Optional<RoomEntity> foundRoom = roomRepository.findById(id);
+    @Override
+    @Transactional
+    public void addUrl(String roomId, String url) {
+        RoomEntity roomEntity = findRoomById(roomId);
+        roomEntity.setActiveUrl(url);
+        roomEntity.addUrl(url);
+        roomRepository.save(roomEntity);
+    }
+
+    private RoomEntity findRoomById(String id) {
+        UUID uuid = UUID.fromString(id);
+        Optional<RoomEntity> foundRoom = roomRepository.findById(uuid);
         return foundRoom.orElseThrow(
                 () -> {
                     log.warn("No room found with [id={}]", id);

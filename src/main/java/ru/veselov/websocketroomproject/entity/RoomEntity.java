@@ -2,10 +2,10 @@ package ru.veselov.websocketroomproject.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.Type;
-import org.mapstruct.ap.internal.model.GeneratedType;
 
 import java.time.ZonedDateTime;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -28,8 +28,8 @@ public class RoomEntity {
     @Column(name = "is_private")
     private Boolean isPrivate;
 
-    @Column(name = "source_url")
-    private String sourceUrl;
+    @Column(name = "active_url")
+    private String activeUrl;
 
     @Column(name = "room_token")
     private String roomToken;
@@ -47,6 +47,13 @@ public class RoomEntity {
     @Column(name = "changed_at")
     @Temporal(TemporalType.TIMESTAMP)
     private ZonedDateTime changedAt;
+    @Column(name = "urls")
+    @OneToMany(mappedBy = "room", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UrlEntity> urls = new LinkedList<>();
 
-
+    public void addUrl(String url) {
+        UrlEntity urlEntity = new UrlEntity(url);
+        urlEntity.setRoom(this);
+        this.urls.add(urlEntity);
+    }
 }

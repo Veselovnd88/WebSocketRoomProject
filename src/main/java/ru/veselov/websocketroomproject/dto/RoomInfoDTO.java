@@ -14,7 +14,7 @@ public class RoomInfoDTO {
     private UUID uuid;
     private String name;
     private boolean isPrivate;
-    private String sourceUrl;
+    private String activeUrl;
     private String roomToken;
     private String ownerName;
 

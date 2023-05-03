@@ -10,6 +10,7 @@ import org.springframework.data.redis.core.index.Indexed;
 public class ChatUserEntity {
     @Id
     private String session;
+
     private String username;
 
     @Indexed

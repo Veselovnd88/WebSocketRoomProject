@@ -18,4 +18,6 @@ public interface RoomService {
 
     List<Room> getAllRooms();
 
+    void addUrl(String roomId, String url);
+
 }

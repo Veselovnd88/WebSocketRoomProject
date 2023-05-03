@@ -6,10 +6,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.veselov.websocketroomproject.dto.RoomSettingsDTO;
+import ru.veselov.websocketroomproject.dto.UrlDto;
 import ru.veselov.websocketroomproject.model.Room;
 import ru.veselov.websocketroomproject.service.RoomService;
 
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/room")
@@ -42,6 +44,19 @@ public class RoomController {
         Room saved = roomService.createRoom(room);
         log.info("[Room {}] created", saved.getName());
         return new ResponseEntity<>(saved, HttpStatus.CREATED);
+    }
+
+    @PostMapping(value = "/{roomId}")
+    public ResponseEntity<UrlDto> processUrl(@PathVariable("roomId") String roomId,
+                                             @RequestBody UrlDto urlDto, Principal principal) {
+        roomService.addUrl(roomId, urlDto.getUrl());
+        log.info("Url added [{}]", urlDto.getUrl());
+        return new ResponseEntity<>(urlDto, HttpStatus.ACCEPTED);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Room>> getAllRooms() {
+        return new ResponseEntity<>(roomService.getAllRooms(), HttpStatus.OK);
     }
 
 }

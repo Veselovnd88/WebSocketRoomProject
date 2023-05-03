@@ -1,7 +1,6 @@
 package ru.veselov.websocketroomproject.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.veselov.websocketroomproject.entity.PlayerType;
@@ -14,17 +13,21 @@ import java.util.UUID;
 @NoArgsConstructor
 public class Room implements Serializable {
     private UUID id;
+
     private String name;
+
     @JsonProperty("isPrivate")
     private Boolean isPrivate;
-    private String sourceUrl;
+
+    private String activeUrl;
+
     private String roomToken;
+
     private String ownerName;
 
     private PlayerType playerType;
 
     private ZonedDateTime createdAt;
-
 
     private ZonedDateTime changedAt;
 
