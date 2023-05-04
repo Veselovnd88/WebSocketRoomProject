@@ -34,21 +34,25 @@ public class RoomSettingsServiceImpl implements RoomSettingsService {
         if (settingsDTO.getOwnerName() != null) {
             roomEntity.setOwnerName(settingsDTO.getOwnerName());
         }
+        if (settingsDTO.getRoomName() != null) {
+            roomEntity.setName(settingsDTO.getRoomName());
+            log.warn("!!!i need your name {}", roomEntity.getName());
+        }
         if (settingsDTO.getIsPrivate() != null) {
-            if (settingsDTO.getIsPrivate()) {
+            Boolean isPrivate = settingsDTO.getIsPrivate();
+            if (isPrivate) {
                 roomEntity.setRoomToken(RandomStringUtils.randomAlphanumeric(10));
             } else {
                 roomEntity.setRoomToken(null);
             }
-            roomEntity.setIsPrivate(settingsDTO.getIsPrivate());
+            roomEntity.setIsPrivate(isPrivate);
         }
         if (settingsDTO.getPlayerType() != null) {
             roomEntity.setPlayerType(getPlayer(settingsDTO));
         }
-        if (settingsDTO.getChangeToken() != null) {
+        if (settingsDTO.getChangeToken() != null && settingsDTO.getChangeToken()) {
             roomEntity.setRoomToken(RandomStringUtils.randomAlphanumeric(10));
         }
-
         roomEntity.setChangedAt(ZonedDateTime.now(ZoneId.of(zoneId)));
         return roomEntity;
     }
@@ -56,4 +60,5 @@ public class RoomSettingsServiceImpl implements RoomSettingsService {
     private PlayerType getPlayer(RoomSettingsDTO settingsDTO) {
         return videoPlayers.getOrDefault(settingsDTO.getPlayerType(), PlayerType.YOUTUBE);
     }
+
 }

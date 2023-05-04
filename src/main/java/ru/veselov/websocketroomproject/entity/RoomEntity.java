@@ -18,14 +18,14 @@ import java.util.UUID;
 public class RoomEntity {
 
     @Id
-    @Column(name = "id")
+    @Column(name = "id", nullable = false)
     @GeneratedValue(generator = "UUID")
     private UUID id;
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "is_private")
+    @Column(name = "is_private", nullable = false)
     private Boolean isPrivate;
 
     @Column(name = "active_url")
@@ -34,13 +34,13 @@ public class RoomEntity {
     @Column(name = "room_token")
     private String roomToken;
 
-    @Column(name = "owner_name")
+    @Column(name = "owner_name", nullable = false)
     private String ownerName;
     @Column(name = "player_type")
     @Enumerated(EnumType.STRING)
     private PlayerType playerType;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private ZonedDateTime createdAt;
 

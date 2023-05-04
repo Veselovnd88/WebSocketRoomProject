@@ -9,14 +9,14 @@ import lombok.*;
 @Table(name = "url")
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
+@ToString(exclude = "room")
 public class UrlEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "url_id")
+    @Column(name = "url_id", nullable = false)
     private Long urlId;
 
-    @Column(name = "source_url")
+    @Column(name = "source_url", nullable = false)
     private String url;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -1,6 +1,5 @@
 package ru.veselov.websocketroomproject.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
@@ -10,7 +9,6 @@ public class RoomSettingsDTO {
 
     private String roomName;
 
-    @JsonProperty("ownername")
     private String ownerName;
 
     private Boolean isPrivate;
@@ -18,7 +16,5 @@ public class RoomSettingsDTO {
     private String playerType;
 
     private Boolean changeToken;
-
-
 
 }
