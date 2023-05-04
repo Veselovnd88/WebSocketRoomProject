@@ -26,7 +26,6 @@ public class RoomController {
     public ResponseEntity<Room> getRoom(@PathVariable("roomId") String id,
                                         @RequestParam(required = false, name = "token") String token) {
         Room room = roomService.getRoomById(id, token);
-        log.info("[Room {}] retrieved", id);
         return new ResponseEntity<>(room, HttpStatus.OK);
     }
 
@@ -34,7 +33,6 @@ public class RoomController {
     public ResponseEntity<Room> changeSetting(@PathVariable("roomId") String roomId,
                                               @RequestBody RoomSettingsDTO settings, Principal principal) {
         Room editedRoom = roomService.changeSettings(roomId, settings, principal);
-        log.info("[Room {}] settings changed to {}", roomId, settings);
         return new ResponseEntity<>(editedRoom, HttpStatus.ACCEPTED);
     }
 
@@ -43,7 +41,6 @@ public class RoomController {
     public ResponseEntity<Room> createRoom(@RequestBody Room room, Principal principal) {
         room.setOwnerName(principal.getName());
         Room saved = roomService.createRoom(room);
-        log.info("[Room {}] created", saved.getName());
         return new ResponseEntity<>(saved, HttpStatus.CREATED);
     }
 
@@ -51,7 +48,6 @@ public class RoomController {
     public ResponseEntity<UrlDto> processUrl(@PathVariable("roomId") String roomId,
                                              @RequestBody UrlDto urlDto, Principal principal) {
         roomService.addUrl(roomId, urlDto.getUrl(), principal);
-        log.info("Url added [{}]", urlDto.getUrl());
         return new ResponseEntity<>(urlDto, HttpStatus.ACCEPTED);
     }
 

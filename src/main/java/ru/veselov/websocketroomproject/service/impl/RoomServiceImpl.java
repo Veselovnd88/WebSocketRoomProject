@@ -17,6 +17,7 @@ import ru.veselov.websocketroomproject.mapper.RoomMapper;
 import ru.veselov.websocketroomproject.model.Room;
 import ru.veselov.websocketroomproject.repository.RoomRepository;
 import ru.veselov.websocketroomproject.service.RoomService;
+import ru.veselov.websocketroomproject.service.RoomSettingsService;
 
 import java.security.Principal;
 import java.time.ZoneId;
@@ -37,6 +38,8 @@ public class RoomServiceImpl implements RoomService {
     private final RoomMapper roomMapper;
 
     private final RoomRepository roomRepository;
+
+    private final RoomSettingsService roomSettingsService;
 
     @Override
     @Transactional
@@ -85,20 +88,8 @@ public class RoomServiceImpl implements RoomService {
     public Room changeSettings(String roomId, RoomSettingsDTO settingsDTO, Principal principal) {
         RoomEntity roomEntity = findRoomById(roomId);
         validateOwner(principal, roomEntity);
-        if (settingsDTO.getOwnerName() != null) {
-            roomEntity.setOwnerName(settingsDTO.getOwnerName());
-        }
-        if (settingsDTO.getIsPrivate() != null) {
-            roomEntity.setIsPrivate(settingsDTO.getIsPrivate());
-        }
-        if (settingsDTO.getPlayerType() != null) {
-            //playerService.configurePlayer();
-        }
-        if (settingsDTO.getToken() != null) {
-            roomEntity.setRoomToken(settingsDTO.getToken());
-        }
-        roomEntity.setChangedAt(ZonedDateTime.now(ZoneId.of(zoneId)));
-        RoomEntity saved = roomRepository.save(roomEntity);
+        RoomEntity changedRoomEntity = roomSettingsService.applySettings(roomEntity, settingsDTO);
+        RoomEntity saved = roomRepository.save(changedRoomEntity);
         log.info("[Room {}] settings changed", roomId);
         return roomMapper.entityToRoom(saved);
     }
