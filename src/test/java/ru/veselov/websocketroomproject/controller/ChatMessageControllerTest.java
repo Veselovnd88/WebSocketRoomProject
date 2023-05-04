@@ -4,6 +4,8 @@ import lombok.SneakyThrows;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,12 +20,15 @@ import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 import org.springframework.web.socket.sockjs.client.SockJsClient;
 import org.springframework.web.socket.sockjs.client.WebSocketTransport;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.controller.client.TestStompFrameHandler;
 import ru.veselov.websocketroomproject.controller.client.TestStompSessionHandlerAdapter;
 import ru.veselov.websocketroomproject.dto.ReceivedChatMessage;
 import ru.veselov.websocketroomproject.dto.SendChatMessage;
 import ru.veselov.websocketroomproject.listener.WebSocketDisconnectListener;
+import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.service.ChatUserService;
 import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
 
@@ -74,8 +79,12 @@ class ChatMessageControllerTest {
 
     @BeforeEach
     void setUp() {
-        URL = "ws://localhost:" + port + endpoint;
+        UriComponents url = UriComponentsBuilder.newInstance()
+                .scheme("ws").host("localhost").port(port).path(endpoint).build();
+        URL = url.toUriString();
         resultKeeper = new CompletableFuture<>();
+        Mockito.when(chatUserService.findChatUserBySessionId(ArgumentMatchers.anyString()))
+                .thenReturn(new ChatUser(TestConstants.TEST_USERNAME, ROOM_ID, TestConstants.TEST_SESSION_ID));
     }
 
     @Test

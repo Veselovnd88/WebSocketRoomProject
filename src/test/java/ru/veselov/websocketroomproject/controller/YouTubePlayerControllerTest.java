@@ -18,6 +18,8 @@ import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 import org.springframework.web.socket.sockjs.client.SockJsClient;
 import org.springframework.web.socket.sockjs.client.WebSocketTransport;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.controller.client.TestStompFrameHandler;
 import ru.veselov.websocketroomproject.controller.client.TestStompSessionHandlerAdapter;
@@ -67,25 +69,27 @@ class YouTubePlayerControllerTest {
 
     @BeforeEach
     void setUp() {
-        URL = "ws://localhost:" + port + endpoint;
+        UriComponents url = UriComponentsBuilder.newInstance()
+                .scheme("ws").host("localhost").port(port).path(endpoint).build();
+        URL = url.toUriString();
         playerStateResultKeeper = new CompletableFuture<>();
     }
 
     @Test
     @SneakyThrows
     void shouldReturnSentPlayerStateDTO() {
+        //given
         PlayerStateDTO playerStateDTO = new PlayerStateDTO(1, "111.111", "low", "1");
         String destination = youtubeTopic + "/" + ROOM_ID;
         StompHeaders stompHeadersConnect = createConnectStompHeaders();
-
-        //Creating and configuring basic WebSocketClient
         WebSocketStompClient stompClient = createClient();
         StompSession session = stompClient.connectAsync(URL,
                 new WebSocketHttpHeaders(),
                 stompHeadersConnect,
                 new TestStompSessionHandlerAdapter()
-        ).get();
+        ).get();//connecting to websocket endpoint
 
+        //when
         session.subscribe(destination,
                 new TestStompFrameHandler<>(playerStateResultKeeper::complete, PlayerStateDTO.class));
         StompHeaders stompHeadersSend = new StompHeaders();
@@ -93,6 +97,7 @@ class YouTubePlayerControllerTest {
         stompHeadersSend.add(StompHeaders.DESTINATION, "/app/youtube/" + ROOM_ID);
         session.send(stompHeadersSend, playerStateDTO);
 
+        //then
         PlayerStateDTO receivedPlayerState = playerStateResultKeeper.get(3, TimeUnit.SECONDS);
         Assertions.assertThat(receivedPlayerState).isNotNull().isEqualTo(playerStateDTO);
     }

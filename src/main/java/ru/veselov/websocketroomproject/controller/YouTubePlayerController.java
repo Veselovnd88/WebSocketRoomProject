@@ -9,8 +9,6 @@ import org.springframework.stereotype.Controller;
 import ru.veselov.websocketroomproject.dto.PlayerStateDTO;
 import ru.veselov.websocketroomproject.service.PlayerStateMessageService;
 
-import java.security.Principal;
-
 @Controller
 @RequiredArgsConstructor
 @Slf4j
@@ -26,9 +24,7 @@ public class YouTubePlayerController {
 
     @MessageMapping("/youtube/{roomId}")
     public void manageYouTubePlayerState(@DestinationVariable("roomId") String roomId,
-                                         @Payload PlayerStateDTO message,
-                                         Principal principal) {
-        log.info("Received YTPlayer state [{} of room {} from principal {}]", message, roomId, principal.getName());
+                                         @Payload PlayerStateDTO message) {
         playerStateMessageService.sendToTopic(roomId, message);
     }
 
