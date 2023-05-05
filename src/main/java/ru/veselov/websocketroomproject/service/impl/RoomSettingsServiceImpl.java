@@ -1,5 +1,7 @@
 package ru.veselov.websocketroomproject.service.impl;
 
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,6 +10,7 @@ import ru.veselov.websocketroomproject.dto.RoomSettingsDTO;
 import ru.veselov.websocketroomproject.entity.PlayerType;
 import ru.veselov.websocketroomproject.entity.RoomEntity;
 import ru.veselov.websocketroomproject.service.RoomSettingsService;
+import ru.veselov.websocketroomproject.service.RoomValidator;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -16,6 +19,7 @@ import java.util.Map;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class RoomSettingsServiceImpl implements RoomSettingsService {
 
     private static final Map<String, PlayerType> videoPlayers = new HashMap<>();
@@ -23,7 +27,10 @@ public class RoomSettingsServiceImpl implements RoomSettingsService {
     @Value("${server.zoneId}")
     private String zoneId;
 
-    public RoomSettingsServiceImpl() {
+    private final RoomValidator roomValidator;
+
+    @PostConstruct
+    private void init() {
         for (PlayerType p : PlayerType.values()) {
             videoPlayers.put(p.name(), p);
         }
@@ -31,11 +38,12 @@ public class RoomSettingsServiceImpl implements RoomSettingsService {
 
     @Override
     public RoomEntity applySettings(RoomEntity roomEntity, RoomSettingsDTO settingsDTO) {
+        if (settingsDTO.getRoomName() != null) {
+            roomValidator.validateRoomName(settingsDTO.getRoomName());
+            roomEntity.setName(settingsDTO.getRoomName());
+        }
         if (settingsDTO.getOwnerName() != null) {
             roomEntity.setOwnerName(settingsDTO.getOwnerName());
-        }
-        if (settingsDTO.getRoomName() != null) {
-            roomEntity.setName(settingsDTO.getRoomName());
         }
         if (settingsDTO.getIsPrivate() != null) {
             Boolean isPrivate = settingsDTO.getIsPrivate();

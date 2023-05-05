@@ -9,14 +9,20 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import ru.veselov.websocketroomproject.TestConstants;
+import ru.veselov.websocketroomproject.dto.RoomSettingsDTO;
 import ru.veselov.websocketroomproject.entity.PlayerType;
 import ru.veselov.websocketroomproject.entity.RoomEntity;
+import ru.veselov.websocketroomproject.entity.UrlEntity;
 import ru.veselov.websocketroomproject.exception.RoomNotFoundException;
 import ru.veselov.websocketroomproject.model.Room;
 import ru.veselov.websocketroomproject.repository.RoomRepository;
 import ru.veselov.websocketroomproject.service.RoomService;
+import ru.veselov.websocketroomproject.service.RoomSettingsService;
 import ru.veselov.websocketroomproject.service.RoomValidator;
 
+import java.security.Principal;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
 @SpringBootTest
@@ -29,13 +35,14 @@ class RoomServiceImplTest {
 
     @MockBean
     RoomValidator roomValidator;
+    @MockBean
+    RoomSettingsService roomSettingsService;
 
     @Captor
     ArgumentCaptor<RoomEntity> roomCaptor;
 
     @Autowired
     RoomService roomService;
-
 
     @Test
     void shouldCreatePrivateRoom() {
@@ -128,10 +135,74 @@ class RoomServiceImplTest {
         Mockito.when(roomRepository.findByName(ArgumentMatchers.anyString())).thenReturn(Optional.empty());
 
         Assertions.assertThatThrownBy(
-                ()->roomService.getRoomByName("RoomName")
+                () -> roomService.getRoomByName("RoomName")
         ).isInstanceOf(RoomNotFoundException.class);
 
         Mockito.verify(roomRepository, Mockito.times(1)).findByName("RoomName");
+    }
+
+    @Test
+    void shouldSaveNewRoomSettings() {
+        RoomSettingsDTO settings = RoomSettingsDTO.builder().roomName("rename").playerType("YOUTUBE").build();
+        RoomEntity roomEntity = new RoomEntity();
+        RoomEntity roomWithChangedSettings = new RoomEntity();
+        Principal principal = Mockito.mock(Principal.class);
+        Mockito.when(principal.getName()).thenReturn(TestConstants.TEST_USERNAME);
+        Mockito.when(roomRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.of(roomEntity));
+        Mockito.when(roomSettingsService.applySettings(roomEntity, settings)).thenReturn(roomWithChangedSettings);
+
+        roomService.changeSettings(ROOM_ID, settings, principal);
+
+        Mockito.verify(roomRepository, Mockito.times(1)).findById(ArgumentMatchers.any());
+        Mockito.verify(roomValidator, Mockito.times(1)).validateOwner(principal, roomEntity);
+        Mockito.verify(roomSettingsService, Mockito.times(1)).applySettings(roomEntity, settings);
+    }
+
+    @Test
+    void shouldThrowRoomNotFoundExceptionIfRoomNotExisting() {
+        RoomSettingsDTO settings = RoomSettingsDTO.builder().roomName("rename").playerType("YOUTUBE").build();
+        Principal principal = Mockito.mock(Principal.class);
+        Mockito.when(principal.getName()).thenReturn(TestConstants.TEST_USERNAME);
+        Mockito.when(roomRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.empty());
+
+        Assertions.assertThatThrownBy(
+                () -> roomService.changeSettings(ROOM_ID, settings, principal)
+        ).isInstanceOf(RoomNotFoundException.class);
+
+        Mockito.verify(roomRepository, Mockito.times(1)).findById(ArgumentMatchers.any());
+        Mockito.verify(roomValidator, Mockito.never()).validateOwner(ArgumentMatchers.any(), ArgumentMatchers.any());
+        Mockito.verify(roomSettingsService, Mockito.never())
+                .applySettings(ArgumentMatchers.any(), ArgumentMatchers.any());
+    }
+
+    @Test
+    void shouldAddUrlToRoom() {
+        Principal principal = Mockito.mock(Principal.class);
+        Mockito.when(principal.getName()).thenReturn(TestConstants.TEST_USERNAME);
+        String url = "https://i-am-pretty-url.com";
+        UrlEntity urlEntity = new UrlEntity(url, ZonedDateTime.now());
+        RoomEntity roomEntity = new RoomEntity();
+        Mockito.when(roomRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.of(roomEntity));
+
+        Assertions.assertThatNoException().isThrownBy(
+                () -> roomService.addUrl(ROOM_ID, url, principal)
+        );
+        Mockito.verify(roomRepository, Mockito.times(1)).save(roomCaptor.capture());
+        RoomEntity captured = roomCaptor.getValue();
+        Assertions.assertThat(captured.getUrls()).hasSize(1).contains(urlEntity);
+        Assertions.assertThat(captured.getActiveUrl()).isEqualTo(url);
+    }
+
+    @Test
+    void shouldThrowExceptionIfNoRoomWhenWantToAddUrl() {
+        Principal principal = Mockito.mock(Principal.class);
+        String url = "https://i-am-pretty-url.com";
+        Mockito.when(roomRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.empty());
+
+        Assertions.assertThatThrownBy(
+                () -> roomService.addUrl(ROOM_ID, url, principal)
+        ).isInstanceOf(RoomNotFoundException.class);
+        Mockito.verify(roomRepository, Mockito.never()).save(ArgumentMatchers.any());
     }
 
 

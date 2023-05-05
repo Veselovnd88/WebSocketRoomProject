@@ -14,7 +14,8 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "room")
-@ToString
+@EqualsAndHashCode(exclude = {"urls", "id"})
+@ToString(exclude = {"urls"})
 public class RoomEntity {
 
     @Id
@@ -51,10 +52,9 @@ public class RoomEntity {
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UrlEntity> urls = new LinkedList<>();
 
-    public void addUrl(String url) {
-        UrlEntity urlEntity = new UrlEntity(url);
-        urlEntity.setRoom(this);
-        this.urls.add(urlEntity);
+    public void addUrl(UrlEntity url) {
+        url.setRoom(this);
+        this.urls.add(url);
     }
 
 }

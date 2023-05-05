@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.veselov.websocketroomproject.dto.RoomSettingsDTO;
 import ru.veselov.websocketroomproject.entity.RoomEntity;
+import ru.veselov.websocketroomproject.entity.UrlEntity;
 import ru.veselov.websocketroomproject.exception.RoomNotFoundException;
 import ru.veselov.websocketroomproject.mapper.RoomMapper;
 import ru.veselov.websocketroomproject.model.Room;
@@ -45,7 +46,7 @@ public class RoomServiceImpl implements RoomService {
     public Room createRoom(Room room) {
         String name = room.getName();
         roomValidator.validateRoomName(name);
-        RoomEntity roomEntity = roomMapper.dtoToRoomEntity(room);
+        RoomEntity roomEntity = roomMapper.toEntity(room);
         roomEntity.setCreatedAt(ZonedDateTime.now(ZoneId.of(zoneId)));
         if (roomEntity.getIsPrivate()) {
             roomEntity.setRoomToken(RandomStringUtils.randomAlphanumeric(10));
@@ -81,9 +82,6 @@ public class RoomServiceImpl implements RoomService {
     @Override
     @Transactional
     public Room changeSettings(String roomId, RoomSettingsDTO settingsDTO, Principal principal) {
-        if (settingsDTO.getRoomName() != null) {
-            roomValidator.validateRoomName(settingsDTO.getRoomName());
-        }
         RoomEntity roomEntity = findRoomById(roomId);
         roomValidator.validateOwner(principal, roomEntity);
         RoomEntity changedRoomEntity = roomSettingsService.applySettings(roomEntity, settingsDTO);
@@ -102,7 +100,8 @@ public class RoomServiceImpl implements RoomService {
     public void addUrl(String roomId, String url, Principal principal) {
         RoomEntity roomEntity = findRoomById(roomId);
         roomEntity.setActiveUrl(url);
-        roomEntity.addUrl(url);
+        UrlEntity urlEntity = new UrlEntity(url, ZonedDateTime.now(ZoneId.of(zoneId)));
+        roomEntity.addUrl(urlEntity);
         roomRepository.save(roomEntity);
         log.info("New [url {}] added to [room {}]", url, roomId);
     }

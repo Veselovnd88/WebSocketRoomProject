@@ -2,15 +2,22 @@ package ru.veselov.websocketroomproject.service.impl;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import ru.veselov.websocketroomproject.dto.RoomSettingsDTO;
 import ru.veselov.websocketroomproject.entity.PlayerType;
 import ru.veselov.websocketroomproject.entity.RoomEntity;
 import ru.veselov.websocketroomproject.service.RoomSettingsService;
+import ru.veselov.websocketroomproject.service.RoomValidator;
 
 @SpringBootTest
 class RoomSettingsServiceImplTest {
+
+    @MockBean
+    RoomValidator roomValidator;
 
     @Autowired
     RoomSettingsService roomSettingsService;
@@ -22,6 +29,7 @@ class RoomSettingsServiceImplTest {
 
         RoomEntity changed = roomSettingsService.applySettings(roomEntity, settings);
 
+        Mockito.verify(roomValidator, Mockito.times(1)).validateRoomName(settings.getRoomName());
         Assertions.assertThat(changed.getName()).isEqualTo("NewName");
         Assertions.assertThat(changed.getChangedAt()).isNotNull();//checked if new zdt was set
         Assertions.assertThat(changed.getOwnerName()).isNull(); //checked if field wasn't changed
@@ -34,6 +42,7 @@ class RoomSettingsServiceImplTest {
 
         RoomEntity changed = roomSettingsService.applySettings(roomEntity, settings);
 
+        Mockito.verify(roomValidator, Mockito.times(1)).validateRoomName(settings.getRoomName());
         Assertions.assertThat(changed.getName()).isEqualTo("NewName");
         Assertions.assertThat(changed.getChangedAt()).isNotNull();
         Assertions.assertThat(changed.getOwnerName()).isEqualTo("Owner");
@@ -47,6 +56,7 @@ class RoomSettingsServiceImplTest {
 
         RoomEntity changed = roomSettingsService.applySettings(roomEntity, settings);
 
+        Mockito.verify(roomValidator, Mockito.never()).validateRoomName(ArgumentMatchers.anyString());
         Assertions.assertThat(changed.getIsPrivate()).isTrue();
         Assertions.assertThat(changed.getRoomToken()).isNotNull();
         Assertions.assertThat(changed.getChangedAt()).isNotNull();//checked if new zdt was set
@@ -62,6 +72,7 @@ class RoomSettingsServiceImplTest {
 
         RoomEntity changed = roomSettingsService.applySettings(roomEntity, settings);
 
+        Mockito.verify(roomValidator, Mockito.never()).validateRoomName(ArgumentMatchers.anyString());
         Assertions.assertThat(changed.getIsPrivate()).isFalse();
         Assertions.assertThat(changed.getRoomToken()).isNull();
         Assertions.assertThat(changed.getChangedAt()).isNotNull();//checked if new zdt was set
@@ -75,6 +86,7 @@ class RoomSettingsServiceImplTest {
 
         RoomEntity changed = roomSettingsService.applySettings(roomEntity, settings);
 
+        Mockito.verify(roomValidator, Mockito.never()).validateRoomName(ArgumentMatchers.anyString());
         Assertions.assertThat(changed.getPlayerType()).isEqualTo(PlayerType.RUTUBE);
         Assertions.assertThat(changed.getChangedAt()).isNotNull();//checked if new zdt was set
         Assertions.assertThat(changed.getOwnerName()).isNull(); //checked if field wasn't changed
@@ -87,6 +99,7 @@ class RoomSettingsServiceImplTest {
 
         RoomEntity changed = roomSettingsService.applySettings(roomEntity, settings);
 
+        Mockito.verify(roomValidator, Mockito.never()).validateRoomName(ArgumentMatchers.anyString());
         Assertions.assertThat(changed.getPlayerType()).isEqualTo(PlayerType.YOUTUBE);
         Assertions.assertThat(changed.getChangedAt()).isNotNull();//checked if new zdt was set
         Assertions.assertThat(changed.getOwnerName()).isNull(); //checked if field wasn't changed
@@ -100,6 +113,7 @@ class RoomSettingsServiceImplTest {
 
         RoomEntity changed = roomSettingsService.applySettings(roomEntity, settings);
 
+        Mockito.verify(roomValidator, Mockito.never()).validateRoomName(ArgumentMatchers.anyString());
         Assertions.assertThat(changed.getRoomToken()).isNotNull();
         Assertions.assertThat(changed.getChangedAt()).isNotNull();//checked if new zdt was set
         Assertions.assertThat(changed.getOwnerName()).isNull(); //checked if field wasn't changed
@@ -113,6 +127,7 @@ class RoomSettingsServiceImplTest {
 
         RoomEntity changed = roomSettingsService.applySettings(roomEntity, settings);
 
+        Mockito.verify(roomValidator, Mockito.never()).validateRoomName(ArgumentMatchers.anyString());
         Assertions.assertThat(changed.getRoomToken()).isNull();
         Assertions.assertThat(changed.getChangedAt()).isNotNull();//checked if new zdt was set
         Assertions.assertThat(changed.getOwnerName()).isNull(); //checked if field wasn't changed
