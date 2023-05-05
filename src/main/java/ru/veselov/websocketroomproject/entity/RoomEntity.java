@@ -56,4 +56,5 @@ public class RoomEntity {
         urlEntity.setRoom(this);
         this.urls.add(urlEntity);
     }
+
 }
