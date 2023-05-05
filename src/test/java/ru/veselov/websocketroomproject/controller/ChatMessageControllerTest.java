@@ -90,25 +90,26 @@ class ChatMessageControllerTest {
     @Test
     @SneakyThrows
     void shouldReturnCorrectSendMessage() {
+        //given
         ReceivedChatMessage receivedChatMessage = new ReceivedChatMessage("user1", "message", null);
         String destination = chatTopic + "/" + ROOM_ID;
         StompHeaders stompHeadersConnect = createConnectStompHeaders();
-        //Creating and configuring basic WebSocketClient
         WebSocketStompClient stompClient = createClient();
         StompSession session = stompClient.connectAsync(URL,
                 new WebSocketHttpHeaders(),
                 stompHeadersConnect,
                 new TestStompSessionHandlerAdapter()
-        ).get();
+        ).get();//connecting to websocket endpoint
 
+        //when
         session.subscribe(destination,
                 new TestStompFrameHandler<>(resultKeeper::complete, SendChatMessage.class));
         StompHeaders stompHeadersSend = new StompHeaders();
         stompHeadersSend.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT);
         stompHeadersSend.add(StompHeaders.DESTINATION, "/app/chat/" + ROOM_ID);
-
         session.send(stompHeadersSend, receivedChatMessage);
 
+        //then
         SendChatMessage sendChatMessage = resultKeeper.get(3, TimeUnit.SECONDS);
         Assertions.assertThat(sendChatMessage).isNotNull();
         Assertions.assertThat(sendChatMessage.getSentFrom()).isEqualTo("user1");
@@ -123,24 +124,26 @@ class ChatMessageControllerTest {
     @Test
     @SneakyThrows
     void shouldReturnCorrectSendMessageToUser() {
+        //given
         StompHeaders stompHeadersConnect = createConnectStompHeaders();
-        //Creating and configuring basic WebSocketClient
         WebSocketStompClient stompClient = createClient();
         StompSession session = stompClient.connectAsync(URL,
                 new WebSocketHttpHeaders(),
                 stompHeadersConnect,
                 new TestStompSessionHandlerAdapter()
-        ).get();
+        ).get();//connecting to websocket endpoint
         String sessionId = session.getSessionId();
+
+        //when
         session.subscribe("/queue/private-" + sessionId,
                 new TestStompFrameHandler<>(resultKeeper::complete, SendChatMessage.class));
         ReceivedChatMessage receivedChatMessage = new ReceivedChatMessage("user1", "message", sessionId);
         StompHeaders stompHeadersSend = new StompHeaders();
         stompHeadersSend.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT);
         stompHeadersSend.add(StompHeaders.DESTINATION, "/app/chat-private");
-
         session.send(stompHeadersSend, receivedChatMessage);
 
+        //then
         SendChatMessage sendChatMessage = resultKeeper.get(3, TimeUnit.SECONDS);
         Assertions.assertThat(sendChatMessage).isNotNull();
         Assertions.assertThat(sendChatMessage.getSentFrom()).isEqualTo("user1");
@@ -155,24 +158,26 @@ class ChatMessageControllerTest {
     @Test
     @SneakyThrows
     void shouldNotReturnSendMessageToUser() {
+        //given
         StompHeaders stompHeadersConnect = createConnectStompHeaders();
-        //Creating and configuring basic WebSocketClient
         WebSocketStompClient stompClient = createClient();
         StompSession session = stompClient.connectAsync(URL,
                 new WebSocketHttpHeaders(),
                 stompHeadersConnect,
                 new TestStompSessionHandlerAdapter()
-        ).get();
+        ).get();//connecting to websocket endpoint
         String sessionId = session.getSessionId();
+
+        //when
         session.subscribe("/queue/private-" + sessionId,
                 new TestStompFrameHandler<>(resultKeeper::complete, SendChatMessage.class));
         ReceivedChatMessage receivedChatMessage = new ReceivedChatMessage("user1", "message", "not-exist");
         StompHeaders stompHeadersSend = new StompHeaders();
         stompHeadersSend.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT);
         stompHeadersSend.add(StompHeaders.DESTINATION, "/app/chat-private");
-
         session.send(stompHeadersSend, receivedChatMessage);
 
+        //then
         //Will be thrown TimeoutException if no message received by User
         Assertions.assertThatThrownBy(() -> resultKeeper.get(3, TimeUnit.SECONDS)).isInstanceOf(TimeoutException.class);
     }

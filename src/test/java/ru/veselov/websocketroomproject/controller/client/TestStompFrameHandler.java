@@ -1,6 +1,7 @@
 package ru.veselov.websocketroomproject.controller.client;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 
@@ -22,12 +23,12 @@ public class TestStompFrameHandler<T> implements StompFrameHandler {
     }
 
     @Override
-    public Type getPayloadType(StompHeaders headers) {
+    public @NotNull Type getPayloadType(@NotNull StompHeaders headers) {
         return returnClass;
     }
 
     @Override
-    public void handleFrame(StompHeaders headers, Object payload) {
+    public void handleFrame(@NotNull StompHeaders headers, Object payload) {
         log.info("received message: {} with headers: {}", payload, headers);
         frameHandler.accept((T) payload);
     }
