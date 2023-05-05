@@ -36,7 +36,6 @@ public class RoomSettingsServiceImpl implements RoomSettingsService {
         }
         if (settingsDTO.getRoomName() != null) {
             roomEntity.setName(settingsDTO.getRoomName());
-            log.warn("!!!i need your name {}", roomEntity.getName());
         }
         if (settingsDTO.getIsPrivate() != null) {
             Boolean isPrivate = settingsDTO.getIsPrivate();
