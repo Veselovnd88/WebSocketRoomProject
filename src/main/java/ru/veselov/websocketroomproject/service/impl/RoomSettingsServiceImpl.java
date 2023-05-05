@@ -49,7 +49,7 @@ public class RoomSettingsServiceImpl implements RoomSettingsService {
         if (settingsDTO.getPlayerType() != null) {
             roomEntity.setPlayerType(getPlayer(settingsDTO));
         }
-        if (settingsDTO.getChangeToken() != null && settingsDTO.getChangeToken()) {
+        if (settingsDTO.getChangeToken() != null && settingsDTO.getChangeToken() && roomEntity.getIsPrivate()) {
             roomEntity.setRoomToken(RandomStringUtils.randomAlphanumeric(10));
         }
         roomEntity.setChangedAt(ZonedDateTime.now(ZoneId.of(zoneId)));
