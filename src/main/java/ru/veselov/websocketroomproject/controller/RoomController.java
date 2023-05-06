@@ -31,7 +31,7 @@ public class RoomController {
 
     @PutMapping("/{roomId}")
     public ResponseEntity<Room> changeSettings(@PathVariable("roomId") String roomId,
-                                              @RequestBody RoomSettingsDTO settings, Principal principal) {
+                                               @RequestBody RoomSettingsDTO settings, Principal principal) {
         Room editedRoom = roomService.changeSettings(roomId, settings, principal);
         return new ResponseEntity<>(editedRoom, HttpStatus.ACCEPTED);
     }

@@ -26,7 +26,7 @@ jwt:
 
 spring:
   profiles:
-    active: local
+    active: test
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/HarvexDB
@@ -35,11 +35,11 @@ spring:
   jpa:
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQL95Dialect
+        dialect: org.hibernate.dialect.PostgreSQLDialect
         show_sql: true
         format_sql: true
         hbm2ddl:
-          auto: none
+          auto: validate
 
 redis:
   master:

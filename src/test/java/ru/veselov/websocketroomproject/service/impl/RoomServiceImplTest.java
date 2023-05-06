@@ -7,8 +7,10 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.dto.RoomSettingsDTO;
 import ru.veselov.websocketroomproject.entity.PlayerType;
@@ -26,6 +28,8 @@ import java.time.ZonedDateTime;
 import java.util.Optional;
 
 @SpringBootTest
+@ActiveProfiles("test")
+@AutoConfigureTestDatabase
 class RoomServiceImplTest {
 
     private final static String ROOM_ID = "ec1edd63-4080-480b-84cc-2faee587999f";
@@ -35,6 +39,7 @@ class RoomServiceImplTest {
 
     @MockBean
     RoomValidator roomValidator;
+
     @MockBean
     RoomSettingsService roomSettingsService;
 
@@ -189,7 +194,8 @@ class RoomServiceImplTest {
         );
         Mockito.verify(roomRepository, Mockito.times(1)).save(roomCaptor.capture());
         RoomEntity captured = roomCaptor.getValue();
-        Assertions.assertThat(captured.getUrls()).hasSize(1).contains(urlEntity);
+        Assertions.assertThat(captured.getUrls()).hasSize(1);
+        Assertions.assertThat(captured.getUrls().get(0).getUrl()).isEqualTo(urlEntity.getUrl());
         Assertions.assertThat(captured.getActiveUrl()).isEqualTo(url);
     }
 

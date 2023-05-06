@@ -1,5 +1,9 @@
 package ru.veselov.websocketroomproject.service.impl;
 
+import com.zaxxer.hikari.HikariDataSource;
+import com.zaxxer.hikari.pool.HikariPool;
+import jakarta.activation.DataSource;
+import jakarta.persistence.EntityManager;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -21,6 +25,8 @@ import java.util.Optional;
 class RoomValidatorImplTest {
     @MockBean
     RoomRepository roomRepository;
+
+
 
     @Autowired
     RoomValidator roomValidator;
