@@ -56,7 +56,6 @@ dependencies {
     testImplementation 'org.projectlombok:lombok:1.18.22'
     testImplementation 'io.projectreactor:reactor-test:3.5.4'
     testImplementation 'org.testcontainers:junit-jupiter:1.18.0'
-    testImplementation 'com.h2database:h2:2.1.214'
 
     testAnnotationProcessor 'org.projectlombok:lombok'
 

@@ -7,10 +7,10 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.PlatformTransactionManager;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.dto.RoomSettingsDTO;
 import ru.veselov.websocketroomproject.entity.PlayerType;
@@ -29,10 +29,12 @@ import java.util.Optional;
 
 @SpringBootTest
 @ActiveProfiles("test")
-@AutoConfigureTestDatabase
 class RoomServiceImplTest {
 
     private final static String ROOM_ID = "ec1edd63-4080-480b-84cc-2faee587999f";
+
+    @MockBean//need to mock this, because in transaction spring want to connect to db
+    PlatformTransactionManager platformTransactionManager;
 
     @MockBean
     RoomRepository roomRepository;
