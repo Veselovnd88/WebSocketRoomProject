@@ -1,29 +1,43 @@
 package ru.veselov.websocketroomproject.service.impl;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.util.ReflectionTestUtils;
 import ru.veselov.websocketroomproject.dto.ReceivedChatMessage;
 import ru.veselov.websocketroomproject.dto.SendChatMessage;
-import ru.veselov.websocketroomproject.service.ChatMessageService;
+import ru.veselov.websocketroomproject.mapper.ChatMessageMapper;
+import ru.veselov.websocketroomproject.mapper.ChatMessageMapperImpl;
 
 import java.security.Principal;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class ChatMessageServiceImplTest {
 
     private static final String ROOM_ID = "5";
 
-    @MockBean
+    @Mock
     SimpMessagingTemplate simpMessagingTemplate;
 
-    @Autowired
-    ChatMessageService chatMessageService;
+    @InjectMocks
+    ChatMessageServiceImpl chatMessageService;
+
+    @BeforeEach
+    void init() {
+        ChatMessageMapper chatMessageMapper = new ChatMessageMapperImpl();
+        ReflectionTestUtils.setField(chatMessageMapper, "serverZoneId", "Europe/Moscow", String.class);
+        ReflectionTestUtils.setField(
+                chatMessageService,
+                "chatMessageMapper",
+                chatMessageMapper,
+                ChatMessageMapper.class);
+    }
 
     @Test
     void shouldSendMessageToTopic() {

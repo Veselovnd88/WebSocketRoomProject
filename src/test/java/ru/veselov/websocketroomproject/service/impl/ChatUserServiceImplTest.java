@@ -2,40 +2,49 @@ package ru.veselov.websocketroomproject.service.impl;
 
 import net.datafaker.Faker;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Captor;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import ru.veselov.websocketroomproject.ChatUserUtils;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.entity.ChatUserEntity;
 import ru.veselov.websocketroomproject.exception.ChatUserNotFoundException;
+import ru.veselov.websocketroomproject.mapper.ChatUserEntityMapper;
+import ru.veselov.websocketroomproject.mapper.ChatUserEntityMapperImpl;
 import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.repository.ChatUserRedisRepository;
-import ru.veselov.websocketroomproject.service.ChatUserService;
 
 import java.util.Optional;
 import java.util.Set;
 
-@SpringBootTest
+//@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class ChatUserServiceImplTest {
 
     private static final String ROOM_ID = "5";
 
-    @MockBean
+    @Mock
     ChatUserRedisRepository repository;
 
-    @Autowired
-    ChatUserService chatUserService;
+    @InjectMocks
+    ChatUserServiceImpl chatUserService;
 
     private final Faker faker = new Faker();
 
     @Captor
     ArgumentCaptor<ChatUserEntity> argumentCaptor;
+
+    @BeforeEach
+    void init() {
+        ReflectionTestUtils.setField(
+                chatUserService,
+                "chatUserEntityMapper",
+                new ChatUserEntityMapperImpl(),
+                ChatUserEntityMapper.class);
+    }
 
     @Test
     void shouldSaveChatUserToRepo() {

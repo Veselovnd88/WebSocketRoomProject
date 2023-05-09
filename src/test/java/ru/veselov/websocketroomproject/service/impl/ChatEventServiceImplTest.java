@@ -1,36 +1,34 @@
 package ru.veselov.websocketroomproject.service.impl;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.codec.ServerSentEvent;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
 import reactor.test.StepVerifier;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.event.SubscriptionData;
-import ru.veselov.websocketroomproject.service.EventMessageService;
 import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
+@SuppressWarnings({"unchecked", "rawtypes"})
 class ChatEventServiceImplTest {
 
     private static final String ROOM_ID = "5";
 
-    @Autowired
-    private ChatEventServiceImpl sseService;
+    @InjectMocks
+    private ChatEventServiceImpl chatEventService;
 
-    @MockBean
+    @Mock
     RoomSubscriptionService subscriptionService;
-
-    @MockBean
-    EventMessageService eventMessageService;
 
     @Test
     void shouldReturnFluxSinkAndSaveSubscription() {
-        Flux<ServerSentEvent> eventStream = sseService.createEventStream(TestConstants.TEST_USERNAME, ROOM_ID);
+        Flux<ServerSentEvent> eventStream = chatEventService.createEventStream(TestConstants.TEST_USERNAME, ROOM_ID);
 
         StepVerifier.create(eventStream.take(1)).expectNextMatches(event -> event.event().equals("init"))
                 .verifyComplete();
@@ -41,7 +39,7 @@ class ChatEventServiceImplTest {
 
     @Test
     void shouldRemoveSubscriptionOnDisposeAndCancel() {
-        Flux<ServerSentEvent> eventStream = sseService.createEventStream(TestConstants.TEST_USERNAME, ROOM_ID);
+        Flux<ServerSentEvent> eventStream = chatEventService.createEventStream(TestConstants.TEST_USERNAME, ROOM_ID);
 
         SubscriptionData sub = new SubscriptionData(TestConstants.TEST_USERNAME, ROOM_ID, Mockito.mock(FluxSink.class));
         eventStream.subscribe().dispose();
