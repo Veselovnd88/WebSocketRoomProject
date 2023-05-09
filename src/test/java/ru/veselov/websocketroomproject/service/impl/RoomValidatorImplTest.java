@@ -1,35 +1,29 @@
 package ru.veselov.websocketroomproject.service.impl;
 
-import com.zaxxer.hikari.HikariDataSource;
-import com.zaxxer.hikari.pool.HikariPool;
-import jakarta.activation.DataSource;
-import jakarta.persistence.EntityManager;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.junit.jupiter.MockitoExtension;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.entity.RoomEntity;
 import ru.veselov.websocketroomproject.exception.NotCorrectOwnerException;
 import ru.veselov.websocketroomproject.exception.NotCorrectTokenException;
 import ru.veselov.websocketroomproject.exception.RoomAlreadyExistsException;
 import ru.veselov.websocketroomproject.repository.RoomRepository;
-import ru.veselov.websocketroomproject.service.RoomValidator;
 
 import java.security.Principal;
 import java.util.Optional;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class RoomValidatorImplTest {
-    @MockBean
+    @Mock
     RoomRepository roomRepository;
 
-
-
-    @Autowired
-    RoomValidator roomValidator;
+    @InjectMocks
+    RoomValidatorImpl roomValidator;
 
     Principal principal = Mockito.mock(Principal.class);
 

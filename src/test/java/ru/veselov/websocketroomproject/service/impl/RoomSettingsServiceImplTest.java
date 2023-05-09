@@ -1,26 +1,34 @@
 package ru.veselov.websocketroomproject.service.impl;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import ru.veselov.websocketroomproject.dto.RoomSettingsDTO;
 import ru.veselov.websocketroomproject.entity.PlayerType;
 import ru.veselov.websocketroomproject.entity.RoomEntity;
-import ru.veselov.websocketroomproject.service.RoomSettingsService;
 import ru.veselov.websocketroomproject.service.RoomValidator;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class RoomSettingsServiceImplTest {
 
-    @MockBean
+    @Mock
     RoomValidator roomValidator;
 
-    @Autowired
-    RoomSettingsService roomSettingsService;
+    @InjectMocks
+    RoomSettingsServiceImpl roomSettingsService;
+
+    @BeforeEach
+    public void init() {
+        ReflectionTestUtils.setField(roomSettingsService, "zoneId", "Europe/Moscow", String.class);
+        //ReflectionTestUtils.setField(roomService, "roomMapper", new RoomMapperImpl(), RoomMapper.class);
+    }
 
     @Test
     void shouldSetNewName() {

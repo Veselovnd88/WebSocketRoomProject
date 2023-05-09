@@ -1,6 +1,5 @@
 package ru.veselov.websocketroomproject.service.impl;
 
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -29,8 +28,7 @@ public class RoomSettingsServiceImpl implements RoomSettingsService {
 
     private final RoomValidator roomValidator;
 
-    @PostConstruct
-    private void init() {
+    static {
         for (PlayerType p : PlayerType.values()) {
             videoPlayers.put(p.name(), p);
         }

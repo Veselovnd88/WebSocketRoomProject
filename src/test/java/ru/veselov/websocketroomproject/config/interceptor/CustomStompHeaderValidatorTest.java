@@ -1,24 +1,41 @@
 package ru.veselov.websocketroomproject.config.interceptor;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.InjectMocks;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
+import org.springframework.test.util.ReflectionTestUtils;
 import ru.veselov.websocketroomproject.TestConstants;
+import ru.veselov.websocketroomproject.security.JwtProperties;
 
-@SpringBootTest
+//@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class CustomStompHeaderValidatorTest {
 
     private static final String ROOM_ID = "4";
 
-    @Autowired
+    JwtProperties jwtProperties;
+
+    @InjectMocks
     CustomStompHeaderValidator customStompHeaderValidator;
+
+    @BeforeEach
+    void init() {
+        jwtProperties = new JwtProperties();
+        jwtProperties.setHeader("Authorization");
+        jwtProperties.setPrefix("Bearer ");
+        ReflectionTestUtils.setField(
+                customStompHeaderValidator,
+                "jwtProperties", jwtProperties, JwtProperties.class);
+    }
 
     @Test
     void shouldValidateWithoutExceptions() {

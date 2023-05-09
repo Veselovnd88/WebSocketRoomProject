@@ -1,33 +1,29 @@
 package ru.veselov.websocketroomproject.service.impl;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.security.test.context.support.WithMockUser;
 import ru.veselov.websocketroomproject.dto.PlayerStateDTO;
-import ru.veselov.websocketroomproject.service.PlayerStateMessageService;
 
-import java.security.Principal;
-
-@SpringBootTest
+//@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class PlayerStateMessageServiceImplTest {
 
     private static final String ROOM_ID = "5";
 
-    @MockBean
+    @Mock
     SimpMessagingTemplate simpMessagingTemplate;
 
-    @Autowired
-    PlayerStateMessageService playerStateMessageService;
+    @InjectMocks
+    PlayerStateMessageServiceImpl playerStateMessageService;
 
     @Test
     void shouldSendMessageToYoutubeTopic() {
-        Principal principal = Mockito.mock(Principal.class);
-        Mockito.when(principal.getName()).thenReturn("user1");
         PlayerStateDTO playerStateDTO = new PlayerStateDTO(1, "111.111", "low", "1");
 
         playerStateMessageService.sendToTopic(ROOM_ID, playerStateDTO);
