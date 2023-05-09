@@ -1,25 +1,21 @@
 package ru.veselov.websocketroomproject.service.impl;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Captor;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.PlatformTransactionManager;
-import ru.veselov.websocketroomproject.TestConstants;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import ru.veselov.websocketroomproject.dto.RoomSettingsDTO;
 import ru.veselov.websocketroomproject.entity.PlayerType;
 import ru.veselov.websocketroomproject.entity.RoomEntity;
 import ru.veselov.websocketroomproject.entity.UrlEntity;
 import ru.veselov.websocketroomproject.exception.RoomNotFoundException;
+import ru.veselov.websocketroomproject.mapper.RoomMapper;
+import ru.veselov.websocketroomproject.mapper.RoomMapperImpl;
 import ru.veselov.websocketroomproject.model.Room;
 import ru.veselov.websocketroomproject.repository.RoomRepository;
-import ru.veselov.websocketroomproject.service.RoomService;
 import ru.veselov.websocketroomproject.service.RoomSettingsService;
 import ru.veselov.websocketroomproject.service.RoomValidator;
 
@@ -27,34 +23,35 @@ import java.security.Principal;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
-@SpringBootTest
-@ActiveProfiles("test")
-class RoomServiceImplTest {
+@ExtendWith(MockitoExtension.class)
+public class RoomServiceImplTest {
 
     private final static String ROOM_ID = "ec1edd63-4080-480b-84cc-2faee587999f";
 
-    @MockBean//need to mock this, because in transaction spring want to connect to db
-    PlatformTransactionManager platformTransactionManager;
-
-    @MockBean
+    @Mock
     RoomRepository roomRepository;
 
-    @MockBean
+    @Mock
     RoomValidator roomValidator;
 
-    @MockBean
+    @Mock
     RoomSettingsService roomSettingsService;
+
+    @InjectMocks
+    RoomServiceImpl roomService;
 
     @Captor
     ArgumentCaptor<RoomEntity> roomCaptor;
 
-    @Autowired
-    RoomService roomService;
+    @BeforeEach
+    public void init() {
+        ReflectionTestUtils.setField(roomService, "zoneId", "Europe/Moscow", String.class);
+        ReflectionTestUtils.setField(roomService, "roomMapper", new RoomMapperImpl(), RoomMapper.class);
+    }
 
     @Test
     void shouldCreatePrivateRoom() {
         Room room = getRoom(true);
-
         roomService.createRoom(room);
 
         Mockito.verify(roomRepository, Mockito.times(1)).save(roomCaptor.capture());
@@ -154,7 +151,6 @@ class RoomServiceImplTest {
         RoomEntity roomEntity = new RoomEntity();
         RoomEntity roomWithChangedSettings = new RoomEntity();
         Principal principal = Mockito.mock(Principal.class);
-        Mockito.when(principal.getName()).thenReturn(TestConstants.TEST_USERNAME);
         Mockito.when(roomRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.of(roomEntity));
         Mockito.when(roomSettingsService.applySettings(roomEntity, settings)).thenReturn(roomWithChangedSettings);
 
@@ -169,7 +165,6 @@ class RoomServiceImplTest {
     void shouldThrowRoomNotFoundExceptionIfRoomNotExisting() {
         RoomSettingsDTO settings = RoomSettingsDTO.builder().roomName("rename").playerType("YOUTUBE").build();
         Principal principal = Mockito.mock(Principal.class);
-        Mockito.when(principal.getName()).thenReturn(TestConstants.TEST_USERNAME);
         Mockito.when(roomRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.empty());
 
         Assertions.assertThatThrownBy(
@@ -185,7 +180,6 @@ class RoomServiceImplTest {
     @Test
     void shouldAddUrlToRoom() {
         Principal principal = Mockito.mock(Principal.class);
-        Mockito.when(principal.getName()).thenReturn(TestConstants.TEST_USERNAME);
         String url = "https://i-am-pretty-url.com";
         UrlEntity urlEntity = new UrlEntity(url, ZonedDateTime.now());
         RoomEntity roomEntity = new RoomEntity();
