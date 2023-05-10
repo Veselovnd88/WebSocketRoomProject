@@ -1,6 +1,6 @@
 package ru.veselov.websocketroomproject.service;
 
-import ru.veselov.websocketroomproject.dto.ReceivedChatMessage;
+import ru.veselov.websocketroomproject.dto.request.ReceivedChatMessage;
 
 import java.security.Principal;
 

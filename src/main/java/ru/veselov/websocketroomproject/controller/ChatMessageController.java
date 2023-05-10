@@ -6,7 +6,7 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Controller;
-import ru.veselov.websocketroomproject.dto.ReceivedChatMessage;
+import ru.veselov.websocketroomproject.dto.request.ReceivedChatMessage;
 import ru.veselov.websocketroomproject.service.ChatMessageService;
 
 import java.security.Principal;

@@ -1,4 +1,4 @@
-package ru.veselov.websocketroomproject.dto;
+package ru.veselov.websocketroomproject.dto.request;
 
 import lombok.Builder;
 import lombok.Data;

@@ -8,7 +8,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import ru.veselov.websocketroomproject.dto.PlayerStateDTO;
+import ru.veselov.websocketroomproject.dto.request.PlayerStateDTO;
 
 @ExtendWith(MockitoExtension.class)
 class PlayerStateMessageServiceImplTest {

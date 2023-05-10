@@ -1,6 +1,6 @@
 package ru.veselov.websocketroomproject.service;
 
-import ru.veselov.websocketroomproject.dto.PlayerStateDTO;
+import ru.veselov.websocketroomproject.dto.request.PlayerStateDTO;
 
 public interface PlayerStateMessageService {
 

@@ -24,7 +24,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.controller.client.TestStompFrameHandler;
 import ru.veselov.websocketroomproject.controller.client.TestStompSessionHandlerAdapter;
-import ru.veselov.websocketroomproject.dto.PlayerStateDTO;
+import ru.veselov.websocketroomproject.dto.request.PlayerStateDTO;
 import ru.veselov.websocketroomproject.event.UserDisconnectEventHandler;
 import ru.veselov.websocketroomproject.service.ChatUserService;
 import ru.veselov.websocketroomproject.service.RoomSubscriptionService;

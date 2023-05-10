@@ -10,8 +10,8 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
-import ru.veselov.websocketroomproject.dto.ReceivedChatMessage;
-import ru.veselov.websocketroomproject.dto.SendChatMessage;
+import ru.veselov.websocketroomproject.dto.request.ReceivedChatMessage;
+import ru.veselov.websocketroomproject.dto.response.SendChatMessage;
 import ru.veselov.websocketroomproject.mapper.ChatMessageMapper;
 import ru.veselov.websocketroomproject.mapper.ChatMessageMapperImpl;
 

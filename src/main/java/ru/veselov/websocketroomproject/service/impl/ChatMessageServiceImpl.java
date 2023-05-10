@@ -5,10 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
-import ru.veselov.websocketroomproject.dto.ReceivedChatMessage;
-import ru.veselov.websocketroomproject.dto.SendChatMessage;
+import ru.veselov.websocketroomproject.dto.request.ReceivedChatMessage;
+import ru.veselov.websocketroomproject.dto.response.SendChatMessage;
 import ru.veselov.websocketroomproject.mapper.ChatMessageMapper;
-import ru.veselov.websocketroomproject.security.JwtUtils;
 import ru.veselov.websocketroomproject.service.ChatMessageService;
 
 import java.security.Principal;

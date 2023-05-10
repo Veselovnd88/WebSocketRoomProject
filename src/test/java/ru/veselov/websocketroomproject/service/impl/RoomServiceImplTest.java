@@ -7,7 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
-import ru.veselov.websocketroomproject.dto.RoomSettingsDTO;
+import ru.veselov.websocketroomproject.dto.request.RoomSettingsDTO;
 import ru.veselov.websocketroomproject.entity.PlayerType;
 import ru.veselov.websocketroomproject.entity.RoomEntity;
 import ru.veselov.websocketroomproject.entity.UrlEntity;
@@ -44,7 +44,7 @@ public class RoomServiceImplTest {
     ArgumentCaptor<RoomEntity> roomCaptor;
 
     @BeforeEach
-    public void init() {
+    void init() {
         ReflectionTestUtils.setField(roomService, "zoneId", "Europe/Moscow", String.class);
         ReflectionTestUtils.setField(roomService, "roomMapper", new RoomMapperImpl(), RoomMapper.class);
     }

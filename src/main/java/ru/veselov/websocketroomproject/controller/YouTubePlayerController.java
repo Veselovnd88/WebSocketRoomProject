@@ -6,7 +6,7 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Controller;
-import ru.veselov.websocketroomproject.dto.PlayerStateDTO;
+import ru.veselov.websocketroomproject.dto.request.PlayerStateDTO;
 import ru.veselov.websocketroomproject.service.PlayerStateMessageService;
 
 @Controller

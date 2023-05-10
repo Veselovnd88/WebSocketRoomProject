@@ -1,4 +1,4 @@
-package ru.veselov.websocketroomproject.dto;
+package ru.veselov.websocketroomproject.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

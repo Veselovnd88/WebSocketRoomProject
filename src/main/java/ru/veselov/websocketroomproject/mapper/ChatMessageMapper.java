@@ -2,8 +2,8 @@ package ru.veselov.websocketroomproject.mapper;
 
 import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Value;
-import ru.veselov.websocketroomproject.dto.ReceivedChatMessage;
-import ru.veselov.websocketroomproject.dto.SendChatMessage;
+import ru.veselov.websocketroomproject.dto.request.ReceivedChatMessage;
+import ru.veselov.websocketroomproject.dto.response.SendChatMessage;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
