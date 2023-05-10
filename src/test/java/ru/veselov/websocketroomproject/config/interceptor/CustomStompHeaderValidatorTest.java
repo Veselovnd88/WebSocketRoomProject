@@ -16,7 +16,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.security.JwtProperties;
 
-//@SpringBootTest
 @ExtendWith(MockitoExtension.class)
 class CustomStompHeaderValidatorTest {
 
