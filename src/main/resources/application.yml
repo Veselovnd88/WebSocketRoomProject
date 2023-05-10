@@ -26,7 +26,7 @@ jwt:
 
 spring:
   profiles:
-    active: test
+    active: local
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/HarvexDB

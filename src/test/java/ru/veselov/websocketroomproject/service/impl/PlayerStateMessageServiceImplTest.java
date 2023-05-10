@@ -10,7 +10,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import ru.veselov.websocketroomproject.dto.PlayerStateDTO;
 
-//@SpringBootTest
 @ExtendWith(MockitoExtension.class)
 class PlayerStateMessageServiceImplTest {
 

@@ -3,26 +3,22 @@ package ru.veselov.websocketroomproject.security.impl;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EmptySource;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
 import ru.veselov.websocketroomproject.TestConstants;
-import ru.veselov.websocketroomproject.security.AuthTokenManager;
 import ru.veselov.websocketroomproject.security.JwtConverter;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class AuthTokenManagerImplTest {
 
-    @Autowired
-    AuthTokenManager authTokenManager;
-
-    @MockBean
+    @Mock
     JwtConverter jwtConverter;
+
+    @InjectMocks
+    AuthTokenManagerImpl authTokenManager;
 
     @Captor
     ArgumentCaptor<String> substringCaptor;

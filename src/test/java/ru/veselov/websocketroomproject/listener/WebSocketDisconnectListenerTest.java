@@ -1,12 +1,9 @@
 package ru.veselov.websocketroomproject.listener;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
@@ -19,19 +16,19 @@ import ru.veselov.websocketroomproject.service.ChatUserService;
 
 import java.util.Map;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 @SuppressWarnings({"unchecked"})
 class WebSocketDisconnectListenerTest {
 
     private static final String ROOM_ID = "5";
 
-    @MockBean
+    @Mock
     private ChatUserService chatUserService;
 
-    @MockBean
+    @Mock
     private UserDisconnectEventHandler userDisconnectEventHandler;
 
-    @Autowired
+    @InjectMocks
     private WebSocketDisconnectListener webSocketDisconnectListener;
 
     @Captor

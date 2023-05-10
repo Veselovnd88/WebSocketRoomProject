@@ -1,31 +1,32 @@
 package ru.veselov.websocketroomproject.event.impl;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.FluxSink;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.event.SubscriptionData;
-import ru.veselov.websocketroomproject.event.UserDisconnectEventHandler;
 import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.service.EventMessageService;
 import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
+@SuppressWarnings({"unchecked", "rawtypes"})
 class UserDisconnectEventHandlerImplTest {
 
     private static final String ROOM_ID = "5";
 
-    @MockBean
+    @Mock
     private EventMessageService eventMessageService;
 
-    @MockBean
+    @Mock
     private RoomSubscriptionService roomSubscriptionService;
 
-    @Autowired
-    UserDisconnectEventHandler userDisconnectEventHandler;
+    @InjectMocks
+    UserDisconnectEventHandlerImpl userDisconnectEventHandler;
 
     @Test
     void shouldCallRoomSubscriptionAndEventMessageServicesAndCompleteStream() {

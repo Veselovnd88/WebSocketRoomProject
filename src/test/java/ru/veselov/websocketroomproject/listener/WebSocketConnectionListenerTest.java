@@ -1,27 +1,30 @@
 package ru.veselov.websocketroomproject.listener;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.event.UserConnectEventHandler;
 import ru.veselov.websocketroomproject.model.ChatUser;
+import ru.veselov.websocketroomproject.security.JwtProperties;
+import ru.veselov.websocketroomproject.security.JwtUtils;
 import ru.veselov.websocketroomproject.service.ChatUserService;
 
 import java.util.List;
 import java.util.Map;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 @SuppressWarnings("unchecked")
 class WebSocketConnectionListenerTest {
 
@@ -29,19 +32,33 @@ class WebSocketConnectionListenerTest {
 
     private static final String DESTINATION = "/topic/users/5";
 
-    @Value("${socket.header-room-id}")
-    private String roomIdHeader;
-
-    @Autowired
-    private WebSocketConnectionListener webSocketConnectionListener;
-    @MockBean
+    @Mock
     ChatUserService chatUserService;
 
-    @MockBean
+    @Mock
     UserConnectEventHandler userConnectEventHandler;
+
+    WebSocketConnectionListener webSocketConnectionListener;
 
     @Captor
     ArgumentCaptor<ChatUser> chatUserArgumentCaptor;
+
+    @BeforeEach
+    void init() {
+        JwtProperties jwtProperties = new JwtProperties();
+        jwtProperties.setHeader("Authorization");
+        jwtProperties.setPrefix("Bearer ");
+        webSocketConnectionListener = new WebSocketConnectionListener(
+                userConnectEventHandler,
+                chatUserService,
+                new JwtUtils(jwtProperties),
+                jwtProperties);
+        ReflectionTestUtils.setField(
+                webSocketConnectionListener,
+                "roomIdHeader",
+                TestConstants.ROOM_ID_HEADER,
+                String.class);
+    }
 
     @Test
     void shouldSaveUserAndNotifyUsers() {
@@ -50,7 +67,7 @@ class WebSocketConnectionListenerTest {
                 StompHeaderAccessor.DESTINATION_HEADER, DESTINATION,
                 StompHeaderAccessor.SESSION_ID_HEADER, TestConstants.TEST_SESSION_ID,
                 StompHeaderAccessor.NATIVE_HEADERS, Map.of(
-                        roomIdHeader, List.of(ROOM_ID),
+                        TestConstants.ROOM_ID_HEADER, List.of(ROOM_ID),
                         TestConstants.AUTH_HEADER, List.of(TestConstants.BEARER_JWT)
                 )
         );

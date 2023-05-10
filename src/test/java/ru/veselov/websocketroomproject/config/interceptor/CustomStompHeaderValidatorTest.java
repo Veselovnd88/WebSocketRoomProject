@@ -7,12 +7,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
-import org.springframework.test.util.ReflectionTestUtils;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.security.JwtProperties;
 
@@ -21,19 +19,14 @@ class CustomStompHeaderValidatorTest {
 
     private static final String ROOM_ID = "4";
 
-    JwtProperties jwtProperties;
-
-    @InjectMocks
     CustomStompHeaderValidator customStompHeaderValidator;
 
     @BeforeEach
     void init() {
-        jwtProperties = new JwtProperties();
+        JwtProperties jwtProperties = new JwtProperties();
         jwtProperties.setHeader("Authorization");
         jwtProperties.setPrefix("Bearer ");
-        ReflectionTestUtils.setField(
-                customStompHeaderValidator,
-                "jwtProperties", jwtProperties, JwtProperties.class);
+        customStompHeaderValidator = new CustomStompHeaderValidator(jwtProperties);
     }
 
     @Test

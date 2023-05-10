@@ -3,6 +3,11 @@ server:
   zoneId: "Europe/Moscow"
 
 spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5435/HarvexDB
+    username: admin
+    password: admin
   jpa:
     properties:
       hibernate:

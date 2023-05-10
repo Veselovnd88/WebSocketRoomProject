@@ -20,7 +20,6 @@ import ru.veselov.websocketroomproject.repository.ChatUserRedisRepository;
 import java.util.Optional;
 import java.util.Set;
 
-//@SpringBootTest
 @ExtendWith(MockitoExtension.class)
 class ChatUserServiceImplTest {
 

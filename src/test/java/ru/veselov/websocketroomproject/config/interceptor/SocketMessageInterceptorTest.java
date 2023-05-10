@@ -1,12 +1,13 @@
 package ru.veselov.websocketroomproject.config.interceptor;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHeaders;
@@ -15,28 +16,33 @@ import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.security.AuthTokenManager;
-import ru.veselov.websocketroomproject.security.JwtProperties;
 import ru.veselov.websocketroomproject.security.JwtAuthenticationToken;
+import ru.veselov.websocketroomproject.security.JwtProperties;
 
 import java.util.List;
 import java.util.Map;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class SocketMessageInterceptorTest {
 
-    @MockBean
+    @Mock
     private CustomStompHeaderValidator customStompHeaderValidator;
 
-    @MockBean
+    @Mock
     AuthTokenManager authTokenManager;
 
-    @Autowired
-    JwtProperties jwtProperties;
+    SocketMessageInterceptor interceptor;
+
+    @BeforeEach
+    void init() {
+        JwtProperties jwtProperties = new JwtProperties();
+        jwtProperties.setHeader("Authorization");
+        jwtProperties.setPrefix("Bearer ");
+        interceptor = new SocketMessageInterceptor(jwtProperties, customStompHeaderValidator, authTokenManager);
+    }
 
     @Test
     void shouldReturnMessageWithCorrectedHeader() {
-        SocketMessageInterceptor interceptor =
-                new SocketMessageInterceptor(jwtProperties, customStompHeaderValidator, authTokenManager);
         MessageChannel channel = Mockito.mock(MessageChannel.class);
         Message<Object> message = Mockito.spy(Message.class);
         Map<String, Object> headers = Map.of(
@@ -64,8 +70,6 @@ class SocketMessageInterceptorTest {
 
     @Test
     void shouldReturnMessageIfAnotherCommand() {
-        SocketMessageInterceptor interceptor =
-                new SocketMessageInterceptor(jwtProperties, customStompHeaderValidator, authTokenManager);
         MessageChannel channel = Mockito.mock(MessageChannel.class);
         Message<?> message = Mockito.mock(Message.class);
         Map<String, Object> headers = Map.of(

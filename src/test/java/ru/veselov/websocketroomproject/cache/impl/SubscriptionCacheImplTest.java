@@ -5,7 +5,6 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.FluxSink;
@@ -22,7 +21,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
 @SuppressWarnings({"rawtypes", "unchecked"})
 class SubscriptionCacheImplTest {
 
-    @InjectMocks
     SubscriptionCacheImpl subscriptionCache;
 
     private Map<String, Set<SubscriptionData>> myMap;
@@ -30,6 +28,7 @@ class SubscriptionCacheImplTest {
     @BeforeEach
     @SneakyThrows
     void init() {
+        subscriptionCache = new SubscriptionCacheImpl();
         Field roomSubscriptionMap = subscriptionCache.getClass().getDeclaredField("roomSubscriptionsMap");
         roomSubscriptionMap.setAccessible(true);
         myMap = (ConcurrentHashMap) roomSubscriptionMap.get(subscriptionCache);

@@ -1,17 +1,25 @@
 package ru.veselov.websocketroomproject.security;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import ru.veselov.websocketroomproject.TestConstants;
 
-@SpringBootTest
 class JwtConverterTest {
 
-    @Autowired
     JwtConverter jwtConverter;
+
+    @BeforeEach
+    void init() {
+        JwtProperties jwtProperties = new JwtProperties();
+        jwtProperties.setHeader("Authorization");
+        jwtProperties.setPrefix("Bearer ");
+        jwtProperties.setUsernameClaim("user");
+        jwtProperties.setRoleClaim("role");
+        JwtUtils jwtUtils = new JwtUtils(jwtProperties);
+        jwtConverter = new JwtConverter(jwtUtils);
+    }
 
     @Test
     void shouldConvertJwtToToken() {

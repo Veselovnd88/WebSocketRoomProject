@@ -1,16 +1,25 @@
 package ru.veselov.websocketroomproject.security;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import ru.veselov.websocketroomproject.TestConstants;
 
-@SpringBootTest
+
 class JwtUtilsTest {
     private final String JWT = TestConstants.BEARER_JWT.substring(7);
-    @Autowired
+
     JwtUtils jwtUtils;
+
+    @BeforeEach
+    void init() {
+        JwtProperties jwtProperties = new JwtProperties();
+        jwtProperties.setHeader("Authorization");
+        jwtProperties.setPrefix("Bearer ");
+        jwtProperties.setUsernameClaim("user");
+        jwtProperties.setRoleClaim("role");
+        jwtUtils = new JwtUtils(jwtProperties);
+    }
 
     @Test
     void shouldReturnUsername() {
