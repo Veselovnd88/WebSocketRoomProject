@@ -3,7 +3,12 @@ package ru.veselov.websocketroomproject.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.veselov.websocketroomproject.dto.request.RoomSettingsDTO;
@@ -91,11 +96,6 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public List<Room> getAllPublicRooms() {
-        return roomMapper.entitiesToRooms(roomRepository.findAll());
-    }
-
-    @Override
     @Transactional
     public void addUrl(String roomId, String url, Principal principal) {
         RoomEntity roomEntity = findRoomById(roomId);
@@ -104,6 +104,16 @@ public class RoomServiceImpl implements RoomService {
         roomEntity.addUrl(urlEntity);
         roomRepository.save(roomEntity);
         log.info("New [url {}] added to [room {}]", url, roomId);
+    }
+
+    public List<Room> findAll(int page, String sorting) {
+        if (StringUtils.isBlank(sorting)) {
+            sorting = "createdAt";
+        }
+        Pageable pageable = PageRequest.of(page, 6).withSort(Sort.by(sorting).ascending());
+        Page<RoomEntity> found = roomRepository.findAll(pageable);
+        log.info("Found [{} rooms] with on {} page and {} sorting", found.getNumber(), page, sorting);
+        return roomMapper.entitiesToRooms(found.getContent());
     }
 
     private RoomEntity findRoomById(String id) {

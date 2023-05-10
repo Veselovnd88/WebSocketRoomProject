@@ -51,8 +51,11 @@ public class RoomController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Room>> getAllRooms() {
-        return new ResponseEntity<>(roomService.getAllPublicRooms(), HttpStatus.OK);
+    public ResponseEntity<List<Room>> getAllRooms(@RequestParam(required = false, name = "page") int page,
+                                                  @RequestParam(required = false, name = "sort") String sort) {
+
+        return new ResponseEntity<>(roomService.findAll(page, sort), HttpStatus.OK);
     }
+
 
 }

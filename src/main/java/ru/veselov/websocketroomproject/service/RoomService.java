@@ -16,8 +16,8 @@ public interface RoomService {
 
     Room changeSettings(String roomId, RoomSettingsDTO settings, Principal principal);
 
-    List<Room> getAllPublicRooms();
-
     void addUrl(String roomId, String url, Principal principal);
+
+    List<Room> findAll(int page, String sort);
 
 }
