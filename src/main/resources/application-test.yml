@@ -41,10 +41,11 @@ chat-event:
   core-pool-size: 10
   max-pool-size: 10
 
-jwt:
+security:
   header: Authorization
   prefix: "Bearer "
   role-claim: role
+  chat-event-url: "/api/room/event"
 
 redis:
   master:

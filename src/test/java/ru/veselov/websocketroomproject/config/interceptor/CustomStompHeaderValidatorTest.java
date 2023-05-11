@@ -12,7 +12,7 @@ import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import ru.veselov.websocketroomproject.TestConstants;
-import ru.veselov.websocketroomproject.security.JwtProperties;
+import ru.veselov.websocketroomproject.security.SecurityProperties;
 
 @ExtendWith(MockitoExtension.class)
 class CustomStompHeaderValidatorTest {
@@ -23,10 +23,10 @@ class CustomStompHeaderValidatorTest {
 
     @BeforeEach
     void init() {
-        JwtProperties jwtProperties = new JwtProperties();
-        jwtProperties.setHeader("Authorization");
-        jwtProperties.setPrefix("Bearer ");
-        customStompHeaderValidator = new CustomStompHeaderValidator(jwtProperties);
+        SecurityProperties securityProperties = new SecurityProperties();
+        securityProperties.setHeader("Authorization");
+        securityProperties.setPrefix("Bearer ");
+        customStompHeaderValidator = new CustomStompHeaderValidator(securityProperties);
     }
 
     @Test

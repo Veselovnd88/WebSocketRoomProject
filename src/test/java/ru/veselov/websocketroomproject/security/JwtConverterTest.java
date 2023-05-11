@@ -12,12 +12,12 @@ class JwtConverterTest {
 
     @BeforeEach
     void init() {
-        JwtProperties jwtProperties = new JwtProperties();
-        jwtProperties.setHeader("Authorization");
-        jwtProperties.setPrefix("Bearer ");
-        jwtProperties.setUsernameClaim("user");
-        jwtProperties.setRoleClaim("role");
-        JwtUtils jwtUtils = new JwtUtils(jwtProperties);
+        SecurityProperties securityProperties = new SecurityProperties();
+        securityProperties.setHeader("Authorization");
+        securityProperties.setPrefix("Bearer ");
+        securityProperties.setUsernameClaim("user");
+        securityProperties.setRoleClaim("role");
+        JwtUtils jwtUtils = new JwtUtils(securityProperties);
         jwtConverter = new JwtConverter(jwtUtils);
     }
 

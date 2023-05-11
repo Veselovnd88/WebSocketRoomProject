@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class JwtUtils {
 
-    private final JwtProperties jwtProperties;
+    private final SecurityProperties securityProperties;
 
     public String getUsername(String token) {
         DecodedJWT decoded = JWT.decode(token);
@@ -20,7 +20,7 @@ public class JwtUtils {
 
     public String getRole(String token) {
         DecodedJWT decoded = JWT.decode(token);
-        return decoded.getClaim(jwtProperties.getRoleClaim()).asString();
+        return decoded.getClaim(securityProperties.getRoleClaim()).asString();
     }
 
 }

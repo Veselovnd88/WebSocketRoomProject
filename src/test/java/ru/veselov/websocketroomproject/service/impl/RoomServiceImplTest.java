@@ -20,6 +20,7 @@ import ru.veselov.websocketroomproject.service.RoomSettingsService;
 import ru.veselov.websocketroomproject.validation.RoomValidator;
 
 import java.security.Principal;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
@@ -46,6 +47,7 @@ class RoomServiceImplTest {
     @BeforeEach
     void init() {
         ReflectionTestUtils.setField(roomService, "zoneId", "Europe/Moscow", String.class);
+        ReflectionTestUtils.setField(roomService, "zone", ZoneId.of("Europe/Moscow"), ZoneId.class);
         ReflectionTestUtils.setField(roomService, "roomMapper", new RoomMapperImpl(), RoomMapper.class);
     }
 

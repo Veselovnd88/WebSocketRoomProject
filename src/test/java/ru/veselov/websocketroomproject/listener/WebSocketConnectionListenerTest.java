@@ -17,7 +17,7 @@ import org.springframework.web.socket.messaging.SessionConnectEvent;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.event.UserConnectEventHandler;
 import ru.veselov.websocketroomproject.model.ChatUser;
-import ru.veselov.websocketroomproject.security.JwtProperties;
+import ru.veselov.websocketroomproject.security.SecurityProperties;
 import ru.veselov.websocketroomproject.security.JwtUtils;
 import ru.veselov.websocketroomproject.service.ChatUserService;
 
@@ -45,14 +45,14 @@ class WebSocketConnectionListenerTest {
 
     @BeforeEach
     void init() {
-        JwtProperties jwtProperties = new JwtProperties();
-        jwtProperties.setHeader("Authorization");
-        jwtProperties.setPrefix("Bearer ");
+        SecurityProperties securityProperties = new SecurityProperties();
+        securityProperties.setHeader("Authorization");
+        securityProperties.setPrefix("Bearer ");
         webSocketConnectionListener = new WebSocketConnectionListener(
                 userConnectEventHandler,
                 chatUserService,
-                new JwtUtils(jwtProperties),
-                jwtProperties);
+                new JwtUtils(securityProperties),
+                securityProperties);
         ReflectionTestUtils.setField(
                 webSocketConnectionListener,
                 "roomIdHeader",

@@ -1,5 +1,6 @@
 package ru.veselov.websocketroomproject.service.impl;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -38,6 +39,8 @@ public class RoomServiceImpl implements RoomService {
     @Value("${server.zoneId}")
     private String zoneId;
 
+    private ZoneId zone;
+
     private final RoomMapper roomMapper;
 
     private final RoomRepository roomRepository;
@@ -46,13 +49,18 @@ public class RoomServiceImpl implements RoomService {
 
     private final RoomValidator roomValidator;
 
+    @PostConstruct
+    public void init() {
+        zone = ZoneId.of(zoneId);
+    }
+
     @Override
     @Transactional
     public Room createRoom(Room room) {
         String name = room.getName();
         roomValidator.validateRoomName(name);
         RoomEntity roomEntity = roomMapper.toEntity(room);
-        roomEntity.setCreatedAt(ZonedDateTime.now(ZoneId.of(zoneId)));
+        roomEntity.setCreatedAt(ZonedDateTime.now(zone));
         if (roomEntity.getIsPrivate()) {
             roomEntity.setRoomToken(RandomStringUtils.randomAlphanumeric(10));
         }
@@ -100,7 +108,7 @@ public class RoomServiceImpl implements RoomService {
     public void addUrl(String roomId, String url, Principal principal) {
         RoomEntity roomEntity = findRoomById(roomId);
         roomEntity.setActiveUrl(url);
-        UrlEntity urlEntity = new UrlEntity(url, ZonedDateTime.now(ZoneId.of(zoneId)));
+        UrlEntity urlEntity = new UrlEntity(url, ZonedDateTime.now(zone));
         roomEntity.addUrl(urlEntity);
         roomRepository.save(roomEntity);
         log.info("New [url {}] added to [room {}]", url, roomId);

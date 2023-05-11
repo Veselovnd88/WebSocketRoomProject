@@ -5,9 +5,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConfigurationProperties(prefix = "jwt")
+@ConfigurationProperties(prefix = "security")
 @Data
-public class JwtProperties {
+public class SecurityProperties {
 
     private String header;
 
@@ -16,5 +16,7 @@ public class JwtProperties {
     private String usernameClaim;
 
     private String roleClaim;
+
+    private String chatEventURL;
 
 }
