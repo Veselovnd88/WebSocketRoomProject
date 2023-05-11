@@ -20,7 +20,7 @@ import ru.veselov.websocketroomproject.model.Room;
 import ru.veselov.websocketroomproject.repository.RoomRepository;
 import ru.veselov.websocketroomproject.service.RoomService;
 import ru.veselov.websocketroomproject.service.RoomSettingsService;
-import ru.veselov.websocketroomproject.service.RoomValidator;
+import ru.veselov.websocketroomproject.validation.RoomValidator;
 
 import java.security.Principal;
 import java.time.ZoneId;

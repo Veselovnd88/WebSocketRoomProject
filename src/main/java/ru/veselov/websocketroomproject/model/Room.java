@@ -1,6 +1,5 @@
 package ru.veselov.websocketroomproject.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,8 +19,7 @@ public class Room implements Serializable {
 
     private String name;
 
-    @JsonProperty("isPrivate")
-    private Boolean isPrivate;
+        private Boolean isPrivate;
 
     private String activeUrl;
 

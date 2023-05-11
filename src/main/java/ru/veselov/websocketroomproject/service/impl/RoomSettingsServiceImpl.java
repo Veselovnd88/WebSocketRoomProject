@@ -9,7 +9,7 @@ import ru.veselov.websocketroomproject.dto.request.RoomSettingsDTO;
 import ru.veselov.websocketroomproject.entity.PlayerType;
 import ru.veselov.websocketroomproject.entity.RoomEntity;
 import ru.veselov.websocketroomproject.service.RoomSettingsService;
-import ru.veselov.websocketroomproject.service.RoomValidator;
+import ru.veselov.websocketroomproject.validation.RoomValidator;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;

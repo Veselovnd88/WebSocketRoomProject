@@ -1,4 +1,4 @@
-package ru.veselov.websocketroomproject.service;
+package ru.veselov.websocketroomproject.validation;
 
 import ru.veselov.websocketroomproject.entity.RoomEntity;
 

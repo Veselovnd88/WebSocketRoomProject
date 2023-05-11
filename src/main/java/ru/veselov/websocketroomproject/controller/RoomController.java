@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/room")
-@CrossOrigin(origins = "http://localhost:8080")
+@CrossOrigin
 @Slf4j
 @RequiredArgsConstructor
 public class RoomController {
@@ -56,6 +56,5 @@ public class RoomController {
 
         return new ResponseEntity<>(roomService.findAll(page, sort), HttpStatus.OK);
     }
-
 
 }

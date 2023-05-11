@@ -17,14 +17,14 @@ import ru.veselov.websocketroomproject.mapper.RoomMapperImpl;
 import ru.veselov.websocketroomproject.model.Room;
 import ru.veselov.websocketroomproject.repository.RoomRepository;
 import ru.veselov.websocketroomproject.service.RoomSettingsService;
-import ru.veselov.websocketroomproject.service.RoomValidator;
+import ru.veselov.websocketroomproject.validation.RoomValidator;
 
 import java.security.Principal;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
-public class RoomServiceImplTest {
+class RoomServiceImplTest {
 
     private final static String ROOM_ID = "ec1edd63-4080-480b-84cc-2faee587999f";
 

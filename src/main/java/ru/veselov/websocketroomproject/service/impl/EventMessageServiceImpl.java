@@ -29,7 +29,7 @@ public class EventMessageServiceImpl implements EventMessageService {
     public void sendUserListToAllSubscriptions(String roomId) {
         Set<ChatUser> chatUsers = chatUserService.findChatUsersByRoomId(roomId);
         EventMessageDTO<Set<ChatUserDTO>> eventMessageDTO = new EventMessageDTO<>(
-                EventType.USERS_REFRESHED,
+                EventType.USER_LIST_REFRESH,
                 toChatUserDTOs(chatUsers));
         eventSender.sendEventToRoomSubscriptions(roomId, eventMessageDTO);
     }
@@ -37,7 +37,7 @@ public class EventMessageServiceImpl implements EventMessageService {
     @Override
     public void sendUserConnectedMessageToAll(ChatUser chatUser) {
         EventMessageDTO<ChatUserDTO> eventMessageDTO = new EventMessageDTO<>(
-                EventType.CONNECTED,
+                EventType.USER_CONNECT,
                 toChatUserDTO(chatUser));
         eventSender.sendEventToRoomSubscriptions(chatUser.getRoomId(), eventMessageDTO);
     }
@@ -45,7 +45,7 @@ public class EventMessageServiceImpl implements EventMessageService {
     @Override
     public void sendUserDisconnectedMessageToAll(ChatUser chatUser) {
         EventMessageDTO<ChatUserDTO> eventMessageDTO = new EventMessageDTO<>(
-                EventType.DISCONNECTED,
+                EventType.USER_DISCONNECT,
                 toChatUserDTO(chatUser));
         eventSender.sendEventToRoomSubscriptions(chatUser.getRoomId(), eventMessageDTO);
     }

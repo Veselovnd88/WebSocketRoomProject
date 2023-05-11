@@ -13,7 +13,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import ru.veselov.websocketroomproject.dto.request.RoomSettingsDTO;
 import ru.veselov.websocketroomproject.entity.PlayerType;
 import ru.veselov.websocketroomproject.entity.RoomEntity;
-import ru.veselov.websocketroomproject.service.RoomValidator;
+import ru.veselov.websocketroomproject.validation.RoomValidator;
 
 @ExtendWith(MockitoExtension.class)
 class RoomSettingsServiceImplTest {

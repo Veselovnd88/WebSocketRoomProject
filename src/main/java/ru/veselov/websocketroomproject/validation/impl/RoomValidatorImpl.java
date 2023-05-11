@@ -1,4 +1,4 @@
-package ru.veselov.websocketroomproject.service.impl;
+package ru.veselov.websocketroomproject.validation.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +9,7 @@ import ru.veselov.websocketroomproject.exception.NotCorrectOwnerException;
 import ru.veselov.websocketroomproject.exception.NotCorrectTokenException;
 import ru.veselov.websocketroomproject.exception.RoomAlreadyExistsException;
 import ru.veselov.websocketroomproject.repository.RoomRepository;
-import ru.veselov.websocketroomproject.service.RoomValidator;
+import ru.veselov.websocketroomproject.validation.RoomValidator;
 
 import java.security.Principal;
 import java.util.Optional;

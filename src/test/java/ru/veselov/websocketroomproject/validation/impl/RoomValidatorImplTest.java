@@ -1,4 +1,4 @@
-package ru.veselov.websocketroomproject.service.impl;
+package ru.veselov.websocketroomproject.validation.impl;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -13,6 +13,7 @@ import ru.veselov.websocketroomproject.exception.NotCorrectOwnerException;
 import ru.veselov.websocketroomproject.exception.NotCorrectTokenException;
 import ru.veselov.websocketroomproject.exception.RoomAlreadyExistsException;
 import ru.veselov.websocketroomproject.repository.RoomRepository;
+import ru.veselov.websocketroomproject.validation.impl.RoomValidatorImpl;
 
 import java.security.Principal;
 import java.util.Optional;

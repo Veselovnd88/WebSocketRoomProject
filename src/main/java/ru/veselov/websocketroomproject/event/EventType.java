@@ -1,7 +1,7 @@
 package ru.veselov.websocketroomproject.event;
 
 public enum EventType {
-    CONNECTED,
-    DISCONNECTED,
-    USERS_REFRESHED
+    USER_CONNECT,
+    USER_DISCONNECT,
+    USER_LIST_REFRESH
 }

@@ -6,13 +6,11 @@ import lombok.*;
 import java.time.ZonedDateTime;
 
 @Entity
-@Getter
-@Setter
 @Table(name = "url")
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
 @ToString(exclude = "room")
 @EqualsAndHashCode(exclude = {"urlId", "room"})
+@NoArgsConstructor
 public class UrlEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

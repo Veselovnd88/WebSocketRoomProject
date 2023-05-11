@@ -40,13 +40,13 @@ class EventSenderImplTest {
         Mockito.when(roomSubscriptionService.findSubscriptionsByRoomId(ROOM_ID)).thenReturn(
                 fillSetWithSubscriptions(fluxSink)
         );
-        EventMessageDTO eventMessageDTO = new EventMessageDTO(EventType.CONNECTED, "payload");
+        EventMessageDTO eventMessageDTO = new EventMessageDTO(EventType.USER_CONNECT, "payload");
 
         eventSender.sendEventToRoomSubscriptions(ROOM_ID, eventMessageDTO);
 
         Mockito.verify(fluxSink, Mockito.times(10)).next(sseCaptor.capture());
         ServerSentEvent captured = sseCaptor.getValue();
-        Assertions.assertThat(captured.event()).isEqualTo(EventType.CONNECTED.name());
+        Assertions.assertThat(captured.event()).isEqualTo(EventType.USER_CONNECT.name());
         Assertions.assertThat(captured.data()).isEqualTo("payload");
     }
 
@@ -54,7 +54,7 @@ class EventSenderImplTest {
     void shouldNotSendMessageIfNoSubscriptions() {
         FluxSink fluxSink = Mockito.mock(FluxSink.class);
         Mockito.when(roomSubscriptionService.findSubscriptionsByRoomId(ROOM_ID)).thenReturn(Collections.emptySet());
-        EventMessageDTO eventMessageDTO = new EventMessageDTO(EventType.CONNECTED, "payload");
+        EventMessageDTO eventMessageDTO = new EventMessageDTO(EventType.USER_CONNECT, "payload");
 
         eventSender.sendEventToRoomSubscriptions(ROOM_ID, eventMessageDTO);
 

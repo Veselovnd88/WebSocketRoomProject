@@ -9,10 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Setter
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
 @Table(name = "room")
 @EqualsAndHashCode(exclude = {"urls", "id"})
 @ToString(exclude = {"urls"})
