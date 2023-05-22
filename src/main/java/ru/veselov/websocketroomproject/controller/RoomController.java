@@ -23,38 +23,37 @@ public class RoomController {
     private final RoomService roomService;
 
     @GetMapping("/{roomId}")
-    public ResponseEntity<Room> getRoom(@PathVariable("roomId") String id,
-                                        @RequestParam(required = false, name = "token") String token) {
-        Room room = roomService.getRoomById(id, token);
-        return new ResponseEntity<>(room, HttpStatus.OK);
+    public Room getRoom(@PathVariable("roomId") String id,
+                        @RequestParam(required = false, name = "token") String token) {
+        return roomService.getRoomById(id, token);
     }
 
     @PutMapping("/{roomId}")
-    public ResponseEntity<Room> changeSettings(@PathVariable("roomId") String roomId,
-                                               @RequestBody RoomSettingsDTO settings, Principal principal) {
-        Room editedRoom = roomService.changeSettings(roomId, settings, principal);
-        return new ResponseEntity<>(editedRoom, HttpStatus.ACCEPTED);
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public Room changeSettings(@PathVariable("roomId") String roomId,
+                               @RequestBody RoomSettingsDTO settings, Principal principal) {
+        return roomService.changeSettings(roomId, settings, principal);
     }
 
     @PostMapping(value = "/create")
-    public ResponseEntity<Room> createRoom(@RequestBody Room room, Principal principal) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public Room createRoom(@RequestBody Room room, Principal principal) {
         room.setOwnerName(principal.getName());
-        Room saved = roomService.createRoom(room);
-        return new ResponseEntity<>(saved, HttpStatus.CREATED);
+        return roomService.createRoom(room);
     }
 
     @PostMapping(value = "/{roomId}")
-    public ResponseEntity<UrlDto> processUrl(@PathVariable("roomId") String roomId,
-                                             @RequestBody UrlDto urlDto, Principal principal) {
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public UrlDto processUrl(@PathVariable("roomId") String roomId,
+                             @RequestBody UrlDto urlDto, Principal principal) {
         roomService.addUrl(roomId, urlDto.getUrl(), principal);
-        return new ResponseEntity<>(urlDto, HttpStatus.ACCEPTED);
+        return urlDto;
     }
 
     @GetMapping
-    public ResponseEntity<List<Room>> getAllRooms(@RequestParam(required = false, name = "page") int page,
-                                                  @RequestParam(required = false, name = "sort") String sort) {
-
-        return new ResponseEntity<>(roomService.findAll(page, sort), HttpStatus.OK);
+    public List<Room> getAllRooms(@RequestParam(required = false, name = "page") int page,
+                                  @RequestParam(required = false, name = "sort") String sort) {
+        return roomService.findAll(page, sort);
     }
 
 }
