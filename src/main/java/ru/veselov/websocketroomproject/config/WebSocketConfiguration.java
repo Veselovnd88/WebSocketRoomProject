@@ -11,8 +11,8 @@ import ru.veselov.websocketroomproject.config.interceptor.CustomStompHeaderValid
 import ru.veselov.websocketroomproject.config.interceptor.SocketConnectionInterceptor;
 import ru.veselov.websocketroomproject.config.interceptor.SocketMessageInterceptor;
 import ru.veselov.websocketroomproject.config.interceptor.SocketSubscriptionInterceptor;
-import ru.veselov.websocketroomproject.security.AuthTokenManager;
 import ru.veselov.websocketroomproject.security.AuthProperties;
+import ru.veselov.websocketroomproject.security.managers.JwtAuthenticationManager;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
 
     private final CustomStompHeaderValidator customStompHeaderValidator;
 
-    private final AuthTokenManager authTokenManager;
+    private final JwtAuthenticationManager authenticationManager;
 
     private final AuthProperties authProperties;
 
@@ -53,7 +53,7 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
                         webSocketProperties.getUserPrefix()
                 ),
                 new SocketConnectionInterceptor(customStompHeaderValidator),
-                new SocketMessageInterceptor(authProperties, customStompHeaderValidator, authTokenManager)
+                new SocketMessageInterceptor(authProperties, customStompHeaderValidator, authenticationManager)
         );
     }
 

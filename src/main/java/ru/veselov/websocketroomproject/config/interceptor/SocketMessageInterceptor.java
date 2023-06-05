@@ -9,9 +9,11 @@ import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageBuilder;
-import ru.veselov.websocketroomproject.security.AuthTokenManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import ru.veselov.websocketroomproject.security.AuthProperties;
 import ru.veselov.websocketroomproject.security.authentication.JwtAuthenticationToken;
+import ru.veselov.websocketroomproject.security.managers.JwtAuthenticationManager;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -21,7 +23,7 @@ public class SocketMessageInterceptor implements ChannelInterceptor {
 
     private final CustomStompHeaderValidator customStompHeaderValidator;
 
-    private final AuthTokenManager authTokenManager;
+    private final JwtAuthenticationManager authenticationManager;
 
     @Override
     public Message<?> preSend(@NonNull Message<?> message, @NonNull MessageChannel channel) {
@@ -29,9 +31,14 @@ public class SocketMessageInterceptor implements ChannelInterceptor {
         if (accessor.getCommand() == StompCommand.SEND) {
             customStompHeaderValidator.validateAuthHeader(accessor);
             String authHeader = accessor.getFirstNativeHeader(authProperties.getHeader());
-            JwtAuthenticationToken token = authTokenManager.createAndAuthenticateToken(authHeader);
-            accessor.setUser(token);
-            return MessageBuilder.createMessage(message.getPayload(), accessor.getMessageHeaders());
+            String jwt = authHeader.substring(authProperties.getPrefix().length());//checked in validator
+            JwtAuthenticationToken token = new JwtAuthenticationToken(jwt);
+            Authentication authentication = authenticationManager.authenticate(token);
+            if (authentication.isAuthenticated()) {
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                accessor.setUser(token);
+                return MessageBuilder.createMessage(message.getPayload(), accessor.getMessageHeaders());
+            }
         }
         return message;
     }

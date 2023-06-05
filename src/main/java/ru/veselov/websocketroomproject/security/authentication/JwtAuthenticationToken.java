@@ -21,10 +21,10 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
 
     private String jwt;
 
-    public JwtAuthenticationToken(String token) {
+    public JwtAuthenticationToken(String jwt) {
         super(Collections.emptyList());
         this.isAuthenticated = false;
-        this.token = token;
+        this.jwt = jwt;
     }
 
     public JwtAuthenticationToken(Collection<? extends GrantedAuthority> authorities,

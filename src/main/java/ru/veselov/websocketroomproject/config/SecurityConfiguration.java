@@ -1,4 +1,4 @@
-package ru.veselov.websocketroomproject.security;
+package ru.veselov.websocketroomproject.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
