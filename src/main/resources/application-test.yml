@@ -41,7 +41,7 @@ chat-event:
   core-pool-size: 10
   max-pool-size: 10
 
-security:
+auth:
   header: Authorization
   prefix: "Bearer "
   role-claim: role

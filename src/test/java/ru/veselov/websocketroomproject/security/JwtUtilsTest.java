@@ -13,12 +13,12 @@ class JwtUtilsTest {
 
     @BeforeEach
     void init() {
-        SecurityProperties securityProperties = new SecurityProperties();
-        securityProperties.setHeader("Authorization");
-        securityProperties.setPrefix("Bearer ");
-        securityProperties.setUsernameClaim("user");
-        securityProperties.setRoleClaim("role");
-        jwtUtils = new JwtUtils(securityProperties);
+        AuthProperties authProperties = new AuthProperties();
+        authProperties.setHeader("Authorization");
+        authProperties.setPrefix("Bearer ");
+        authProperties.setUsernameClaim("user");
+        authProperties.setRoleClaim("role");
+        jwtUtils = new JwtUtils(authProperties);
     }
 
     @Test

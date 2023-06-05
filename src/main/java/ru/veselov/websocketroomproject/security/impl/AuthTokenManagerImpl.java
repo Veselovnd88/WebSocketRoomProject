@@ -7,7 +7,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import ru.veselov.websocketroomproject.security.AuthTokenManager;
 import ru.veselov.websocketroomproject.security.JwtConverter;
-import ru.veselov.websocketroomproject.security.JwtAuthenticationToken;
+import ru.veselov.websocketroomproject.security.authentication.JwtAuthenticationToken;
 
 @Service
 @Slf4j

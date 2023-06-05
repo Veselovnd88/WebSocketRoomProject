@@ -15,41 +15,43 @@ public class ApiExceptionHandler {
     private static final String LOG_MESSAGE = "Error [handled: {}]";
 
     @ExceptionHandler({RoomAlreadyExistsException.class})
+    @ResponseStatus(HttpStatus.CONFLICT)
     @ResponseBody
     public ErrorResponse handleConflictException(RuntimeException exception) {
         log.error(LOG_MESSAGE, exception.getMessage());
-        return new ErrorResponse(ErrorConstants.ERROR_CONFLICT, exception.getMessage(), HttpStatus.CONFLICT);
+        return new ErrorResponse(ErrorConstants.ERROR_CONFLICT, exception.getMessage());
     }
 
     @ExceptionHandler({NotCorrectOwnerException.class, NotCorrectTokenException.class})
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ResponseBody
     public ErrorResponse handleNotAuthorizedException(RuntimeException exception) {
         log.error(LOG_MESSAGE, exception.getMessage());
-        return new ErrorResponse(ErrorConstants.ERROR_NOT_AUTHORIZED, exception.getMessage(), HttpStatus.UNAUTHORIZED);
+        return new ErrorResponse(ErrorConstants.ERROR_NOT_AUTHORIZED, exception.getMessage());
     }
 
     @ExceptionHandler({EntityNotFoundException.class, SubscriptionNotFoundException.class})
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     @ResponseBody
     public ErrorResponse handleNotFoundException(RuntimeException exception) {
         log.error(LOG_MESSAGE, exception.getMessage());
-        return new ErrorResponse(ErrorConstants.ERROR_NOT_FOUND, exception.getMessage(), HttpStatus.NOT_FOUND);
+        return new ErrorResponse(ErrorConstants.ERROR_NOT_FOUND, exception.getMessage());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public ErrorResponse handleIllegalArgumentException(RuntimeException exception) {
         log.error(LOG_MESSAGE, exception.getMessage());
-        return new ErrorResponse(ErrorConstants.ERROR_ILLEGAL_ARG, exception.getMessage(), HttpStatus.BAD_REQUEST);
+        return new ErrorResponse(ErrorConstants.ERROR_ILLEGAL_ARG, exception.getMessage());
     }
 
     @ExceptionHandler(MessagingException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
     public ErrorResponse handleMessagingException(RuntimeException exception) {
         log.error(LOG_MESSAGE, exception.getMessage());
-        return new ErrorResponse(
-                ErrorConstants.ERROR_MESSAGING,
-                exception.getMessage(),
-                HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ErrorResponse(ErrorConstants.ERROR_MESSAGING, exception.getMessage());
     }
 
 }

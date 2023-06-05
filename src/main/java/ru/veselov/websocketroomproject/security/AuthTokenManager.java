@@ -1,6 +1,7 @@
 package ru.veselov.websocketroomproject.security;
 
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+
+import ru.veselov.websocketroomproject.security.authentication.JwtAuthenticationToken;
 
 public interface AuthTokenManager {
 

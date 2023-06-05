@@ -12,7 +12,4 @@ public class ErrorResponse implements Serializable {
     private String error;
     private String message;
 
-    private HttpStatus httpStatus;
-
-
 }

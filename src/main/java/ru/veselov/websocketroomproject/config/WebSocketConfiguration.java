@@ -12,7 +12,7 @@ import ru.veselov.websocketroomproject.config.interceptor.SocketConnectionInterc
 import ru.veselov.websocketroomproject.config.interceptor.SocketMessageInterceptor;
 import ru.veselov.websocketroomproject.config.interceptor.SocketSubscriptionInterceptor;
 import ru.veselov.websocketroomproject.security.AuthTokenManager;
-import ru.veselov.websocketroomproject.security.SecurityProperties;
+import ru.veselov.websocketroomproject.security.AuthProperties;
 
 import java.util.List;
 
@@ -29,7 +29,7 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
 
     private final AuthTokenManager authTokenManager;
 
-    private final SecurityProperties securityProperties;
+    private final AuthProperties authProperties;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -53,7 +53,7 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
                         webSocketProperties.getUserPrefix()
                 ),
                 new SocketConnectionInterceptor(customStompHeaderValidator),
-                new SocketMessageInterceptor(securityProperties, customStompHeaderValidator, authTokenManager)
+                new SocketMessageInterceptor(authProperties, customStompHeaderValidator, authTokenManager)
         );
     }
 

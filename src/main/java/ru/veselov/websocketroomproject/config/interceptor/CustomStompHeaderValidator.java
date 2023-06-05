@@ -5,14 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
-import ru.veselov.websocketroomproject.security.SecurityProperties;
+import ru.veselov.websocketroomproject.security.AuthProperties;
 
 @Component
 @Slf4j
 @RequiredArgsConstructor
 public class CustomStompHeaderValidator {
 
-    private final SecurityProperties securityProperties;
+    private final AuthProperties authProperties;
 
     public void validateAuthHeader(StompHeaderAccessor accessor) {
         if (!isValidAuthHeader(accessor)) {
@@ -27,8 +27,8 @@ public class CustomStompHeaderValidator {
     }
 
     private boolean isValidAuthHeader(StompHeaderAccessor accessor) {
-        String authHeader = accessor.getFirstNativeHeader(securityProperties.getHeader());
-        if (authHeader == null || !authHeader.startsWith(securityProperties.getPrefix())) {
+        String authHeader = accessor.getFirstNativeHeader(authProperties.getHeader());
+        if (authHeader == null || !authHeader.startsWith(authProperties.getPrefix())) {
             log.warn("AuthHeader is null or doesn't start with correct prefix: [{}]", authHeader);
             return false;
         }
