@@ -3,9 +3,7 @@ package ru.veselov.websocketroomproject.security.authentication;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import javax.security.auth.Subject;
 import java.util.Collection;
@@ -43,8 +41,13 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
     }
 
     @Override
+    public String getName() {
+        return (String) this.principal;
+    }
+
+    @Override
     public Object getPrincipal() {
-        return null;
+        return this.principal;
     }
 
     @Override
@@ -62,4 +65,5 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
     public void setDetails(Object details) {
         super.setDetails(details);
     }
+
 }
