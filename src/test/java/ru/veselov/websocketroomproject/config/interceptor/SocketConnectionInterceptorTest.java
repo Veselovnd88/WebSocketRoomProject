@@ -14,6 +14,8 @@ import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import ru.veselov.websocketroomproject.TestConstants;
+import ru.veselov.websocketroomproject.websocket.interceptor.CustomStompHeaderValidator;
+import ru.veselov.websocketroomproject.websocket.interceptor.SocketConnectionInterceptor;
 
 import java.util.List;
 import java.util.Map;

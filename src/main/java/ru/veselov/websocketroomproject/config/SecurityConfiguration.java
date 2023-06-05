@@ -9,6 +9,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import ru.veselov.websocketroomproject.security.filters.JwtFilter;
 
+/**
+ * Endpoint for chatEventStream is open, username will be parsed directly from jwt
+ */
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfiguration {

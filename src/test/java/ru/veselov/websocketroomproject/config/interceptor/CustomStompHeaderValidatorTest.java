@@ -13,6 +13,7 @@ import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.security.AuthProperties;
+import ru.veselov.websocketroomproject.websocket.interceptor.CustomStompHeaderValidator;
 
 @ExtendWith(MockitoExtension.class)
 class CustomStompHeaderValidatorTest {

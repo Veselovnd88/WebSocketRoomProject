@@ -39,12 +39,6 @@ public class JwtFilter extends OncePerRequestFilter {
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
         Optional<String> jwtOpt = getJwtFromRequest(request);
         if (jwtOpt.isEmpty()) {
-            String requestURI = request.getRequestURI();
-            if (requestURI.equals(authProperties.getChatEventURL())) {
-                log.warn("Wrong authorization prefix to connect [{}]", requestURI);
-                sendWrongChatEventPathResponse(response);
-                return;
-            }
             filterChain.doFilter(request, response);
             return;
         }

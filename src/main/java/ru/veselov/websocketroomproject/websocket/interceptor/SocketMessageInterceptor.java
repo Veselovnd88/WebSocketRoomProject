@@ -1,4 +1,4 @@
-package ru.veselov.websocketroomproject.config.interceptor;
+package ru.veselov.websocketroomproject.websocket.interceptor;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

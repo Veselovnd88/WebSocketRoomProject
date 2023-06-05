@@ -7,10 +7,10 @@ import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.*;
-import ru.veselov.websocketroomproject.config.interceptor.CustomStompHeaderValidator;
-import ru.veselov.websocketroomproject.config.interceptor.SocketConnectionInterceptor;
-import ru.veselov.websocketroomproject.config.interceptor.SocketMessageInterceptor;
-import ru.veselov.websocketroomproject.config.interceptor.SocketSubscriptionInterceptor;
+import ru.veselov.websocketroomproject.websocket.interceptor.CustomStompHeaderValidator;
+import ru.veselov.websocketroomproject.websocket.interceptor.SocketConnectionInterceptor;
+import ru.veselov.websocketroomproject.websocket.interceptor.SocketMessageInterceptor;
+import ru.veselov.websocketroomproject.websocket.interceptor.SocketSubscriptionInterceptor;
 import ru.veselov.websocketroomproject.security.AuthProperties;
 import ru.veselov.websocketroomproject.security.managers.JwtAuthenticationManager;
 

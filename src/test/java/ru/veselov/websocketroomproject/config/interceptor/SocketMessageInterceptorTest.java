@@ -17,6 +17,9 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.security.authentication.JwtAuthenticationToken;
 import ru.veselov.websocketroomproject.security.AuthProperties;
+import ru.veselov.websocketroomproject.security.managers.JwtAuthenticationManager;
+import ru.veselov.websocketroomproject.websocket.interceptor.CustomStompHeaderValidator;
+import ru.veselov.websocketroomproject.websocket.interceptor.SocketMessageInterceptor;
 
 import java.util.List;
 import java.util.Map;
@@ -28,7 +31,7 @@ class SocketMessageInterceptorTest {
     private CustomStompHeaderValidator customStompHeaderValidator;
 
     @Mock
-    AuthTokenManager authTokenManager;
+    JwtAuthenticationManager authManager;
 
     SocketMessageInterceptor interceptor;
 
@@ -37,7 +40,7 @@ class SocketMessageInterceptorTest {
         AuthProperties authProperties = new AuthProperties();
         authProperties.setHeader("Authorization");
         authProperties.setPrefix("Bearer ");
-        interceptor = new SocketMessageInterceptor(authProperties, customStompHeaderValidator, authTokenManager);
+        interceptor = new SocketMessageInterceptor(authProperties, customStompHeaderValidator, authManager);
     }
 
     @Test
@@ -54,12 +57,12 @@ class SocketMessageInterceptorTest {
         MessageHeaders messageHeaders = new MessageHeaders(headers);
         Mockito.when(message.getHeaders()).thenReturn(messageHeaders);
         Mockito.when(message.getPayload()).thenReturn(new Object());
-        JwtAuthenticationToken token = new JwtAuthenticationToken("user1", null, null);
-        Mockito.when(authTokenManager.createAndAuthenticateToken(ArgumentMatchers.anyString())).thenReturn(token);
+        JwtAuthenticationToken token = new JwtAuthenticationToken("user1");
+        Mockito.when(authManager.authenticate(token)).thenReturn(token);
 
         Message<?> processedMessage = interceptor.preSend(message, channel);
 
-        Mockito.verify(authTokenManager, Mockito.times(1)).createAndAuthenticateToken(ArgumentMatchers.anyString());
+        Mockito.verify(authManager, Mockito.times(1)).authenticate(ArgumentMatchers.any());
         Mockito.verify(customStompHeaderValidator, Mockito.times(1))
                 .validateAuthHeader(ArgumentMatchers.any(StompHeaderAccessor.class));
         Assertions.assertThat(processedMessage).isInstanceOf(Message.class);
@@ -81,7 +84,7 @@ class SocketMessageInterceptorTest {
         Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
 
         Assertions.assertThat(interceptor.preSend(message, channel)).isNotNull().isInstanceOf(Message.class);
-        Mockito.verify(authTokenManager, Mockito.never()).createAndAuthenticateToken(ArgumentMatchers.anyString());
+        Mockito.verify(authManager, Mockito.never()).authenticate(ArgumentMatchers.any());
         Mockito.verify(customStompHeaderValidator, Mockito.never())
                 .validateAuthHeader(ArgumentMatchers.any(StompHeaderAccessor.class));
     }
