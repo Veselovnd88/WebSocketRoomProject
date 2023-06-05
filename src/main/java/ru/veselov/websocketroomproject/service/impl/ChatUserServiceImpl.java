@@ -24,42 +24,41 @@ public class ChatUserServiceImpl implements ChatUserService {
 
     @Override
     public void saveChatUser(ChatUser chatUser) {
-        log.info("ChatUser with [session: {}] saved to repository ", chatUser.getSession());
         ChatUserEntity entity = chatUserEntityMapper.toChatUserEntity(chatUser);
         repository.save(entity);
+        log.info("ChatUser with [session: {}] saved to repository ", chatUser.getSession());
     }
 
     @Override
     public ChatUser findChatUserBySessionId(String sessionId) {
+        ChatUserEntity userEntity = findBySessionId(sessionId);
         log.info("ChatUser with [session: {}] retrieved from repository", sessionId);
-        Optional<ChatUserEntity> chatUserEntityOptional = repository.findById(sessionId);
-        ChatUserEntity userEntity = chatUserEntityOptional.
-                orElseThrow(() -> {
-                    log.warn("ChatUser with [session: {}] not found", sessionId);
-                    throw new ChatUserNotFoundException("No such ChatUser in repository");
-                });
-
         return chatUserEntityMapper.toChatUser(userEntity);
     }
 
     @Override
     public Set<ChatUser> findChatUsersByRoomId(String roomId) {
-        log.info("ChatUser of [room: {}] retrieved from repository", roomId);
         Set<ChatUserEntity> roomUsers = repository.findAllByRoomId(roomId);
+        log.info("ChatUser of [room: {}] retrieved from repository", roomId);
         return chatUserEntityMapper.toChatUsersSet(roomUsers);
     }
 
     @Override
     public ChatUser removeChatUser(String sessionId) {
+        ChatUserEntity chatUserEntity = findBySessionId(sessionId);
+        repository.delete(chatUserEntity);
         log.info("ChatUser with [session: {}] deleted from repository", sessionId);
-        Optional<ChatUserEntity> foundById = repository.findById(sessionId);
-        if (foundById.isPresent()) {
-            repository.delete(foundById.get());
-            return chatUserEntityMapper.toChatUser(foundById.get());
-        } else {
-            log.warn("ChatUser with [session: {}] not found", sessionId);
-            throw new ChatUserNotFoundException("No such ChatUser in repository");
-        }
+        return chatUserEntityMapper.toChatUser(chatUserEntity);
+    }
+
+    private ChatUserEntity findBySessionId(String sessionId) {
+        Optional<ChatUserEntity> chatUserEntityOptional = repository.findById(sessionId);
+        return chatUserEntityOptional.
+                orElseThrow(() -> {
+                    log.error("ChatUser with [session: {}] not found", sessionId);
+                    throw new ChatUserNotFoundException(
+                            String.format("No such ChatUser in repository for sessionId %s", sessionId));
+                });
     }
 
 }

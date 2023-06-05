@@ -19,14 +19,28 @@ chat-event:
   core-pool-size: 10
   max-pool-size: 10
 
-jwt:
+security:
   header: Authorization
   prefix: "Bearer "
   role-claim: role
+  chat-event-url: "/api/room/event"
 
+spring:
   profiles:
     active: local
-
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/HarvexDB
+    username: admin
+    password: admin
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        show_sql: true
+        format_sql: true
+        hbm2ddl:
+          auto: validate
 
 redis:
   master:
@@ -49,3 +63,4 @@ logging:
   level:
     ru.veselov: INFO
     org.springframework.web.socket: INFO
+    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG

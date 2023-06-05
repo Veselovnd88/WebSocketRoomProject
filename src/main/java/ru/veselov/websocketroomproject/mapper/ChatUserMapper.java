@@ -1,7 +1,7 @@
 package ru.veselov.websocketroomproject.mapper;
 
 import org.mapstruct.Mapper;
-import ru.veselov.websocketroomproject.dto.ChatUserDTO;
+import ru.veselov.websocketroomproject.dto.response.ChatUserDTO;
 import ru.veselov.websocketroomproject.model.ChatUser;
 
 import java.util.Set;

@@ -4,11 +4,10 @@ import lombok.SneakyThrows;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.FluxSink;
-import ru.veselov.websocketroomproject.cache.SubscriptionCache;
 import ru.veselov.websocketroomproject.event.SubscriptionData;
 
 import java.lang.reflect.Field;
@@ -18,18 +17,18 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 @SuppressWarnings({"rawtypes", "unchecked"})
 class SubscriptionCacheImplTest {
 
-    @Autowired
-    SubscriptionCache subscriptionCache;
+    SubscriptionCacheImpl subscriptionCache;
 
     private Map<String, Set<SubscriptionData>> myMap;
 
     @BeforeEach
     @SneakyThrows
     void init() {
+        subscriptionCache = new SubscriptionCacheImpl();
         Field roomSubscriptionMap = subscriptionCache.getClass().getDeclaredField("roomSubscriptionsMap");
         roomSubscriptionMap.setAccessible(true);
         myMap = (ConcurrentHashMap) roomSubscriptionMap.get(subscriptionCache);

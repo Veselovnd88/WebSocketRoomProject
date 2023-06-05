@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Component;
-import ru.veselov.websocketroomproject.dto.EventMessageDTO;
+import ru.veselov.websocketroomproject.dto.response.EventMessageDTO;
 import ru.veselov.websocketroomproject.event.EventSender;
 import ru.veselov.websocketroomproject.event.EventType;
 import ru.veselov.websocketroomproject.event.SubscriptionData;

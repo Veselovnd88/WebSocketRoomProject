@@ -1,26 +1,23 @@
 package ru.veselov.websocketroomproject.service;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import ru.veselov.websocketroomproject.exception.RoomNotFoundException;
+import ru.veselov.websocketroomproject.dto.request.RoomSettingsDTO;
 import ru.veselov.websocketroomproject.model.Room;
-import ru.veselov.websocketroomproject.model.User;
 
-import java.util.Date;
+import java.security.Principal;
+import java.util.List;
 
-@Service
-@Slf4j
-public class RoomService {
-    public Room findRoomById(Integer id) throws RoomNotFoundException {
-        log.info("Retrieving room #{} from db", id);
-        //This model just for testing in browser
-        return new Room(
-                id,
-                "testRoom",
-                true,
-                "url",
-                "token",
-                new Date(),
-                new User(1, "name", "email"));
-    }
+public interface RoomService {
+
+    Room createRoom(Room room);
+
+    Room getRoomById(String id, String token);
+
+    Room getRoomByName(String name);
+
+    Room changeSettings(String roomId, RoomSettingsDTO settings, Principal principal);
+
+    void addUrl(String roomId, String url, Principal principal);
+
+    List<Room> findAll(int page, String sort);
+
 }

@@ -2,11 +2,12 @@ package ru.veselov.websocketroomproject.config.interceptor;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHeaders;
@@ -17,27 +18,26 @@ import ru.veselov.websocketroomproject.TestConstants;
 import java.util.List;
 import java.util.Map;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class SocketConnectionInterceptorTest {
 
     private static final String ROOM_ID = "5";
 
-    @Value("${socket.header-room-id}")
-    private String roomIdHeader;
-
-    @MockBean
+    @Mock
     private CustomStompHeaderValidator customStompHeaderValidator;
+
+    @InjectMocks
+    SocketConnectionInterceptor interceptor;
 
     @Test
     void shouldReturnMessage() {
-        SocketConnectionInterceptor interceptor = new SocketConnectionInterceptor(customStompHeaderValidator);
         MessageChannel channel = Mockito.mock(MessageChannel.class);
         Message<?> message = Mockito.mock(Message.class);
         Map<String, Object> headers = Map.of(
                 TestConstants.COMMAND_HEADER, StompCommand.CONNECT,
                 StompHeaderAccessor.SESSION_ID_HEADER, TestConstants.TEST_SESSION_ID,
                 StompHeaderAccessor.NATIVE_HEADERS, Map.of(
-                        roomIdHeader, List.of(ROOM_ID),
+                        TestConstants.ROOM_ID_HEADER, List.of(ROOM_ID),
                         TestConstants.AUTH_HEADER, List.of("Bearer ")
                 )
         );
@@ -52,14 +52,13 @@ class SocketConnectionInterceptorTest {
 
     @Test
     void shouldReturnMessageIfAnotherCommand() {
-        SocketConnectionInterceptor interceptor = new SocketConnectionInterceptor(customStompHeaderValidator);
         MessageChannel channel = Mockito.mock(MessageChannel.class);
         Message<?> message = Mockito.mock(Message.class);
         Map<String, Object> headers = Map.of(
                 TestConstants.COMMAND_HEADER, StompCommand.SUBSCRIBE,
                 StompHeaderAccessor.SESSION_ID_HEADER, TestConstants.TEST_SESSION_ID,
                 StompHeaderAccessor.NATIVE_HEADERS, Map.of(
-                        roomIdHeader, List.of(ROOM_ID),
+                        TestConstants.ROOM_ID_HEADER, List.of(ROOM_ID),
                         TestConstants.AUTH_HEADER, List.of("asdf")
                 )
         );

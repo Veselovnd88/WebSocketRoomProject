@@ -1,18 +1,36 @@
 package ru.veselov.websocketroomproject.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import ru.veselov.websocketroomproject.entity.PlayerType;
 
-import java.util.Date;
+import java.io.Serializable;
+import java.time.ZonedDateTime;
+import java.util.UUID;
 
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
-public class Room {
-    private Integer id;
+@Builder
+public class Room implements Serializable {
+    private UUID id;
+
     private String name;
-    private Boolean isPublic;
-    private String sourceUrl;
+
+        private Boolean isPrivate;
+
+    private String activeUrl;
+
     private String roomToken;
-    private Date deleteTime;
-    private User owner;
+
+    private String ownerName;
+
+    private PlayerType playerType;
+
+    private ZonedDateTime createdAt;
+
+    private ZonedDateTime changedAt;
+
 }

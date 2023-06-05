@@ -31,7 +31,7 @@ public class JwtAuthenticationToken implements Authentication {
 
     @Override
     public Object getCredentials() {
-        return token;
+        return this.token;
     }
 
     @Override
@@ -41,7 +41,7 @@ public class JwtAuthenticationToken implements Authentication {
 
     @Override
     public Object getPrincipal() {
-        return username;
+        return getName();
     }
 
     @Override
@@ -56,6 +56,6 @@ public class JwtAuthenticationToken implements Authentication {
 
     @Override
     public String getName() {
-        return username;
+        return this.username;
     }
 }

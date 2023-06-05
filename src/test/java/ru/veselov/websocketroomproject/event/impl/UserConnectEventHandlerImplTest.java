@@ -1,25 +1,25 @@
 package ru.veselov.websocketroomproject.event.impl;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.junit.jupiter.MockitoExtension;
 import ru.veselov.websocketroomproject.TestConstants;
-import ru.veselov.websocketroomproject.event.UserConnectEventHandler;
 import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.service.EventMessageService;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class UserConnectEventHandlerImplTest {
 
     private static final String ROOM_ID = "5";
 
-    @MockBean
+    @Mock
     EventMessageService eventMessageService;
 
-    @Autowired
-    UserConnectEventHandler userConnectEventHandler;
+    @InjectMocks
+    UserConnectEventHandlerImpl userConnectEventHandler;
 
 
     @Test

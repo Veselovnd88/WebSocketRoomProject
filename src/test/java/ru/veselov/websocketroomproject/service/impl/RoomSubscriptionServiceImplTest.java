@@ -3,31 +3,30 @@ package ru.veselov.websocketroomproject.service.impl;
 import lombok.SneakyThrows;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.FluxSink;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.cache.SubscriptionCache;
-import ru.veselov.websocketroomproject.exception.SubscriptionNotFoundException;
 import ru.veselov.websocketroomproject.event.SubscriptionData;
-import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
+import ru.veselov.websocketroomproject.exception.SubscriptionNotFoundException;
 
 import java.util.Optional;
 
-
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 @SuppressWarnings({"rawtypes", "unchecked"})
 class RoomSubscriptionServiceImplTest {
 
     private final static String ROOM_ID = "5";
 
-    @Autowired
-    RoomSubscriptionService roomSubscriptionService;
+    @InjectMocks
+    RoomSubscriptionServiceImpl roomSubscriptionService;
 
-    @MockBean
+    @Mock
     SubscriptionCache subscriptionCache;
 
     @Test

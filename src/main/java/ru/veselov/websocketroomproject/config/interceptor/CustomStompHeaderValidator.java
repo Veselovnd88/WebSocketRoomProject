@@ -3,33 +3,32 @@ package ru.veselov.websocketroomproject.config.interceptor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
-import ru.veselov.websocketroomproject.security.JwtProperties;
+import ru.veselov.websocketroomproject.security.SecurityProperties;
 
 @Component
 @Slf4j
 @RequiredArgsConstructor
 public class CustomStompHeaderValidator {
 
-    private final JwtProperties jwtProperties;
+    private final SecurityProperties securityProperties;
 
     public void validateAuthHeader(StompHeaderAccessor accessor) {
         if (!isValidAuthHeader(accessor)) {
-            throw new MessagingException("Message should have Authorization header with valid prefix");
+            throw new IllegalArgumentException("Message should have Authorization header with valid prefix");
         }
     }
 
     public void validateRoomIdHeader(StompHeaderAccessor accessor) {
         if (!isValidRoomId(accessor)) {
-            throw new MessagingException("Room Id should be integer value");
+            throw new IllegalArgumentException("Room Id should be integer value");
         }
     }
 
     private boolean isValidAuthHeader(StompHeaderAccessor accessor) {
-        String authHeader = accessor.getFirstNativeHeader(jwtProperties.getHeader());
-        if (authHeader == null || !authHeader.startsWith(jwtProperties.getPrefix())) {
+        String authHeader = accessor.getFirstNativeHeader(securityProperties.getHeader());
+        if (authHeader == null || !authHeader.startsWith(securityProperties.getPrefix())) {
             log.warn("AuthHeader is null or doesn't start with correct prefix: [{}]", authHeader);
             return false;
         }

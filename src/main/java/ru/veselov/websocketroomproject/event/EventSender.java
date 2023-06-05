@@ -1,6 +1,6 @@
 package ru.veselov.websocketroomproject.event;
 
-import ru.veselov.websocketroomproject.dto.EventMessageDTO;
+import ru.veselov.websocketroomproject.dto.response.EventMessageDTO;
 
 public interface EventSender {
 

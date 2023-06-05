@@ -4,6 +4,8 @@ import lombok.SneakyThrows;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,17 +15,21 @@ import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 import org.springframework.web.socket.sockjs.client.SockJsClient;
 import org.springframework.web.socket.sockjs.client.WebSocketTransport;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.controller.client.TestStompFrameHandler;
 import ru.veselov.websocketroomproject.controller.client.TestStompSessionHandlerAdapter;
-import ru.veselov.websocketroomproject.dto.ReceivedChatMessage;
-import ru.veselov.websocketroomproject.dto.SendChatMessage;
+import ru.veselov.websocketroomproject.dto.request.ReceivedChatMessage;
+import ru.veselov.websocketroomproject.dto.response.SendChatMessage;
 import ru.veselov.websocketroomproject.listener.WebSocketDisconnectListener;
+import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.service.ChatUserService;
 import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
 
@@ -35,6 +41,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
 class ChatMessageControllerTest {
 
     private static final String ROOM_ID = "5";
@@ -74,32 +81,37 @@ class ChatMessageControllerTest {
 
     @BeforeEach
     void setUp() {
-        URL = "ws://localhost:" + port + endpoint;
+        UriComponents url = UriComponentsBuilder.newInstance()
+                .scheme("ws").host("localhost").port(port).path(endpoint).build();
+        URL = url.toUriString();
         resultKeeper = new CompletableFuture<>();
+        Mockito.when(chatUserService.findChatUserBySessionId(ArgumentMatchers.anyString()))
+                .thenReturn(new ChatUser(TestConstants.TEST_USERNAME, ROOM_ID, TestConstants.TEST_SESSION_ID));
     }
 
     @Test
     @SneakyThrows
     void shouldReturnCorrectSendMessage() {
+        //given
         ReceivedChatMessage receivedChatMessage = new ReceivedChatMessage("user1", "message", null);
         String destination = chatTopic + "/" + ROOM_ID;
         StompHeaders stompHeadersConnect = createConnectStompHeaders();
-        //Creating and configuring basic WebSocketClient
         WebSocketStompClient stompClient = createClient();
         StompSession session = stompClient.connectAsync(URL,
                 new WebSocketHttpHeaders(),
                 stompHeadersConnect,
                 new TestStompSessionHandlerAdapter()
-        ).get();
+        ).get();//connecting to websocket endpoint
 
+        //when
         session.subscribe(destination,
                 new TestStompFrameHandler<>(resultKeeper::complete, SendChatMessage.class));
         StompHeaders stompHeadersSend = new StompHeaders();
         stompHeadersSend.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT);
         stompHeadersSend.add(StompHeaders.DESTINATION, "/app/chat/" + ROOM_ID);
-
         session.send(stompHeadersSend, receivedChatMessage);
 
+        //then
         SendChatMessage sendChatMessage = resultKeeper.get(3, TimeUnit.SECONDS);
         Assertions.assertThat(sendChatMessage).isNotNull();
         Assertions.assertThat(sendChatMessage.getSentFrom()).isEqualTo("user1");
@@ -114,24 +126,26 @@ class ChatMessageControllerTest {
     @Test
     @SneakyThrows
     void shouldReturnCorrectSendMessageToUser() {
+        //given
         StompHeaders stompHeadersConnect = createConnectStompHeaders();
-        //Creating and configuring basic WebSocketClient
         WebSocketStompClient stompClient = createClient();
         StompSession session = stompClient.connectAsync(URL,
                 new WebSocketHttpHeaders(),
                 stompHeadersConnect,
                 new TestStompSessionHandlerAdapter()
-        ).get();
+        ).get();//connecting to websocket endpoint
         String sessionId = session.getSessionId();
+
+        //when
         session.subscribe("/queue/private-" + sessionId,
                 new TestStompFrameHandler<>(resultKeeper::complete, SendChatMessage.class));
         ReceivedChatMessage receivedChatMessage = new ReceivedChatMessage("user1", "message", sessionId);
         StompHeaders stompHeadersSend = new StompHeaders();
         stompHeadersSend.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT);
         stompHeadersSend.add(StompHeaders.DESTINATION, "/app/chat-private");
-
         session.send(stompHeadersSend, receivedChatMessage);
 
+        //then
         SendChatMessage sendChatMessage = resultKeeper.get(3, TimeUnit.SECONDS);
         Assertions.assertThat(sendChatMessage).isNotNull();
         Assertions.assertThat(sendChatMessage.getSentFrom()).isEqualTo("user1");
@@ -146,24 +160,26 @@ class ChatMessageControllerTest {
     @Test
     @SneakyThrows
     void shouldNotReturnSendMessageToUser() {
+        //given
         StompHeaders stompHeadersConnect = createConnectStompHeaders();
-        //Creating and configuring basic WebSocketClient
         WebSocketStompClient stompClient = createClient();
         StompSession session = stompClient.connectAsync(URL,
                 new WebSocketHttpHeaders(),
                 stompHeadersConnect,
                 new TestStompSessionHandlerAdapter()
-        ).get();
+        ).get();//connecting to websocket endpoint
         String sessionId = session.getSessionId();
+
+        //when
         session.subscribe("/queue/private-" + sessionId,
                 new TestStompFrameHandler<>(resultKeeper::complete, SendChatMessage.class));
         ReceivedChatMessage receivedChatMessage = new ReceivedChatMessage("user1", "message", "not-exist");
         StompHeaders stompHeadersSend = new StompHeaders();
         stompHeadersSend.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT);
         stompHeadersSend.add(StompHeaders.DESTINATION, "/app/chat-private");
-
         session.send(stompHeadersSend, receivedChatMessage);
 
+        //then
         //Will be thrown TimeoutException if no message received by User
         Assertions.assertThatThrownBy(() -> resultKeeper.get(3, TimeUnit.SECONDS)).isInstanceOf(TimeoutException.class);
     }

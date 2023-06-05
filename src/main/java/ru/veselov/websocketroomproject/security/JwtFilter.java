@@ -20,14 +20,14 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final AuthTokenManager authTokenManager;
 
-    private final JwtProperties jwtProperties;
+    private final SecurityProperties securityProperties;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
-        final String authHeader = request.getHeader(jwtProperties.getHeader());
-        if (authHeader == null || !authHeader.startsWith(jwtProperties.getPrefix())) {
+        final String authHeader = request.getHeader(securityProperties.getHeader());
+        if (authHeader == null || !authHeader.startsWith(securityProperties.getPrefix())) {
             String requestURI = request.getRequestURI();
-            if (requestURI.equals("/api/room/event")) {
+            if (requestURI.equals(securityProperties.getChatEventURL())) {
                 log.warn("Wrong authorization prefix to connect [{}]", requestURI);
                 throw new JWTDecodeException(
                         "Cannot connect to [/api/room/event]: Authorization header not exists or has wrong prefix"

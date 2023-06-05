@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
-import ru.veselov.websocketroomproject.dto.PlayerStateDTO;
+import ru.veselov.websocketroomproject.dto.request.PlayerStateDTO;
 import ru.veselov.websocketroomproject.service.PlayerStateMessageService;
 
 @Service

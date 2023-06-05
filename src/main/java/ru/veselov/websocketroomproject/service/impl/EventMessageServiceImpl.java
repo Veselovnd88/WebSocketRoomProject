@@ -3,8 +3,8 @@ package ru.veselov.websocketroomproject.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.veselov.websocketroomproject.dto.ChatUserDTO;
-import ru.veselov.websocketroomproject.dto.EventMessageDTO;
+import ru.veselov.websocketroomproject.dto.response.ChatUserDTO;
+import ru.veselov.websocketroomproject.dto.response.EventMessageDTO;
 import ru.veselov.websocketroomproject.event.EventSender;
 import ru.veselov.websocketroomproject.event.EventType;
 import ru.veselov.websocketroomproject.mapper.ChatUserMapper;
@@ -13,7 +13,6 @@ import ru.veselov.websocketroomproject.service.ChatUserService;
 import ru.veselov.websocketroomproject.service.EventMessageService;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -30,7 +29,7 @@ public class EventMessageServiceImpl implements EventMessageService {
     public void sendUserListToAllSubscriptions(String roomId) {
         Set<ChatUser> chatUsers = chatUserService.findChatUsersByRoomId(roomId);
         EventMessageDTO<Set<ChatUserDTO>> eventMessageDTO = new EventMessageDTO<>(
-                EventType.USERS_REFRESHED,
+                EventType.USER_LIST_REFRESH,
                 toChatUserDTOs(chatUsers));
         eventSender.sendEventToRoomSubscriptions(roomId, eventMessageDTO);
     }
@@ -38,7 +37,7 @@ public class EventMessageServiceImpl implements EventMessageService {
     @Override
     public void sendUserConnectedMessageToAll(ChatUser chatUser) {
         EventMessageDTO<ChatUserDTO> eventMessageDTO = new EventMessageDTO<>(
-                EventType.CONNECTED,
+                EventType.USER_CONNECT,
                 toChatUserDTO(chatUser));
         eventSender.sendEventToRoomSubscriptions(chatUser.getRoomId(), eventMessageDTO);
     }
@@ -46,7 +45,7 @@ public class EventMessageServiceImpl implements EventMessageService {
     @Override
     public void sendUserDisconnectedMessageToAll(ChatUser chatUser) {
         EventMessageDTO<ChatUserDTO> eventMessageDTO = new EventMessageDTO<>(
-                EventType.DISCONNECTED,
+                EventType.USER_DISCONNECT,
                 toChatUserDTO(chatUser));
         eventSender.sendEventToRoomSubscriptions(chatUser.getRoomId(), eventMessageDTO);
     }

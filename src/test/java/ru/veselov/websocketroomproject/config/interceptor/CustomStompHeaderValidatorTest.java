@@ -1,24 +1,33 @@
 package ru.veselov.websocketroomproject.config.interceptor;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import ru.veselov.websocketroomproject.TestConstants;
+import ru.veselov.websocketroomproject.security.SecurityProperties;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class CustomStompHeaderValidatorTest {
 
     private static final String ROOM_ID = "4";
 
-    @Autowired
     CustomStompHeaderValidator customStompHeaderValidator;
+
+    @BeforeEach
+    void init() {
+        SecurityProperties securityProperties = new SecurityProperties();
+        securityProperties.setHeader("Authorization");
+        securityProperties.setPrefix("Bearer ");
+        customStompHeaderValidator = new CustomStompHeaderValidator(securityProperties);
+    }
 
     @Test
     void shouldValidateWithoutExceptions() {
