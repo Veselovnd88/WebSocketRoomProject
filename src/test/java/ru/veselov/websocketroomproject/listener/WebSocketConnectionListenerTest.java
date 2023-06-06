@@ -18,8 +18,9 @@ import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.event.UserConnectEventHandler;
 import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.security.AuthProperties;
-import ru.veselov.websocketroomproject.security.jwt.impl.JwtParserImpl;
+import ru.veselov.websocketroomproject.security.jwt.impl.JwtHelperImpl;
 import ru.veselov.websocketroomproject.service.ChatUserService;
+import ru.veselov.websocketroomproject.websocket.listener.WebSocketConnectionListener;
 
 import java.util.List;
 import java.util.Map;
@@ -51,7 +52,7 @@ class WebSocketConnectionListenerTest {
         webSocketConnectionListener = new WebSocketConnectionListener(
                 userConnectEventHandler,
                 chatUserService,
-                new JwtParserImpl(authProperties),
+                new JwtHelperImpl(authProperties),
                 authProperties);
         ReflectionTestUtils.setField(
                 webSocketConnectionListener,

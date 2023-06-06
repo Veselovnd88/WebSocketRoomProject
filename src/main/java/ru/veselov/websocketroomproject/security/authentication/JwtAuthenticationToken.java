@@ -37,7 +37,7 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
 
     @Override
     public Object getCredentials() {
-        return null;
+        return jwt;
     }
 
     @Override
@@ -54,7 +54,6 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
     public boolean implies(Subject subject) {
         return super.implies(subject);
     }
-
 
     @Override
     public Object getDetails() {

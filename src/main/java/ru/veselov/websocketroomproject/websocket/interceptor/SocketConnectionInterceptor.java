@@ -10,7 +10,7 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 
 /**
- * Interceptor validates headers in connect messages
+ * Interceptor validates headers in CONNECT messages
  */
 @Slf4j
 @RequiredArgsConstructor

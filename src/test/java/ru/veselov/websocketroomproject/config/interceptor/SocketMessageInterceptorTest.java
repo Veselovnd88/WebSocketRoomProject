@@ -17,6 +17,7 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.security.authentication.JwtAuthenticationToken;
 import ru.veselov.websocketroomproject.security.AuthProperties;
+import ru.veselov.websocketroomproject.security.jwt.JwtValidator;
 import ru.veselov.websocketroomproject.security.managers.JwtAuthenticationManager;
 import ru.veselov.websocketroomproject.websocket.interceptor.CustomStompHeaderValidator;
 import ru.veselov.websocketroomproject.websocket.interceptor.SocketMessageInterceptor;
@@ -33,14 +34,21 @@ class SocketMessageInterceptorTest {
     @Mock
     JwtAuthenticationManager authManager;
 
+    @Mock
+    JwtValidator jwtValidator;
+
     SocketMessageInterceptor interceptor;
+
 
     @BeforeEach
     void init() {
         AuthProperties authProperties = new AuthProperties();
         authProperties.setHeader("Authorization");
         authProperties.setPrefix("Bearer ");
-        interceptor = new SocketMessageInterceptor(authProperties, customStompHeaderValidator, authManager);
+        interceptor = new SocketMessageInterceptor(authProperties,
+                customStompHeaderValidator,
+                authManager,
+                jwtValidator);
     }
 
     @Test

@@ -8,7 +8,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import ru.veselov.websocketroomproject.security.authentication.JwtAuthenticationToken;
-import ru.veselov.websocketroomproject.security.jwt.JwtParser;
+import ru.veselov.websocketroomproject.security.jwt.JwtHelper;
 
 import java.util.List;
 
@@ -17,14 +17,14 @@ import java.util.List;
 @Slf4j
 public class JwtAuthenticationProvider implements AuthenticationProvider {
 
-    private final JwtParser jwtParser;
+    private final JwtHelper jwtHelper;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         JwtAuthenticationToken authToken = (JwtAuthenticationToken) authentication;
         String jwt = authToken.getJwt();
-        String username = jwtParser.getUsername(jwt);
-        String role = jwtParser.getRole(jwt);
+        String username = jwtHelper.getUsername(jwt);
+        String role = jwtHelper.getRole(jwt);
         JwtAuthenticationToken token = new JwtAuthenticationToken(
                 List.of(new SimpleGrantedAuthority(role)),
                 username,

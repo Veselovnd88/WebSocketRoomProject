@@ -28,7 +28,7 @@ import ru.veselov.websocketroomproject.controller.client.TestStompFrameHandler;
 import ru.veselov.websocketroomproject.controller.client.TestStompSessionHandlerAdapter;
 import ru.veselov.websocketroomproject.dto.request.ReceivedChatMessage;
 import ru.veselov.websocketroomproject.dto.response.SendChatMessage;
-import ru.veselov.websocketroomproject.listener.WebSocketDisconnectListener;
+import ru.veselov.websocketroomproject.websocket.listener.WebSocketDisconnectListener;
 import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.service.ChatUserService;
 import ru.veselov.websocketroomproject.service.RoomSubscriptionService;

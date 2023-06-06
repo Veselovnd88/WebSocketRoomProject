@@ -1,4 +1,4 @@
-package ru.veselov.websocketroomproject.listener;
+package ru.veselov.websocketroomproject.websocket.listener;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +10,7 @@ import org.springframework.web.socket.messaging.SessionConnectEvent;
 import ru.veselov.websocketroomproject.event.UserConnectEventHandler;
 import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.security.AuthProperties;
-import ru.veselov.websocketroomproject.security.jwt.JwtParser;
+import ru.veselov.websocketroomproject.security.jwt.JwtHelper;
 import ru.veselov.websocketroomproject.service.ChatUserService;
 
 /**
@@ -29,7 +29,7 @@ public class WebSocketConnectionListener {
 
     private final ChatUserService chatUserService;
 
-    private final JwtParser jwtParser;
+    private final JwtHelper jwtHelper;
 
     private final AuthProperties authProperties;
 
@@ -50,7 +50,7 @@ public class WebSocketConnectionListener {
 
     private String getUsernameFromHeader(StompHeaderAccessor accessor) {
         String authorization = accessor.getFirstNativeHeader(authProperties.getHeader());
-        return jwtParser.getUsername(authorization.substring(7));//checked before connection
+        return jwtHelper.getUsername(authorization.substring(7));//checked before connection
     }
 
 }

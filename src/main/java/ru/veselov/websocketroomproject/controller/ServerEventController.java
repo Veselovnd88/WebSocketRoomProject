@@ -22,7 +22,9 @@ public class ServerEventController {
 
     /**
      * Controller handling subscription from client's eventsource and return stream of events;
+     * !!!Important!!!
      * Eventsource should be created together with websocket connection and completed with websocket disconnection
+     * Subscription for events and chatUsers for WebSocket saving and removing together
      */
     @GetMapping(value = "/event", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ServerSentEvent> subscribe(@RequestParam String roomId, Authentication authentication) {

@@ -1,4 +1,4 @@
-package ru.veselov.websocketroomproject.listener;
+package ru.veselov.websocketroomproject.websocket.listener;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

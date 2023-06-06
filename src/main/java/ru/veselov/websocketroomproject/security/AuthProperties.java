@@ -19,4 +19,6 @@ public class AuthProperties {
 
     private String chatEventURL;
 
+    private String secret;
+
 }

@@ -18,6 +18,10 @@ configurations {
     }
 }
 
+ext {
+    jjwt_version = "0.11.5"
+}
+
 repositories {
     mavenCentral()
 }
@@ -37,9 +41,11 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.0.6'
     implementation 'org.apache.commons:commons-pool2:2.11.1'
     implementation 'com.redis.testcontainers:testcontainers-redis:1.6.4'
-    implementation 'com.auth0:java-jwt:4.0.0'
+    implementation "io.jsonwebtoken:jjwt-api:${jjwt_version}"
 
     runtimeOnly 'org.postgresql:postgresql'
+    runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jjwt_version}"
+    runtimeOnly "io.jsonwebtoken:jjwt-impl:${jjwt_version}"
 
     developmentOnly('org.springframework.boot:spring-boot-devtools:3.0.6')
 

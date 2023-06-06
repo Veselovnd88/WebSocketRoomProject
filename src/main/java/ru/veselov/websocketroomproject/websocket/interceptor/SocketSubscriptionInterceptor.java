@@ -13,7 +13,7 @@ import java.util.Arrays;
 
 /**
  * Interceptor validates all Subscription commands for null destination
- * or not correct prefix
+ * or not correct prefixes, prefixes load from application.yml
  */
 @Slf4j
 public class SocketSubscriptionInterceptor implements ChannelInterceptor {
