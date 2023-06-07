@@ -56,8 +56,8 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     @Transactional
-    public Room createRoom(Room room) {
-        String name = room.getName();
+    public Room createRoom(Room room, Principal principal) {
+        String name = principal.getName();
         roomValidator.validateRoomName(name);
         RoomEntity roomEntity = roomMapper.toEntity(room);
         roomEntity.setCreatedAt(ZonedDateTime.now(zone));

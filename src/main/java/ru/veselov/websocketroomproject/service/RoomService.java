@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface RoomService {
 
-    Room createRoom(Room room);
+    Room createRoom(Room room, Principal principal);
 
     Room getRoomById(String id, String token);
 

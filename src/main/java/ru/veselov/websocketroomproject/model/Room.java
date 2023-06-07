@@ -1,5 +1,7 @@
 package ru.veselov.websocketroomproject.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,10 +29,13 @@ public class Room implements Serializable {
 
     private String ownerName;
 
+    @JsonProperty("playerType")
     private PlayerType playerType;
 
+    @JsonFormat(pattern = "yyyy-mm-dd HH:mm:ss")
     private ZonedDateTime createdAt;
 
+    @JsonFormat(pattern = "yyyy-mm-dd HH:mm:ss")
     private ZonedDateTime changedAt;
 
 }

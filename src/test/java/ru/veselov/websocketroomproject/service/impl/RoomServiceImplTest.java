@@ -38,6 +38,9 @@ class RoomServiceImplTest {
     @Mock
     RoomSettingsService roomSettingsService;
 
+    @Mock
+    Principal principal;
+
     @InjectMocks
     RoomServiceImpl roomService;
 
@@ -54,7 +57,7 @@ class RoomServiceImplTest {
     @Test
     void shouldCreatePrivateRoom() {
         Room room = getRoom(true);
-        roomService.createRoom(room);
+        roomService.createRoom(room, principal);
 
         Mockito.verify(roomRepository, Mockito.times(1)).save(roomCaptor.capture());
         Mockito.verify(roomValidator, Mockito.times(1)).validateRoomName(ArgumentMatchers.anyString());
@@ -71,7 +74,7 @@ class RoomServiceImplTest {
     void shouldCreatePublicRoom() {
         Room room = getRoom(false);
 
-        roomService.createRoom(room);
+        roomService.createRoom(room, principal);
 
         Mockito.verify(roomRepository, Mockito.times(1)).save(roomCaptor.capture());
         Mockito.verify(roomValidator, Mockito.times(1)).validateRoomName(ArgumentMatchers.anyString());

@@ -37,11 +37,10 @@ public class RoomController {
     @PostMapping(value = "/create")
     @ResponseStatus(HttpStatus.CREATED)
     public Room createRoom(@RequestBody Room room, Principal principal) {
-        room.setOwnerName(principal.getName());
-        return roomService.createRoom(room);
+        return roomService.createRoom(room, principal);
     }
 
-    @PostMapping(value = "/{roomId}")
+    @PostMapping(value = "/url/{roomId}")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public UrlDto processUrl(@PathVariable("roomId") String roomId,
                              @RequestBody UrlDto urlDto, Principal principal) {
