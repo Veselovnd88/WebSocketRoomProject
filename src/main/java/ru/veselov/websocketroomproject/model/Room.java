@@ -19,7 +19,7 @@ public class Room implements Serializable {
 
     private String name;
 
-        private Boolean isPrivate;
+    private Boolean isPrivate;
 
     private String activeUrl;
 

@@ -1,52 +1,67 @@
 package ru.veselov.websocketroomproject.controller;
 
+import net.datafaker.Faker;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ActiveProfiles;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.test.web.servlet.client.MockMvcWebTestClient;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.dto.request.RoomSettingsDTO;
 import ru.veselov.websocketroomproject.dto.request.UrlDto;
+import ru.veselov.websocketroomproject.entity.PlayerType;
 import ru.veselov.websocketroomproject.model.Room;
 import ru.veselov.websocketroomproject.repository.RoomRepository;
 import ru.veselov.websocketroomproject.service.RoomService;
 
 import java.security.Principal;
+import java.time.ZonedDateTime;
+import java.util.UUID;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureWebTestClient
-@ActiveProfiles("test")
+@ExtendWith(MockitoExtension.class)
 class RoomControllerTest {
 
     private final static String ROOM_ID = "ec1edd63-4080-480b-84cc-2faee587999f";
 
-    @Autowired
     WebTestClient webTestClient;
 
-    @MockBean
+    Faker faker = new Faker();
+
+    @Mock
     RoomService roomService;
 
-    @MockBean
+    @Mock
     RoomRepository roomRepository;
 
+    @InjectMocks
+    RoomController roomController;
+
+    @BeforeEach
+    void init() {
+        webTestClient = MockMvcWebTestClient.bindToController(roomController).build();
+    }
+
     @Test
-    void shouldCallRoomServiceWithoutTokenAndReturnOKStatus() {
-        webTestClient.get().uri(
-                        uriBuilder -> uriBuilder.path("api").path("/room").path("/" + ROOM_ID).build())
-                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
-                .exchange().expectStatus().isOk().returnResult(Room.class);
+    void shouldReturnCorrectRoomWithoutToken() {
+        Room room = getRoom(true);
+        Mockito.when(roomService.getRoomById(ROOM_ID, null)).thenReturn(room);
+        WebTestClient.BodyContentSpec resultBody = webTestClient.get().uri(
+                        uriBuilder -> uriBuilder.path("/api").path("/room").path("/" + ROOM_ID).build())
+                .exchange().expectStatus().isOk().expectBody();
+        validateReturnedRoomBody(resultBody, room);
+
         Mockito.verify(roomService, Mockito.times(1)).getRoomById(ROOM_ID, null);
     }
 
     @Test
     void shouldCallRoomServiceWithTokenAndReturnOKStatus() {
         webTestClient.get().uri(
-                        uriBuilder -> uriBuilder.path("api").path("/room").path("/" + ROOM_ID)
+                        uriBuilder -> uriBuilder.path("/api").path("/room").path("/" + ROOM_ID)
                                 .queryParam("token", "secret").build())
                 .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
                 .exchange().expectStatus().isOk().returnResult(Room.class);
@@ -101,6 +116,33 @@ class RoomControllerTest {
         webTestClient.get().uri(
                         uriBuilder -> uriBuilder.path("api").path("/room").path("/" + ROOM_ID).build())
                 .exchange().expectStatus().is4xxClientError();
+    }
+
+    private Room getRoom(boolean isPrivate) {
+        return new Room(
+                UUID.fromString(ROOM_ID),
+                faker.elderScrolls().city(),
+                isPrivate,
+                "anyUrl",
+                faker.elderScrolls().region(),
+                faker.elderScrolls().firstName(),
+                PlayerType.YOUTUBE,
+                ZonedDateTime.now(),
+                ZonedDateTime.now()
+        );
+    }
+
+    private void validateReturnedRoomBody(WebTestClient.BodyContentSpec resultBody, Room room) {
+        resultBody
+                .jsonPath("$.ownerName").isEqualTo(room.getOwnerName())
+                .jsonPath("$.name").isEqualTo(room.getName())
+                .jsonPath("$.id").isEqualTo(room.getId())//TODO doesnt work
+                .jsonPath("$.isPrivate").isEqualTo(room.getIsPrivate())
+                .jsonPath("$.activeUrl").isEqualTo(room.getActiveUrl())
+                .jsonPath("$.roomToken").isEqualTo(room.getRoomToken())
+                .jsonPath("$.playerType").isEqualTo(room.getPlayerType().toString())
+                .jsonPath("$.createdAt").exists()
+                .jsonPath("$.changedAt").exists();
     }
 
 }

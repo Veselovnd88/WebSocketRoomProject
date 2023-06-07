@@ -34,8 +34,7 @@ public class JwtValidatorImpl implements JwtValidator {
                  DecodingException |
                  ExpiredJwtException |
                  IllegalArgumentException exception) {
-            //ExpiredJwt can be thrown to process Error
-            log.error("Bad jwt: {}", exception.getMessage());
+            log.warn("Access token was not validated: {}", exception.getMessage());
             return false;
         }
     }
