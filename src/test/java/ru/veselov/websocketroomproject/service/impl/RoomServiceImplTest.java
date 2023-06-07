@@ -1,5 +1,6 @@
 package ru.veselov.websocketroomproject.service.impl;
 
+import net.datafaker.Faker;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,11 +24,14 @@ import java.security.Principal;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
 class RoomServiceImplTest {
 
     private final static String ROOM_ID = "ec1edd63-4080-480b-84cc-2faee587999f";
+
+    Faker faker = new Faker();
 
     @Mock
     RoomRepository roomRepository;
@@ -57,22 +61,27 @@ class RoomServiceImplTest {
     @Test
     void shouldCreatePrivateRoom() {
         Room room = getRoom(true);
+        String ownerName = faker.elderScrolls().firstName();
+        Mockito.when(principal.getName()).thenReturn(ownerName);
+
         roomService.createRoom(room, principal);
 
         Mockito.verify(roomRepository, Mockito.times(1)).save(roomCaptor.capture());
         Mockito.verify(roomValidator, Mockito.times(1)).validateRoomName(ArgumentMatchers.anyString());
         RoomEntity captured = roomCaptor.getValue();
-
         Assertions.assertThat(captured.getCreatedAt()).isNotNull();
         Assertions.assertThat(captured.getIsPrivate()).isTrue();
         Assertions.assertThat(captured.getRoomToken()).isNotBlank();
-        Assertions.assertThat(captured.getName()).isEqualTo("MyRoom");
-        Assertions.assertThat(captured.getOwnerName()).isEqualTo("User1");
+        Assertions.assertThat(captured.getName()).isEqualTo(room.getName());
+        Assertions.assertThat(captured.getOwnerName()).isEqualTo(ownerName);
     }
 
     @Test
     void shouldCreatePublicRoom() {
         Room room = getRoom(false);
+        room.setRoomToken(null);
+        String ownerName = faker.elderScrolls().firstName();
+        Mockito.when(principal.getName()).thenReturn(ownerName);
 
         roomService.createRoom(room, principal);
 
@@ -83,8 +92,8 @@ class RoomServiceImplTest {
         Assertions.assertThat(captured.getCreatedAt()).isNotNull();
         Assertions.assertThat(captured.getIsPrivate()).isFalse();
         Assertions.assertThat(captured.getRoomToken()).isNull();
-        Assertions.assertThat(captured.getName()).isEqualTo("MyRoom");
-        Assertions.assertThat(captured.getOwnerName()).isEqualTo("User1");
+        Assertions.assertThat(captured.getName()).isEqualTo(room.getName());
+        Assertions.assertThat(captured.getOwnerName()).isEqualTo(ownerName);
     }
 
     @Test
@@ -212,13 +221,14 @@ class RoomServiceImplTest {
         Mockito.verify(roomRepository, Mockito.never()).save(ArgumentMatchers.any());
     }
 
-
     private Room getRoom(boolean isPrivate) {
         return Room.builder()
-                .name("MyRoom")
+                .id(UUID.fromString(ROOM_ID))
+                .name(faker.elderScrolls().city())
                 .isPrivate(isPrivate)
-                .playerType(PlayerType.YOUTUBE)
-                .ownerName("User1").build();
+                .activeUrl("https://youBube")
+                .roomToken(faker.elderScrolls().region())
+                .playerType(PlayerType.YOUTUBE).build();
     }
 
 }

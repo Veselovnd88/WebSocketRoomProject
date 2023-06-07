@@ -49,6 +49,7 @@ class WebSocketConnectionListenerTest {
         AuthProperties authProperties = new AuthProperties();
         authProperties.setHeader("Authorization");
         authProperties.setPrefix("Bearer ");
+        authProperties.setSecret(TestConstants.SECRET);
         webSocketConnectionListener = new WebSocketConnectionListener(
                 userConnectEventHandler,
                 chatUserService,

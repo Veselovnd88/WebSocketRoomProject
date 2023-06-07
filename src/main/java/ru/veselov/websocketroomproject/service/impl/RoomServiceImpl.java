@@ -57,10 +57,11 @@ public class RoomServiceImpl implements RoomService {
     @Override
     @Transactional
     public Room createRoom(Room room, Principal principal) {
-        String name = principal.getName();
-        roomValidator.validateRoomName(name);
+        String ownerName = principal.getName();
+        roomValidator.validateRoomName(ownerName);
         RoomEntity roomEntity = roomMapper.toEntity(room);
         roomEntity.setCreatedAt(ZonedDateTime.now(zone));
+        roomEntity.setOwnerName(ownerName);
         if (roomEntity.getIsPrivate()) {
             roomEntity.setRoomToken(RandomStringUtils.randomAlphanumeric(10));
         }
