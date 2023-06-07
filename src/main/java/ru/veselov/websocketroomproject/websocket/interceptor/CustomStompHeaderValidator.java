@@ -3,6 +3,7 @@ package ru.veselov.websocketroomproject.websocket.interceptor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import ru.veselov.websocketroomproject.security.AuthProperties;
@@ -16,13 +17,13 @@ public class CustomStompHeaderValidator {
 
     public void validateAuthHeader(StompHeaderAccessor accessor) {
         if (!isValidAuthHeader(accessor)) {
-            throw new IllegalArgumentException("Message should have Authorization header with valid prefix");
+            throw new MessagingException("Message should have Authorization header with valid prefix");
         }
     }
 
     public void validateRoomIdHeader(StompHeaderAccessor accessor) {
         if (!isValidRoomId(accessor)) {
-            throw new IllegalArgumentException("Room Id should be integer value");
+            throw new MessagingException("Room Id should be integer value");
         }
     }
 

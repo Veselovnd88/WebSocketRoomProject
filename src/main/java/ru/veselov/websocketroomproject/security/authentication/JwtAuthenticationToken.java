@@ -1,16 +1,19 @@
 package ru.veselov.websocketroomproject.security.authentication;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 
-import javax.security.auth.Subject;
 import java.util.Collection;
 import java.util.Collections;
 
 @Getter
 @Setter
+@ToString
+@EqualsAndHashCode(callSuper = false, exclude = {"principal"})
 public class JwtAuthenticationToken extends AbstractAuthenticationToken {
 
     private boolean isAuthenticated;
@@ -48,21 +51,6 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
     @Override
     public Object getPrincipal() {
         return this.principal;
-    }
-
-    @Override
-    public boolean implies(Subject subject) {
-        return super.implies(subject);
-    }
-
-    @Override
-    public Object getDetails() {
-        return super.getDetails();
-    }
-
-    @Override
-    public void setDetails(Object details) {
-        super.setDetails(details);
     }
 
 }

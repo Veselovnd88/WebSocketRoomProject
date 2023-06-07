@@ -47,12 +47,13 @@ public class SocketMessageInterceptor implements ChannelInterceptor {
                 Authentication authentication = authenticationManager.authenticate(token);
                 if (authentication.isAuthenticated()) {
                     SecurityContextHolder.getContext().setAuthentication(authentication);
-                    accessor.setUser(token);
+                    accessor.setUser(authentication);
                     return MessageBuilder.createMessage(message.getPayload(), accessor.getMessageHeaders());
                 }
             }
+            throw new MessagingException("Bad Jwt in header");
         }
-        throw new MessagingException("Bad Jwt in header");
+        return message;
     }
 
 }
