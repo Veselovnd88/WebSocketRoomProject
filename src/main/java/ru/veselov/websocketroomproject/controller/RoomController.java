@@ -1,13 +1,16 @@
 package ru.veselov.websocketroomproject.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ru.veselov.websocketroomproject.dto.request.RoomSettingsDTO;
 import ru.veselov.websocketroomproject.dto.request.UrlDto;
 import ru.veselov.websocketroomproject.model.Room;
 import ru.veselov.websocketroomproject.service.RoomService;
+import ru.veselov.websocketroomproject.validation.DtoFieldValidationResponseService;
 
 import java.security.Principal;
 import java.util.List;
@@ -20,6 +23,8 @@ import java.util.List;
 public class RoomController {
 
     private final RoomService roomService;
+
+    private final DtoFieldValidationResponseService dtoFieldValidationResponseService;
 
     @GetMapping("/{roomId}")
     public Room getRoom(@PathVariable("roomId") String id,
@@ -36,7 +41,8 @@ public class RoomController {
 
     @PostMapping(value = "/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public Room createRoom(@RequestBody Room room, Principal principal) {
+    public Room createRoom(@Valid @RequestBody Room room, Principal principal, BindingResult bindingResult) {
+        dtoFieldValidationResponseService.validateFields(bindingResult);
         return roomService.createRoom(room, principal);
     }
 

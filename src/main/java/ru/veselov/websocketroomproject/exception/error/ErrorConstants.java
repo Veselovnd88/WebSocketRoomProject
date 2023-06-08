@@ -15,4 +15,7 @@ public class ErrorConstants {
     public static final String ERROR_ILLEGAL_ARG = "error.illegal.argument";
 
     public static final String ERROR_MESSAGING = "error.messaging";
+
+    public static final String ERROR_VALIDATION = "error.validation";
+
 }
