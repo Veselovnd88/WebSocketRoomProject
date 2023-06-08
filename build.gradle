@@ -40,7 +40,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-redis:3.0.5'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.0.6'
     implementation 'org.apache.commons:commons-pool2:2.11.1'
-    implementation 'com.redis.testcontainers:testcontainers-redis:1.6.4'
     implementation "io.jsonwebtoken:jjwt-api:${jjwt_version}"
 
     runtimeOnly 'org.postgresql:postgresql'
@@ -58,6 +57,8 @@ dependencies {
     testImplementation 'org.projectlombok:lombok:1.18.22'
     testImplementation 'io.projectreactor:reactor-test:3.5.4'
     testImplementation 'org.testcontainers:junit-jupiter:1.18.0'
+    testImplementation "org.testcontainers:postgresql:1.18.1"
+    testImplementation 'com.redis.testcontainers:testcontainers-redis:1.6.4'
 
     testAnnotationProcessor 'org.projectlombok:lombok'
 

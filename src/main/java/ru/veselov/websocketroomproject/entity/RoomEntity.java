@@ -2,6 +2,7 @@ package ru.veselov.websocketroomproject.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Type;
 
 import java.time.ZonedDateTime;
 import java.util.LinkedList;
@@ -16,8 +17,8 @@ import java.util.UUID;
 public class RoomEntity {
 
     @Id
-    @Column(name = "id", nullable = false)
-    @GeneratedValue(generator = "UUID")
+    @GeneratedValue
+    @Column(name = "id",columnDefinition = "uuid")
     private UUID id;
 
     @Column(name = "name", nullable = false)
