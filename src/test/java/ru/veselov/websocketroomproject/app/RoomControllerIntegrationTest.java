@@ -21,7 +21,7 @@ import java.util.UUID;
 @AutoConfigureWebTestClient
 @ActiveProfiles("test")
 @DirtiesContext
-public class RoomControllerIntegrationTest extends PostgresContainersConfig {
+class RoomControllerIntegrationTest extends PostgresContainersConfig {
 
     Faker faker = new Faker();
 
@@ -35,8 +35,8 @@ public class RoomControllerIntegrationTest extends PostgresContainersConfig {
     void shouldCreateAndReturnRoom() {
         Room transferedRoom = Room.builder()
                 .name(faker.elderScrolls().region())
-                .ownerName(faker.elderScrolls().lastName())
-                .isPrivate(true).build();
+                .isPrivate(true)
+                .playerType(PlayerType.YOUTUBE).build();
         WebTestClient.BodyContentSpec resultBody = webTestClient.post().uri(
                         uriBuilder -> uriBuilder.path("/api").path("/room").path("/create").build())
                 .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
