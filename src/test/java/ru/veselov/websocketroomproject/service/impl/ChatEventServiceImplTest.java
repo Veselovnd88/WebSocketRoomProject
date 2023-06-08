@@ -1,5 +1,6 @@
 package ru.veselov.websocketroomproject.service.impl;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,6 +15,8 @@ import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.event.SubscriptionData;
 import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
 
+import java.security.Principal;
+
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings({"unchecked", "rawtypes"})
 class ChatEventServiceImplTest {
@@ -26,9 +29,17 @@ class ChatEventServiceImplTest {
     @Mock
     RoomSubscriptionService subscriptionService;
 
+    @Mock
+    Principal principal;
+
+    @BeforeEach
+    void init() {
+        Mockito.when(principal.getName()).thenReturn(TestConstants.TEST_USERNAME);
+    }
+
     @Test
     void shouldReturnFluxSinkAndSaveSubscription() {
-        Flux<ServerSentEvent> eventStream = chatEventService.createEventStream(TestConstants.TEST_USERNAME, ROOM_ID);
+        Flux<ServerSentEvent> eventStream = chatEventService.createEventStream(principal, ROOM_ID);
 
         StepVerifier.create(eventStream.take(1)).expectNextMatches(event -> event.event().equals("init"))
                 .verifyComplete();
@@ -39,7 +50,7 @@ class ChatEventServiceImplTest {
 
     @Test
     void shouldRemoveSubscriptionOnDisposeAndCancel() {
-        Flux<ServerSentEvent> eventStream = chatEventService.createEventStream(TestConstants.TEST_USERNAME, ROOM_ID);
+        Flux<ServerSentEvent> eventStream = chatEventService.createEventStream(principal, ROOM_ID);
 
         SubscriptionData sub = new SubscriptionData(TestConstants.TEST_USERNAME, ROOM_ID, Mockito.mock(FluxSink.class));
         eventStream.subscribe().dispose();

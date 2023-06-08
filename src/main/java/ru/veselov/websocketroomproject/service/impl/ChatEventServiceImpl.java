@@ -10,6 +10,8 @@ import ru.veselov.websocketroomproject.event.SubscriptionData;
 import ru.veselov.websocketroomproject.service.ChatEventService;
 import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
 
+import java.security.Principal;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -18,8 +20,9 @@ public class ChatEventServiceImpl implements ChatEventService {
     private final RoomSubscriptionService roomSubscriptionService;
 
     @Override
-    public Flux<ServerSentEvent> createEventStream(String username, String roomId) {
+    public Flux<ServerSentEvent> createEventStream(Principal principal, String roomId) {
         return Flux.create(fluxSink -> {
+                    String username = principal.getName();
                     log.info("Subscription for [user {} of room {}] created", username, roomId);
                     SubscriptionData subscriptionData = new SubscriptionData(username, roomId, fluxSink);
                     fluxSink.onCancel(removeSubscription(subscriptionData));
