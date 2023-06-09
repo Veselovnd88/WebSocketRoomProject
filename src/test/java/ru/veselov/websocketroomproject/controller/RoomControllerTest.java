@@ -16,7 +16,7 @@ import ru.veselov.websocketroomproject.dto.request.UrlDto;
 import ru.veselov.websocketroomproject.entity.PlayerType;
 import ru.veselov.websocketroomproject.model.Room;
 import ru.veselov.websocketroomproject.service.RoomService;
-import ru.veselov.websocketroomproject.validation.impl.DtoFieldValidationResponseServiceImpl;
+import ru.veselov.websocketroomproject.validation.impl.FieldValidationResponseServiceImpl;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -35,7 +35,7 @@ class RoomControllerTest {
     RoomService roomService;
 
     @Mock
-    DtoFieldValidationResponseServiceImpl dtoFieldValidationResponseService;
+    FieldValidationResponseServiceImpl dtoFieldValidationResponseService;
 
     @InjectMocks
     RoomController roomController;
@@ -93,6 +93,7 @@ class RoomControllerTest {
         Room transferedRoom = Room.builder()
                 .name(savedRoom.getName())
                 .ownerName(savedRoom.getOwnerName())
+                .playerType(PlayerType.YOUTUBE)
                 .isPrivate(true).build();
         Mockito.when(roomService.createRoom(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(savedRoom);
         WebTestClient.BodyContentSpec resultBody = webTestClient.post().uri(

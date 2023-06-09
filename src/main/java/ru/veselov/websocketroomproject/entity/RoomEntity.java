@@ -47,7 +47,7 @@ public class RoomEntity {
 
     @Column(name = "owner_name", nullable = false)
     private String ownerName;
-    @Column(name = "player_type")
+    @Column(name = "player_type",nullable = false)
     @Enumerated(EnumType.STRING)
     private PlayerType playerType;
 

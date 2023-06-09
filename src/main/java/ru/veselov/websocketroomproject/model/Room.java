@@ -8,7 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.veselov.websocketroomproject.annotations.SupportedPlayer;
 import ru.veselov.websocketroomproject.entity.PlayerType;
 
 import java.io.Serializable;
@@ -35,7 +34,8 @@ public class Room implements Serializable {
     private String roomToken;
 
     private String ownerName;
-    @SupportedPlayer
+
+    @NotNull(message = "Player type cannot be null")
     private PlayerType playerType;
 
     @JsonFormat(pattern = "yyyy-mm-dd HH:mm:ss")

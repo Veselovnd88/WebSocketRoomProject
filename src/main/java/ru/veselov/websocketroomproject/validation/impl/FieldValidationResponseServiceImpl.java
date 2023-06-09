@@ -6,14 +6,14 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import ru.veselov.websocketroomproject.exception.CustomValidationException;
-import ru.veselov.websocketroomproject.validation.DtoFieldValidationResponseService;
+import ru.veselov.websocketroomproject.validation.FieldValidationResponseService;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Service
 @Slf4j
-public class DtoFieldValidationResponseServiceImpl implements DtoFieldValidationResponseService {
+public class FieldValidationResponseServiceImpl implements FieldValidationResponseService {
 
     @Override
     public void validateFields(BindingResult bindingResult) {

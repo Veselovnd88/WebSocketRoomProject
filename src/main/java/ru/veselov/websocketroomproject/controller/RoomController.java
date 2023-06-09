@@ -10,7 +10,7 @@ import ru.veselov.websocketroomproject.dto.request.RoomSettingsDTO;
 import ru.veselov.websocketroomproject.dto.request.UrlDto;
 import ru.veselov.websocketroomproject.model.Room;
 import ru.veselov.websocketroomproject.service.RoomService;
-import ru.veselov.websocketroomproject.validation.DtoFieldValidationResponseService;
+import ru.veselov.websocketroomproject.validation.FieldValidationResponseService;
 
 import java.security.Principal;
 import java.util.List;
@@ -24,7 +24,7 @@ public class RoomController {
 
     private final RoomService roomService;
 
-    private final DtoFieldValidationResponseService dtoFieldValidationResponseService;
+    private final FieldValidationResponseService fieldValidationResponseService;
 
     @GetMapping("/{roomId}")
     public Room getRoom(@PathVariable("roomId") String id,
@@ -42,7 +42,7 @@ public class RoomController {
     @PostMapping(value = "/create")
     @ResponseStatus(HttpStatus.CREATED)
     public Room createRoom(@Valid @RequestBody Room room, Principal principal, BindingResult bindingResult) {
-        dtoFieldValidationResponseService.validateFields(bindingResult);
+        fieldValidationResponseService.validateFields(bindingResult);
         return roomService.createRoom(room, principal);
     }
 

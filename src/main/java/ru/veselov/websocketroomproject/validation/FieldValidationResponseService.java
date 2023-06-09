@@ -2,7 +2,7 @@ package ru.veselov.websocketroomproject.validation;
 
 import org.springframework.validation.BindingResult;
 
-public interface DtoFieldValidationResponseService {
+public interface FieldValidationResponseService {
 
     void validateFields(BindingResult bindingResult);
 
