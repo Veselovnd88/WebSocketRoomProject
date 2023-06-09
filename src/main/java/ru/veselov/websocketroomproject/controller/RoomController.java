@@ -1,7 +1,7 @@
 package ru.veselov.websocketroomproject.controller;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraints.UUID;
@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.veselov.websocketroomproject.annotation.OrderDirection;
+import ru.veselov.websocketroomproject.annotation.SortBy;
 import ru.veselov.websocketroomproject.dto.request.RoomSettingsDTO;
 import ru.veselov.websocketroomproject.dto.request.UrlDto;
 import ru.veselov.websocketroomproject.model.Room;
@@ -66,9 +68,10 @@ public class RoomController {
     }
 
     @GetMapping
-    public List<Room> getAllRooms(@RequestParam(required = false, name = "page") @Positive int page,
-                                  @RequestParam(required = false, name = "sort") String sort) {
-        return roomService.findAll(page, sort);
+    public List<Room> getAllRooms(@RequestParam(required = false, name = "page") @PositiveOrZero int page,
+                                  @RequestParam(required = false, name = "sort") @SortBy String sort,
+                                  @RequestParam(required = false, name = "order") @OrderDirection String order) {
+        return roomService.findAll(page, sort, order);
     }
 
 }

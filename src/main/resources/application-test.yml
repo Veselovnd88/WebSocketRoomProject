@@ -1,6 +1,8 @@
 server:
   port: 9990
   zoneId: "Europe/Moscow"
+  error:
+    include-stacktrace: never
 
 spring:
   datasource:

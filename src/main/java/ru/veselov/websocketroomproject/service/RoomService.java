@@ -18,6 +18,6 @@ public interface RoomService {
 
     void addUrl(String roomId, String url, Principal principal);
 
-    List<Room> findAll(int page, String sort);
+    List<Room> findAll(int page, String sort, String order);
 
 }
