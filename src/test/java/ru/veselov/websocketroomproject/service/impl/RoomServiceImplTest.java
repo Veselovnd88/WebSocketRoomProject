@@ -161,7 +161,7 @@ class RoomServiceImplTest {
 
     @Test
     void shouldSaveNewRoomSettings() {
-        RoomSettingsDTO settings = RoomSettingsDTO.builder().roomName("rename").playerType("YOUTUBE").build();
+        RoomSettingsDTO settings = RoomSettingsDTO.builder().roomName("rename").playerType(PlayerType.YOUTUBE).build();
         RoomEntity roomEntity = new RoomEntity();
         RoomEntity roomWithChangedSettings = new RoomEntity();
         Principal principal = Mockito.mock(Principal.class);
@@ -177,7 +177,7 @@ class RoomServiceImplTest {
 
     @Test
     void shouldThrowRoomNotFoundExceptionIfRoomNotExisting() {
-        RoomSettingsDTO settings = RoomSettingsDTO.builder().roomName("rename").playerType("YOUTUBE").build();
+        RoomSettingsDTO settings = RoomSettingsDTO.builder().roomName("rename").playerType(PlayerType.YOUTUBE).build();
         Principal principal = Mockito.mock(Principal.class);
         Mockito.when(roomRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.empty());
 

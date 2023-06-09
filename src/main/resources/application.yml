@@ -31,7 +31,7 @@ spring:
     active: local
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/HarvexDB
+    url: jdbc:postgresql://localhost:5435/HarvexDB
     username: admin
     password: admin
   jpa:

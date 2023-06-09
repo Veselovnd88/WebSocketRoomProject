@@ -89,7 +89,7 @@ class RoomSettingsServiceImplTest {
 
     @Test
     void shouldSetPlayerType() {
-        RoomSettingsDTO settings = RoomSettingsDTO.builder().playerType("RUTUBE").build();
+        RoomSettingsDTO settings = RoomSettingsDTO.builder().playerType(PlayerType.RUTUBE).build();
         RoomEntity roomEntity = new RoomEntity();
 
         RoomEntity changed = roomSettingsService.applySettings(roomEntity, settings);
@@ -102,7 +102,7 @@ class RoomSettingsServiceImplTest {
 
     @Test
     void shouldSetPlayerTypeToYoutubeByDefault() {
-        RoomSettingsDTO settings = RoomSettingsDTO.builder().playerType("UNKNOWNTUBE").build();
+        RoomSettingsDTO settings = RoomSettingsDTO.builder().build();
         RoomEntity roomEntity = new RoomEntity();
 
         RoomEntity changed = roomSettingsService.applySettings(roomEntity, settings);

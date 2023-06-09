@@ -1,6 +1,7 @@
 package ru.veselov.websocketroomproject.exception;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.MessagingException;
@@ -34,11 +35,11 @@ public class ApiExceptionHandler {
         return new ErrorResponse(ErrorConstants.ERROR_NOT_FOUND, exception.getMessage());
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
+    @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public ErrorResponse handleIllegalArgumentException(RuntimeException exception) {
-        return new ErrorResponse(ErrorConstants.ERROR_ILLEGAL_ARG, exception.getMessage());
+        return new ErrorResponse(ErrorConstants.ERROR_VALIDATION, exception.getMessage());
     }
 
     @ExceptionHandler(MessagingException.class)

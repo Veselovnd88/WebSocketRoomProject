@@ -74,7 +74,7 @@ class RoomControllerTest {
     @Test
     void shouldConsumeRoomSettingsDTOAndReturnRoomFromService() {
         Room room = getRoom(false);
-        RoomSettingsDTO roomSettingsDTO = RoomSettingsDTO.builder().roomName("name").playerType("Youtube").build();
+        RoomSettingsDTO roomSettingsDTO = RoomSettingsDTO.builder().roomName("name").playerType(PlayerType.YOUTUBE).build();
         Mockito.when(roomService.changeSettings(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
                 .thenReturn(room);
         WebTestClient.BodyContentSpec resultBody = webTestClient.put().uri(
@@ -107,7 +107,7 @@ class RoomControllerTest {
 
     @Test
     void shouldAddUrlAndReturnUrl() {
-        UrlDto urlDto = new UrlDto("http://url");
+        UrlDto urlDto = new UrlDto("http://hello.com");
 
         webTestClient.post().uri(
                         uriBuilder -> uriBuilder.path("/api").path("/room").path("/url/" + ROOM_ID).build())

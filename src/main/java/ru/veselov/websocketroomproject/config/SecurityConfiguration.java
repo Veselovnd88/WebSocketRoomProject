@@ -29,6 +29,7 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(
                         r -> r.requestMatchers("/api/room/chat/**").permitAll()
                                 .requestMatchers("/api/room/event/**").permitAll()
+                                .requestMatchers("/error").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)

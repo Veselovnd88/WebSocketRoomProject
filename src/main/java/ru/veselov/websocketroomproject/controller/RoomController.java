@@ -1,10 +1,13 @@
 package ru.veselov.websocketroomproject.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.validator.constraints.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.veselov.websocketroomproject.dto.request.RoomSettingsDTO;
 import ru.veselov.websocketroomproject.dto.request.UrlDto;
@@ -18,6 +21,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/room")
 @CrossOrigin
+@Validated
 @Slf4j
 @RequiredArgsConstructor
 public class RoomController {
@@ -27,16 +31,9 @@ public class RoomController {
     private final FieldValidationResponseService fieldValidationResponseService;
 
     @GetMapping("/{roomId}")
-    public Room getRoom(@PathVariable("roomId") String id,
+    public Room getRoom(@PathVariable("roomId") @UUID String id,
                         @RequestParam(required = false, name = "token") String token) {
         return roomService.getRoomById(id, token);
-    }
-
-    @PutMapping("/{roomId}")
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    public Room changeSettings(@PathVariable("roomId") String roomId,
-                               @RequestBody RoomSettingsDTO settings, Principal principal) {
-        return roomService.changeSettings(roomId, settings, principal);
     }
 
     @PostMapping(value = "/create")
@@ -46,16 +43,30 @@ public class RoomController {
         return roomService.createRoom(room, principal);
     }
 
+    @PutMapping("/{roomId}")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public Room changeSettings(@PathVariable("roomId") @UUID String roomId,
+                               @Valid @RequestBody RoomSettingsDTO settings,
+                               BindingResult bindingResult,
+                               Principal principal) {
+        fieldValidationResponseService.validateFields(bindingResult);
+        return roomService.changeSettings(roomId, settings, principal);
+    }
+
+
     @PostMapping(value = "/url/{roomId}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public UrlDto processUrl(@PathVariable("roomId") String roomId,
-                             @RequestBody UrlDto urlDto, Principal principal) {
+    public UrlDto processUrl(@PathVariable("roomId") @UUID String roomId,
+                             @Valid @RequestBody UrlDto urlDto,
+                             BindingResult bindingResult,
+                             Principal principal) {
+        fieldValidationResponseService.validateFields(bindingResult);
         roomService.addUrl(roomId, urlDto.getUrl(), principal);
         return urlDto;
     }
 
     @GetMapping
-    public List<Room> getAllRooms(@RequestParam(required = false, name = "page") int page,
+    public List<Room> getAllRooms(@RequestParam(required = false, name = "page") @Positive int page,
                                   @RequestParam(required = false, name = "sort") String sort) {
         return roomService.findAll(page, sort);
     }
