@@ -39,7 +39,7 @@ public class ApiExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public ErrorResponse handleIllegalArgumentException(RuntimeException exception) {
-        return new ErrorResponse(ErrorConstants.ERROR_VALIDATION, exception.getMessage());
+        return new ErrorResponse(ErrorConstants.ERROR_VALIDATION, "No");
     }
 
     @ExceptionHandler(MessagingException.class)
@@ -52,9 +52,12 @@ public class ApiExceptionHandler {
     @ExceptionHandler(CustomValidationException.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ValidationErrorResponse handleValidationException(CustomValidationException exception) {
-        return new ValidationErrorResponse(ErrorConstants.ERROR_VALIDATION,
-                exception.getValidationMap());
+    public org.springframework.web.ErrorResponse handleValidationException(CustomValidationException exception) {
+        return org.springframework.web.ErrorResponse.builder(exception, HttpStatus.BAD_REQUEST, exception.getMessage())
+                .titleMessageCode("CODE")
+                .build();
+        /*return new ValidationErrorResponse(ErrorConstants.ERROR_VALIDATION,
+                exception.getValidationMap());*/
     }
 
 }

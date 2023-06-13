@@ -58,8 +58,8 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
     testImplementation 'org.projectlombok:lombok:1.18.22'
     testImplementation 'io.projectreactor:reactor-test:3.5.4'
-    testImplementation 'org.testcontainers:junit-jupiter:1.18.0'
-    testImplementation "org.testcontainers:postgresql:1.18.1"
+    testImplementation 'org.testcontainers:junit-jupiter:1.18.3'
+    testImplementation "org.testcontainers:postgresql:1.18.3"
     testImplementation 'com.redis.testcontainers:testcontainers-redis:1.6.4'
 
     testAnnotationProcessor 'org.projectlombok:lombok'
