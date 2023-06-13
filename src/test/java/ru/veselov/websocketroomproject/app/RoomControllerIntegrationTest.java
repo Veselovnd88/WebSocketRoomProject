@@ -11,10 +11,10 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.app.containers.PostgresContainersConfig;
 import ru.veselov.websocketroomproject.entity.PlayerType;
+import ru.veselov.websocketroomproject.exception.error.ErrorConstants;
 import ru.veselov.websocketroomproject.model.Room;
 
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -41,22 +41,38 @@ class RoomControllerIntegrationTest extends PostgresContainersConfig {
                         uriBuilder -> uriBuilder.path("/api").path("/room").path("/create").build())
                 .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
                 .bodyValue(transferedRoom)
-                .exchange().expectStatus().isCreated().expectBody();
+                .exchange().expectStatus().isCreated().expectBody()
+                .jsonPath("$.roomToken").exists()
+                .jsonPath("$.changedAt").doesNotExist();
+        validateReturnedRoomBody(resultBody, transferedRoom);
     }
+
+    @Test
+    void shouldReturnValidatedError() {
+        Room transferedRoom = Room.builder()
+                .isPrivate(true)
+                .playerType(PlayerType.YOUTUBE).build();
+
+        webTestClient.post().uri(
+                        uriBuilder -> uriBuilder.path("/api").path("/room").path("/create").build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .bodyValue(transferedRoom)
+                .exchange().expectStatus().isBadRequest().expectBody()
+                .jsonPath("$.error").isEqualTo(ErrorConstants.ERROR_VALIDATION)
+                .jsonPath("$.validationMessages").exists();
+
+    }
+
 
     private void validateReturnedRoomBody(WebTestClient.BodyContentSpec resultBody, Room room) {
         resultBody
-                .jsonPath("$.ownerName").isEqualTo(room.getOwnerName())
+                .jsonPath("$.ownerName").isEqualTo("user1")
                 .jsonPath("$.name").isEqualTo(room.getName())
-                .jsonPath("$.id").isEqualTo(room.getId().toString())
+                .jsonPath("$.id").exists()
                 .jsonPath("$.isPrivate").isEqualTo(room.getIsPrivate())
-                .jsonPath("$.activeUrl").isEqualTo(room.getActiveUrl())
-                .jsonPath("$.roomToken").isEqualTo(room.getRoomToken())
                 .jsonPath("$.playerType").isEqualTo(room.getPlayerType().toString())
-                .jsonPath("$.createdAt").isEqualTo(room.getCreatedAt()
-                        .format(DateTimeFormatter.ofPattern("yyyy-mm-dd HH:mm:ss")))
-                .jsonPath("$.changedAt").isEqualTo(room.getChangedAt()
-                        .format(DateTimeFormatter.ofPattern("yyyy-mm-dd HH:mm:ss")));
+                .jsonPath("$.createdAt").exists();
+
     }
 
 

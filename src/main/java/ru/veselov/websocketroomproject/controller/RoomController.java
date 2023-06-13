@@ -40,7 +40,7 @@ public class RoomController {
 
     @PostMapping(value = "/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public Room createRoom(@Valid @RequestBody Room room, Principal principal, BindingResult bindingResult) {
+    public Room createRoom(@Valid @RequestBody Room room, BindingResult bindingResult, Principal principal) {
         fieldValidationResponseService.validateFields(bindingResult);
         return roomService.createRoom(room, principal);
     }

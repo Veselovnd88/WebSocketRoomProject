@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PlayerStateDTO {
+
     private int playerState;
 
     private String currentTime;

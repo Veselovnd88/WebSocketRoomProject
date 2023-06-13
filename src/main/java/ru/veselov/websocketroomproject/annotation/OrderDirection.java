@@ -6,6 +6,9 @@ import ru.veselov.websocketroomproject.validation.OrderDirectionValidator;
 
 import java.lang.annotation.*;
 
+/*
+ *Annotation for constraint for checking soring order parameters
+ */
 @Target({ElementType.PARAMETER, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = OrderDirectionValidator.class)

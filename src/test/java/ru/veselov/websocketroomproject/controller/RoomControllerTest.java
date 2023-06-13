@@ -35,7 +35,7 @@ class RoomControllerTest {
     RoomService roomService;
 
     @Mock
-    FieldValidationResponseServiceImpl dtoFieldValidationResponseService;
+    FieldValidationResponseServiceImpl fieldValidationResponseService;
 
     @InjectMocks
     RoomController roomController;
