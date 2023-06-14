@@ -33,13 +33,6 @@ class ApiExceptionHandlerTest {
     }
 
     @Test
-    void shouldReturnBadRequestError() {
-        ErrorResponse errorResponse = exceptionHandler.handleIllegalArgumentException(new RuntimeException(MESSAGE));
-        Assertions.assertThat(errorResponse.getError()).isEqualTo(ErrorConstants.ERROR_ILLEGAL_ARG);
-        Assertions.assertThat(errorResponse.getMessage()).isEqualTo(MESSAGE);
-    }
-
-    @Test
     void shouldReturnInternalServerError() {
         ErrorResponse errorResponse = exceptionHandler.handleMessagingException(new RuntimeException(MESSAGE));
         Assertions.assertThat(errorResponse.getError()).isEqualTo(ErrorConstants.ERROR_MESSAGING);

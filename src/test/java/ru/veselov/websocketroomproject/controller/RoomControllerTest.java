@@ -16,7 +16,6 @@ import ru.veselov.websocketroomproject.dto.request.UrlDto;
 import ru.veselov.websocketroomproject.entity.PlayerType;
 import ru.veselov.websocketroomproject.model.Room;
 import ru.veselov.websocketroomproject.service.RoomService;
-import ru.veselov.websocketroomproject.validation.impl.FieldValidationResponseServiceImpl;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -33,9 +32,6 @@ class RoomControllerTest {
 
     @Mock
     RoomService roomService;
-
-    @Mock
-    FieldValidationResponseServiceImpl fieldValidationResponseService;
 
     @InjectMocks
     RoomController roomController;
