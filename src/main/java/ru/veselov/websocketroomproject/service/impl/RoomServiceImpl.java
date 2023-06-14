@@ -58,7 +58,7 @@ public class RoomServiceImpl implements RoomService {
     @Transactional
     public Room createRoom(Room room, Principal principal) {
         String ownerName = principal.getName();
-        roomValidator.validateRoomName(ownerName);//checks is it possible to save
+        roomValidator.validateRoomName(room.getName());//checks is it possible to save
         RoomEntity roomEntity = roomMapper.toEntity(room);
         roomEntity.setCreatedAt(ZonedDateTime.now(zone));
         roomEntity.setOwnerName(ownerName);

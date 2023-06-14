@@ -27,7 +27,6 @@ class RoomSettingsServiceImplTest {
     @BeforeEach
     public void init() {
         ReflectionTestUtils.setField(roomSettingsService, "zoneId", "Europe/Moscow", String.class);
-        //ReflectionTestUtils.setField(roomService, "roomMapper", new RoomMapperImpl(), RoomMapper.class);
     }
 
     @Test
@@ -96,19 +95,6 @@ class RoomSettingsServiceImplTest {
 
         Mockito.verify(roomValidator, Mockito.never()).validateRoomName(ArgumentMatchers.anyString());
         Assertions.assertThat(changed.getPlayerType()).isEqualTo(PlayerType.RUTUBE);
-        Assertions.assertThat(changed.getChangedAt()).isNotNull();//checked if new zdt was set
-        Assertions.assertThat(changed.getOwnerName()).isNull(); //checked if field wasn't changed
-    }
-
-    @Test
-    void shouldSetPlayerTypeToYoutubeByDefault() {
-        RoomSettingsDTO settings = RoomSettingsDTO.builder().build();
-        RoomEntity roomEntity = new RoomEntity();
-
-        RoomEntity changed = roomSettingsService.applySettings(roomEntity, settings);
-
-        Mockito.verify(roomValidator, Mockito.never()).validateRoomName(ArgumentMatchers.anyString());
-        Assertions.assertThat(changed.getPlayerType()).isEqualTo(PlayerType.YOUTUBE);
         Assertions.assertThat(changed.getChangedAt()).isNotNull();//checked if new zdt was set
         Assertions.assertThat(changed.getOwnerName()).isNull(); //checked if field wasn't changed
     }

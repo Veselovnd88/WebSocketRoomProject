@@ -48,7 +48,6 @@ public class RoomController {
         return roomService.changeSettings(roomId, settings, principal);
     }
 
-
     @PostMapping(value = "/url/{roomId}")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public UrlDto processUrl(@PathVariable("roomId") @UUID String roomId,

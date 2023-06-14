@@ -6,33 +6,22 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.veselov.websocketroomproject.dto.request.RoomSettingsDTO;
-import ru.veselov.websocketroomproject.entity.PlayerType;
 import ru.veselov.websocketroomproject.entity.RoomEntity;
 import ru.veselov.websocketroomproject.service.RoomSettingsService;
 import ru.veselov.websocketroomproject.validation.RoomValidator;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class RoomSettingsServiceImpl implements RoomSettingsService {
 
-    private static final Map<String, PlayerType> videoPlayers = new HashMap<>();
-
     @Value("${server.zoneId}")
     private String zoneId;
 
     private final RoomValidator roomValidator;
-
-    static {
-        for (PlayerType p : PlayerType.values()) {
-            videoPlayers.put(p.name(), p);
-        }
-    }
 
     @Override
     public RoomEntity applySettings(RoomEntity roomEntity, RoomSettingsDTO settingsDTO) {
@@ -53,17 +42,13 @@ public class RoomSettingsServiceImpl implements RoomSettingsService {
             roomEntity.setIsPrivate(isPrivate);
         }
         if (settingsDTO.getPlayerType() != null) {
-            roomEntity.setPlayerType(getPlayer(settingsDTO));
+            roomEntity.setPlayerType(settingsDTO.getPlayerType());
         }
         if (settingsDTO.getChangeToken() != null && settingsDTO.getChangeToken() && roomEntity.getIsPrivate()) {
             roomEntity.setRoomToken(RandomStringUtils.randomAlphanumeric(10));
         }
         roomEntity.setChangedAt(ZonedDateTime.now(ZoneId.of(zoneId)));
         return roomEntity;
-    }
-
-    private PlayerType getPlayer(RoomSettingsDTO settingsDTO) {
-        return videoPlayers.getOrDefault(settingsDTO.getPlayerType(), PlayerType.YOUTUBE);
     }
 
 }

@@ -70,7 +70,8 @@ class RoomControllerTest {
     @Test
     void shouldConsumeRoomSettingsDTOAndReturnRoomFromService() {
         Room room = getRoom(false);
-        RoomSettingsDTO roomSettingsDTO = RoomSettingsDTO.builder().roomName("name").playerType(PlayerType.YOUTUBE).build();
+        RoomSettingsDTO roomSettingsDTO = RoomSettingsDTO.builder().id(ROOM_ID)
+                .roomName("name").playerType(PlayerType.YOUTUBE).build();
         Mockito.when(roomService.changeSettings(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
                 .thenReturn(room);
         WebTestClient.BodyContentSpec resultBody = webTestClient.put().uri(
