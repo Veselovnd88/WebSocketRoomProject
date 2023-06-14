@@ -36,7 +36,7 @@ public class RoomEntity {
     @Column(name = "name", nullable = false, unique = true)
     private String name;
 
-    @Column(name = "is_private", nullable = false)
+    @Column(name = "is_private")
     private Boolean isPrivate;
 
     @Column(name = "active_url")
@@ -47,7 +47,7 @@ public class RoomEntity {
 
     @Column(name = "owner_name", nullable = false)
     private String ownerName;
-    @Column(name = "player_type",nullable = false)
+    @Column(name = "player_type", nullable = false)
     @Enumerated(EnumType.STRING)
     private PlayerType playerType;
 

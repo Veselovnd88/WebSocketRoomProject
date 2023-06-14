@@ -16,6 +16,7 @@ public interface RoomMapper {
     Room entityToRoom(RoomEntity roomEntity);
 
     @Mapping(target = "urls", ignore = true)
+    @Mapping(target = "isPrivate", source = "isPrivate", defaultValue = "false")
     RoomEntity toEntity(Room room);
 
     List<Room> entitiesToRooms(List<RoomEntity> entityList);

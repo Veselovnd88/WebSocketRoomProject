@@ -24,6 +24,8 @@ import java.util.UUID;
 @ExtendWith(MockitoExtension.class)
 class RoomControllerTest {
 
+    public static final String URL_PREFIX = "/api/v1/room/";
+
     private final static String ROOM_ID = "ec1edd63-4080-480b-84cc-2faee587999f";
 
     WebTestClient webTestClient;
@@ -46,7 +48,7 @@ class RoomControllerTest {
         Room room = getRoom(true);
         Mockito.when(roomService.getRoomById(ROOM_ID, null)).thenReturn(room);
         WebTestClient.BodyContentSpec resultBody = webTestClient.get().uri(
-                        uriBuilder -> uriBuilder.path("/api").path("/room").path("/" + ROOM_ID).build())
+                        uriBuilder -> uriBuilder.path(URL_PREFIX).path(ROOM_ID).build())
                 .exchange().expectStatus().isOk().expectBody();
         validateReturnedRoomBody(resultBody, room);
 
@@ -59,7 +61,7 @@ class RoomControllerTest {
         Mockito.when(roomService.getRoomById(ROOM_ID, "secret")).thenReturn(room);
 
         WebTestClient.BodyContentSpec resultBody = webTestClient.get().uri(
-                        uriBuilder -> uriBuilder.path("/api").path("/room").path("/" + ROOM_ID)
+                        uriBuilder -> uriBuilder.path(URL_PREFIX).path(ROOM_ID)
                                 .queryParam("token", "secret").build())
                 .exchange().expectStatus().isOk().expectBody();
         validateReturnedRoomBody(resultBody, room);
@@ -70,12 +72,12 @@ class RoomControllerTest {
     @Test
     void shouldConsumeRoomSettingsDTOAndReturnRoomFromService() {
         Room room = getRoom(false);
-        RoomSettingsDTO roomSettingsDTO = RoomSettingsDTO.builder().id(ROOM_ID)
+        RoomSettingsDTO roomSettingsDTO = RoomSettingsDTO.builder()
                 .roomName("name").playerType(PlayerType.YOUTUBE).build();
         Mockito.when(roomService.changeSettings(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
                 .thenReturn(room);
         WebTestClient.BodyContentSpec resultBody = webTestClient.put().uri(
-                        uriBuilder -> uriBuilder.path("/api").path("/room").path("/" + ROOM_ID).build())
+                        uriBuilder -> uriBuilder.path(URL_PREFIX).path(ROOM_ID).build())
                 .bodyValue(roomSettingsDTO)
                 .exchange().expectStatus().isAccepted().expectBody();
 
@@ -94,7 +96,7 @@ class RoomControllerTest {
                 .isPrivate(true).build();
         Mockito.when(roomService.createRoom(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(savedRoom);
         WebTestClient.BodyContentSpec resultBody = webTestClient.post().uri(
-                        uriBuilder -> uriBuilder.path("/api").path("/room").path("/create").build())
+                        uriBuilder -> uriBuilder.path(URL_PREFIX).path("create").build())
                 .bodyValue(transferedRoom)
                 .exchange().expectStatus().isCreated().expectBody();
 
@@ -104,10 +106,10 @@ class RoomControllerTest {
 
     @Test
     void shouldAddUrlAndReturnUrl() {
-        UrlDto urlDto = new UrlDto("http://hello.com");
+        UrlDto urlDto = new UrlDto("https://hello.com");
 
         webTestClient.post().uri(
-                        uriBuilder -> uriBuilder.path("/api").path("/room").path("/url/" + ROOM_ID).build())
+                        uriBuilder -> uriBuilder.path(URL_PREFIX).path("url/" + ROOM_ID).build())
                 .bodyValue(urlDto)
                 .exchange().expectStatus().isAccepted()
                 .expectBody().jsonPath("$.url").isEqualTo(urlDto.getUrl());

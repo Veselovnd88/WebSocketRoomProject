@@ -19,7 +19,7 @@ import java.security.Principal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/room")
+@RequestMapping("/api/v1/room")
 @CrossOrigin
 @Validated
 @Slf4j
@@ -57,7 +57,7 @@ public class RoomController {
         return urlDto;
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public List<Room> getAllRooms(@RequestParam(required = false, name = "page") @PositiveOrZero int page,
                                   @RequestParam(required = false, name = "sort") @SortBy String sort,
                                   @RequestParam(required = false, name = "order") @OrderDirection String order) {

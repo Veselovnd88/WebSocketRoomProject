@@ -12,7 +12,7 @@ import org.hibernate.validator.constraints.URL;
 public class UrlDto {
 
     @NotEmpty(message = "Url cannot be empty")
-    @URL
+    @URL(message = "Should be URL format")
     private String url;
 
 }

@@ -26,7 +26,6 @@ public class Room implements Serializable {
     @Size(min = 3, max = 30, message = "Name length should be from 3 to 30 symbols")
     private String name;
 
-    @NotNull(message = "Room status cannot be null")
     private Boolean isPrivate;
 
     private String activeUrl;

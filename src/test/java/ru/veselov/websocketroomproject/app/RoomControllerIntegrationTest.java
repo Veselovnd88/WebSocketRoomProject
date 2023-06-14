@@ -1,8 +1,11 @@
 package ru.veselov.websocketroomproject.app;
 
 import net.datafaker.Faker;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -12,6 +15,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.app.containers.PostgresContainersConfig;
+import ru.veselov.websocketroomproject.dto.request.RoomSettingsDTO;
+import ru.veselov.websocketroomproject.dto.request.UrlDto;
 import ru.veselov.websocketroomproject.entity.PlayerType;
 import ru.veselov.websocketroomproject.entity.RoomEntity;
 import ru.veselov.websocketroomproject.exception.error.ErrorConstants;
@@ -19,7 +24,6 @@ import ru.veselov.websocketroomproject.model.Room;
 import ru.veselov.websocketroomproject.repository.RoomRepository;
 
 import java.time.ZonedDateTime;
-import java.util.UUID;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
@@ -27,9 +31,13 @@ import java.util.UUID;
 @DirtiesContext
 class RoomControllerIntegrationTest extends PostgresContainersConfig {
 
-    Faker faker = new Faker();
+    public static final String URL_PREFIX = "/api/v1/room/";
+
+    private static final String OWNER = "user1";
 
     private final static String ROOM_ID = "ec1edd63-4080-480b-84cc-2faee587999f";
+
+    Faker faker = new Faker();
 
     @Autowired
     WebTestClient webTestClient;
@@ -42,20 +50,37 @@ class RoomControllerIntegrationTest extends PostgresContainersConfig {
         roomRepository.deleteAll();
     }
 
-
     @Test
-    void shouldCreateAndReturnRoom() {
+    void shouldCreateAndReturnPrivateRoom() {
         Room roomToSave = Room.builder()
                 .name(faker.elderScrolls().region())
                 .isPrivate(true)
                 .playerType(PlayerType.YOUTUBE).build();
 
         WebTestClient.BodyContentSpec resultBody = webTestClient.post().uri(
-                        uriBuilder -> uriBuilder.path("/api").path("/room").path("/create").build())
+                        uriBuilder -> uriBuilder.path(URL_PREFIX).path("create").build())
                 .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
                 .bodyValue(roomToSave)
                 .exchange().expectStatus().isCreated().expectBody()
                 .jsonPath("$.roomToken").exists()
+                .jsonPath("$.isPrivate").isEqualTo(true)
+                .jsonPath("$.changedAt").doesNotExist();
+        validateReturnedRoomBody(resultBody, roomToSave);
+    }
+
+    @Test
+    void shouldCreateAndReturnPublicRoom() {
+        Room roomToSave = Room.builder()
+                .name(faker.elderScrolls().region())
+                .playerType(PlayerType.RUTUBE).build();
+
+        WebTestClient.BodyContentSpec resultBody = webTestClient.post().uri(
+                        uriBuilder -> uriBuilder.path(URL_PREFIX).path("create").build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .bodyValue(roomToSave)
+                .exchange().expectStatus().isCreated().expectBody()
+                .jsonPath("$.roomToken").doesNotExist()
+                .jsonPath("$.isPrivate").isEqualTo(false)
                 .jsonPath("$.changedAt").doesNotExist();
         validateReturnedRoomBody(resultBody, roomToSave);
     }
@@ -76,7 +101,7 @@ class RoomControllerIntegrationTest extends PostgresContainersConfig {
                 .playerType(PlayerType.YOUTUBE).build();
 
         webTestClient.post().uri(
-                        uriBuilder -> uriBuilder.path("/api").path("/room").path("/create").build())
+                        uriBuilder -> uriBuilder.path(URL_PREFIX).path("create").build())
                 .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
                 .bodyValue(roomToSave)
                 .exchange().expectStatus().isEqualTo(HttpStatus.CONFLICT).expectBody()
@@ -84,48 +109,76 @@ class RoomControllerIntegrationTest extends PostgresContainersConfig {
     }
 
     @Test
-    void shouldReturnValidatedErrorWhenCreateRoom() {
+    void shouldReturnValidationErrorWhenCreatingRoomWithoutName() {
         Room transferedRoom = Room.builder()
                 .isPrivate(true)
                 .playerType(PlayerType.YOUTUBE).build();
 
         webTestClient.post().uri(
-                        uriBuilder -> uriBuilder.path("/api").path("/room").path("/create").build())
+                        uriBuilder -> uriBuilder.path(URL_PREFIX).path("create").build())
                 .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
                 .bodyValue(transferedRoom)
                 .exchange().expectStatus().isBadRequest().expectBody()
                 .jsonPath("$.error").isEqualTo(ErrorConstants.ERROR_VALIDATION)
-                .jsonPath("$.violations").exists();
+                .jsonPath("$.violations").isArray()
+                .jsonPath("$.violations[0].fieldName").isEqualTo("name");
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"aa", "moreThanThirtyCharacters26283032"})
+    void shouldReturnValidationErrorWhenCreatingRoomWithIncorrectName(String name) {
+        Room transferedRoom = Room.builder()
+                .isPrivate(true)
+                .name(name)
+                .playerType(PlayerType.YOUTUBE).build();
+
+        webTestClient.post().uri(
+                        uriBuilder -> uriBuilder.path(URL_PREFIX).path("create").build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .bodyValue(transferedRoom)
+                .exchange().expectStatus().isBadRequest().expectBody()
+                .jsonPath("$.error").isEqualTo(ErrorConstants.ERROR_VALIDATION)
+                .jsonPath("$.violations").isArray()
+                .jsonPath("$.violations[0].fieldName").isEqualTo("name");
     }
 
     @Test
-    void shouldReturnRoom() {
-        RoomEntity roomEntity = new RoomEntity();
-        roomEntity.setPlayerType(PlayerType.YOUTUBE);
-        roomEntity.setName(faker.elderScrolls().region());
-        roomEntity.setIsPrivate(true);
-        roomEntity.setOwnerName(faker.elderScrolls().lastName());
-        roomEntity.setRoomToken("abc");
-        roomEntity.setCreatedAt(ZonedDateTime.now());
-        RoomEntity saved = roomRepository.save(roomEntity);
+    void shouldReturnValidationErrorWhenCreatingRoomWithoutPlayer() {
+        Room transferedRoom = Room.builder()
+                .isPrivate(true)
+                .name(faker.elderScrolls().lastName()).build();
 
-        webTestClient.get().uri(uriBuilder -> uriBuilder.path("/api").path("/room/").path(saved.getId().toString())
+        webTestClient.post().uri(
+                        uriBuilder -> uriBuilder.path(URL_PREFIX).path("create").build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .bodyValue(transferedRoom)
+                .exchange().expectStatus().isBadRequest().expectBody()
+                .jsonPath("$.error").isEqualTo(ErrorConstants.ERROR_VALIDATION)
+                .jsonPath("$.violations").isArray()
+                .jsonPath("$.violations[0].fieldName").isEqualTo("playerType");
+    }
+
+    @Test
+    void shouldReturnRoomById() {
+        RoomEntity saved = saveRoomToRepo();
+
+        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path(saved.getId().toString())
                         .queryParam("token", "abc")
                         .build())
                 .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
                 .exchange().expectStatus().isOk()
                 .expectBody()
-                .jsonPath("$.ownerName").isEqualTo(roomEntity.getOwnerName())
-                .jsonPath("$.name").isEqualTo(roomEntity.getName())
+                .jsonPath("$.ownerName").isEqualTo(saved.getOwnerName())
+                .jsonPath("$.name").isEqualTo(saved.getName())
                 .jsonPath("$.id").isEqualTo(saved.getId().toString())
-                .jsonPath("$.isPrivate").isEqualTo(roomEntity.getIsPrivate())
-                .jsonPath("$.playerType").isEqualTo(roomEntity.getPlayerType().toString())
+                .jsonPath("$.isPrivate").isEqualTo(saved.getIsPrivate())
+                .jsonPath("$.playerType").isEqualTo(saved.getPlayerType().toString())
                 .jsonPath("$.createdAt").exists();
     }
 
     @Test
     void shouldReturnRoomNotFoundMessage() {
-        webTestClient.get().uri(uriBuilder -> uriBuilder.path("/api").path("/room/").path(ROOM_ID)
+        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path(ROOM_ID)
                         .queryParam("token", "abc")
                         .build())
                 .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
@@ -135,37 +188,333 @@ class RoomControllerIntegrationTest extends PostgresContainersConfig {
 
     @Test
     void shouldReturnUnauthorizedMessageWhenTryingToGetPrivateRoomWithoutToken() {
-        webTestClient.get().uri(uriBuilder -> uriBuilder.path("/api").path("/room/").path(ROOM_ID)
+        RoomEntity saved = saveRoomToRepo();
+
+        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path(saved.getId().toString())
+                        .build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .exchange().expectStatus().isEqualTo(HttpStatus.UNAUTHORIZED)
+                .expectBody().jsonPath("$.error").isEqualTo(ErrorConstants.ERROR_NOT_AUTHORIZED);
+    }
+
+    @Test
+    void shouldReturnValidationErrorWhenRoomIdIsNotUUID() {
+        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("NotUUID")
                         .queryParam("token", "abc")
                         .build())
                 .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
-                .exchange().expectStatus().isNotFound()
-                .expectBody().jsonPath("$.error").isEqualTo(ErrorConstants.ERROR_NOT_FOUND);
+                .exchange().expectStatus().isEqualTo(HttpStatus.BAD_REQUEST)
+                .expectBody().jsonPath("$.error").isEqualTo(ErrorConstants.ERROR_VALIDATION)
+                .jsonPath("$.violations").isArray()
+                .jsonPath("$.violations[0].fieldName").isEqualTo("id");
+    }
+
+    @Test
+    void shouldChangeRoomNameAndReturnUpdatedRoom() {
+        RoomEntity saved = saveRoomToRepo();
+        String updatedName = faker.elderScrolls().lastName();
+        RoomSettingsDTO roomSettingsDTO = RoomSettingsDTO.builder().roomName(updatedName).build();
+
+        webTestClient.put().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path(saved.getId().toString())
+                        .build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .bodyValue(roomSettingsDTO)
+                .exchange().expectStatus().isAccepted()
+                .expectBody().jsonPath("$.name").isEqualTo(updatedName)
+                .jsonPath("$.changedAt").exists()
+                .jsonPath("$.isPrivate").isEqualTo(saved.getIsPrivate());
+    }
+
+    @Test
+    void shouldChangeRoomOwnerAndReturnUpdatedRoom() {
+        RoomEntity saved = saveRoomToRepo();
+        String updatedOwnerName = faker.elderScrolls().lastName();
+        RoomSettingsDTO roomSettingsDTO = RoomSettingsDTO.builder().ownerName(updatedOwnerName).build();
+
+        webTestClient.put().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path(saved.getId().toString())
+                        .build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .bodyValue(roomSettingsDTO)
+                .exchange().expectStatus().isAccepted()
+                .expectBody().jsonPath("$.ownerName").isEqualTo(updatedOwnerName)
+                .jsonPath("$.changedAt").exists()
+                .jsonPath("$.isPrivate").isEqualTo(saved.getIsPrivate());
+    }
+
+    @Test
+    void shouldChangeRoomStatusAndReturnUpdatedRoom() {
+        RoomEntity saved = saveRoomToRepo();
+        RoomSettingsDTO roomSettingsDTO = RoomSettingsDTO.builder().isPrivate(false).build();
+
+        webTestClient.put().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path(saved.getId().toString())
+                        .build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .bodyValue(roomSettingsDTO)
+                .exchange().expectStatus().isAccepted()
+                .expectBody().jsonPath("$.ownerName").isEqualTo(saved.getOwnerName())
+                .jsonPath("$.changedAt").exists()
+                .jsonPath("$.isPrivate").isEqualTo(false)
+                .jsonPath("$.roomToken").doesNotExist();
+    }
+
+    @Test
+    void shouldChangeRoomTokenAndReturnUpdatedRoom() {
+        RoomEntity saved = saveRoomToRepo();
+        RoomSettingsDTO roomSettingsDTO = RoomSettingsDTO.builder().changeToken(true).build();
+
+        webTestClient.put().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path(saved.getId().toString())
+                        .build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .bodyValue(roomSettingsDTO)
+                .exchange().expectStatus().isAccepted()
+                .expectBody().jsonPath("$.ownerName").isEqualTo(saved.getOwnerName())
+                .jsonPath("$.changedAt").exists()
+                .jsonPath("$.isPrivate").isEqualTo(true)
+                .jsonPath("$.roomToken").value(Matchers.not(saved.getRoomToken()));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"aa", "moreThanThirtyCharacters26283032"})
+    void shouldReturnValidationErrorWhenNotCorrectRoomNameInSettings(String name) {
+        RoomEntity saved = saveRoomToRepo();
+        RoomSettingsDTO roomSettingsDTO = RoomSettingsDTO.builder().roomName(name).build();
+
+        webTestClient.put().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path(saved.getId().toString())
+                        .build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .bodyValue(roomSettingsDTO)
+                .exchange().expectStatus().isBadRequest()
+                .expectBody().jsonPath("$.error").isEqualTo(ErrorConstants.ERROR_VALIDATION)
+                .jsonPath("$.violations").isArray()
+                .jsonPath("$.violations[0].fieldName").isEqualTo("roomName");
+    }
+
+    @Test
+    void shouldReturnUnauthorizedErrorWhenNotOwnerTryingToApplyNewSetting() {
+        RoomEntity roomEntity = new RoomEntity();
+        roomEntity.setPlayerType(PlayerType.YOUTUBE);
+        roomEntity.setName(faker.elderScrolls().region());
+        roomEntity.setIsPrivate(true);
+        roomEntity.setOwnerName("NOT OWNER");
+        roomEntity.setRoomToken("abc");
+        roomEntity.setCreatedAt(ZonedDateTime.now());
+        RoomEntity saved = roomRepository.save(roomEntity);
+        String updatedName = faker.elderScrolls().lastName();
+        RoomSettingsDTO roomSettingsDTO = RoomSettingsDTO.builder().roomName(updatedName).build();
+
+        webTestClient.put().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path(saved.getId().toString())
+                        .build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .bodyValue(roomSettingsDTO)
+                .exchange().expectStatus().isUnauthorized().expectBody()
+                .jsonPath("$.error").isEqualTo(ErrorConstants.ERROR_NOT_AUTHORIZED);
+    }
+
+    @Test
+    void shouldAddNewUrl() {
+        RoomEntity saved = saveRoomToRepo();
+        UrlDto urlDto = new UrlDto("https://url.ru");
+
+        webTestClient.post().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("/url/")
+                        .path(saved.getId().toString())
+                        .build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .bodyValue(urlDto)
+                .exchange().expectStatus().isAccepted().expectBody()
+                .jsonPath("$.url").isEqualTo(urlDto.getUrl());
+
+        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path(saved.getId().toString())
+                        .queryParam("token", saved.getRoomToken())
+                        .build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .exchange().expectBody().jsonPath("$.activeUrl").isEqualTo(urlDto.getUrl());
+    }
+
+    @Test
+    void shouldReturnValidationErrorWithUrlField() {
+        RoomEntity saved = saveRoomToRepo();
+        UrlDto urlDto = new UrlDto("NotUrl");
+
+        webTestClient.post().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("/url/")
+                        .path(saved.getId().toString())
+                        .build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .bodyValue(urlDto)
+                .exchange().expectStatus().isBadRequest()
+                .expectBody().jsonPath("$.error").isEqualTo(ErrorConstants.ERROR_VALIDATION)
+                .jsonPath("$.violations[0].fieldName").isEqualTo("url");
+    }
+
+    @Test
+    void shouldReturnArrayOfRoomWithSorting() {
+        fillRepoWithRooms();
+
+        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
+                        .queryParam("page", 0)
+                        .queryParam("sort", "name")
+                        .queryParam("order", "asc")
+                        .build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .exchange().expectStatus().isOk()
+                .expectBody().jsonPath("$").isArray()
+                .jsonPath("$.size()").isEqualTo(3)
+                .jsonPath("$[0].name").isEqualTo("aaa");
+
+        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
+                        .queryParam("page", 0)
+                        .queryParam("sort", "name")
+                        .queryParam("order", "desc")
+                        .build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .exchange().expectStatus().isOk()
+                .expectBody().jsonPath("$").isArray()
+                .jsonPath("$.size()").isEqualTo(3)
+                .jsonPath("$[0].name").isEqualTo("ccc");
+
+        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
+                        .queryParam("page", 0)
+                        .queryParam("sort", "ownerName")
+                        .queryParam("order", "asc")
+                        .build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .exchange().expectStatus().isOk()
+                .expectBody().jsonPath("$").isArray()
+                .jsonPath("$.size()").isEqualTo(3)
+                .jsonPath("$[0].name").isEqualTo("aaa");
+
+        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
+                        .queryParam("page", 0)
+                        .queryParam("sort", "ownerName")
+                        .queryParam("order", "desc")
+                        .build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .exchange().expectStatus().isOk()
+                .expectBody().jsonPath("$").isArray()
+                .jsonPath("$.size()").isEqualTo(3)
+                .jsonPath("$[0].name").isEqualTo("ccc");
+
+        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
+                        .queryParam("page", 0)
+                        .queryParam("sort", "createdAt")
+                        .queryParam("order", "asc")
+                        .build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .exchange().expectStatus().isOk()
+                .expectBody().jsonPath("$").isArray()
+                .jsonPath("$.size()").isEqualTo(3)
+                .jsonPath("$[0].name").isEqualTo("aaa");
+
+        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
+                        .queryParam("page", 0)
+                        .queryParam("sort", "ownerName")
+                        .queryParam("order", "desc")
+                        .build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .exchange().expectStatus().isOk()
+                .expectBody().jsonPath("$").isArray()
+                .jsonPath("$.size()").isEqualTo(3)
+                .jsonPath("$[0].name").isEqualTo("ccc");
+
+        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
+                        .queryParam("page", 0)
+                        .queryParam("sort", "playerType")
+                        .queryParam("order", "asc")
+                        .build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .exchange().expectStatus().isOk()
+                .expectBody().jsonPath("$").isArray()
+                .jsonPath("$.size()").isEqualTo(3)
+                .jsonPath("$[0].name").isEqualTo("bbb");
+
+        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
+                        .queryParam("page", 0)
+                        .queryParam("sort", "playerType")
+                        .queryParam("order", "desc")
+                        .build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .exchange().expectStatus().isOk()
+                .expectBody().jsonPath("$").isArray()
+                .jsonPath("$.size()").isEqualTo(3)
+                .jsonPath("$[0].name").isEqualTo("aaa");
+    }
+
+    @Test
+    void shouldReturnValidationErrorWhenTryingPassNotCorrectSortParameters() {
+        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
+                        .queryParam("page", -1)
+                        .queryParam("sort", "ownerName")
+                        .queryParam("order", "desc")
+                        .build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .exchange().expectStatus().isBadRequest()
+                .expectBody().jsonPath("$.error").isEqualTo(ErrorConstants.ERROR_VALIDATION)
+                .jsonPath("$.violations[0].fieldName").isEqualTo("page");
+
+        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
+                        .queryParam("page", 0)
+                        .queryParam("sort", "Not a sort parameter")
+                        .queryParam("order", "desc")
+                        .build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .exchange().expectStatus().isBadRequest()
+                .expectBody().jsonPath("$.error").isEqualTo(ErrorConstants.ERROR_VALIDATION)
+                .jsonPath("$.violations[0].fieldName").isEqualTo("sort");
+
+        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
+                        .queryParam("page", 0)
+                        .queryParam("sort", "name")
+                        .queryParam("order", "not an order parameter")
+                        .build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .exchange().expectStatus().isBadRequest()
+                .expectBody().jsonPath("$.error").isEqualTo(ErrorConstants.ERROR_VALIDATION)
+                .jsonPath("$.violations[0].fieldName").isEqualTo("order");
     }
 
 
     private void validateReturnedRoomBody(WebTestClient.BodyContentSpec resultBody, Room room) {
         resultBody
-                .jsonPath("$.ownerName").isEqualTo("user1")
+                .jsonPath("$.ownerName").isEqualTo(OWNER)
                 .jsonPath("$.name").isEqualTo(room.getName())
                 .jsonPath("$.id").exists()
-                .jsonPath("$.isPrivate").isEqualTo(room.getIsPrivate())
                 .jsonPath("$.playerType").isEqualTo(room.getPlayerType().toString())
                 .jsonPath("$.createdAt").exists();
-
     }
 
-
-    private Room getRoom(boolean isPrivate) {
-        return Room.builder()
-                .id(UUID.fromString(ROOM_ID))
-                .name(faker.elderScrolls().city())
-                .isPrivate(isPrivate)
-                .activeUrl("https://youBube")
-                .roomToken(faker.elderScrolls().region())
-                .ownerName(faker.elderScrolls().firstName())
-                .playerType(PlayerType.YOUTUBE)
-                .createdAt(ZonedDateTime.now())
-                .changedAt(ZonedDateTime.now()).build();
+    private RoomEntity saveRoomToRepo() {
+        RoomEntity roomEntity = new RoomEntity();
+        roomEntity.setPlayerType(PlayerType.YOUTUBE);
+        roomEntity.setName(faker.elderScrolls().region());
+        roomEntity.setIsPrivate(true);
+        roomEntity.setOwnerName(OWNER);
+        roomEntity.setRoomToken("abc");
+        roomEntity.setCreatedAt(ZonedDateTime.now());
+        return roomRepository.save(roomEntity);
     }
+
+    private void fillRepoWithRooms() {
+        roomRepository.deleteAll();
+        RoomEntity room1 = new RoomEntity();
+        room1.setPlayerType(PlayerType.YOUTUBE);
+        room1.setName("aaa");
+        room1.setIsPrivate(false);
+        room1.setOwnerName("xxx");
+        room1.setCreatedAt(ZonedDateTime.now());
+        roomRepository.save(room1);
+        RoomEntity room2 = new RoomEntity();
+        room2.setPlayerType(PlayerType.RUTUBE);
+        room2.setName("bbb");
+        room2.setIsPrivate(false);
+        room2.setOwnerName("yyy");
+        room2.setCreatedAt(ZonedDateTime.now());
+        roomRepository.save(room2);
+        RoomEntity room3 = new RoomEntity();
+        room3.setPlayerType(PlayerType.TWITCH);
+        room3.setName("ccc");
+        room3.setIsPrivate(false);
+        room3.setOwnerName("zzz");
+        room3.setCreatedAt(ZonedDateTime.now());
+        roomRepository.save(room3);
+    }
+
 }
