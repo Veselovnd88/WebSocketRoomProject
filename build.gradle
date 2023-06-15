@@ -35,7 +35,7 @@ dependencies {
     implementation 'net.datafaker:datafaker:1.8.0'
     implementation 'org.springframework:spring-webflux:6.0.7'
     implementation 'org.apache.commons:commons-lang3:3.12.0'
-    implementation 'org.springframework.data:spring-data-redis:3.0.4'
+    implementation 'org.springframework.data:spring-data-redis:3.0.5'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.2'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis:3.0.5'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.0.6'
