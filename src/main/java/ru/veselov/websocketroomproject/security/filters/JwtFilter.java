@@ -8,14 +8,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import ru.veselov.websocketroomproject.exception.error.ErrorConstants;
-import ru.veselov.websocketroomproject.exception.error.ErrorResponse;
+import ru.veselov.websocketroomproject.exception.error.ApiErrorResponse;
+import ru.veselov.websocketroomproject.exception.error.ErrorCode;
 import ru.veselov.websocketroomproject.security.AuthProperties;
 import ru.veselov.websocketroomproject.security.authentication.JwtAuthenticationToken;
 import ru.veselov.websocketroomproject.security.jwt.JwtValidator;
@@ -63,6 +64,8 @@ public class JwtFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 log.info("Authentication for [{}] created and set to context", request.getRemoteAddr());
             }
+        } else {
+            throw new RuntimeException("Problem with Jwt");
         }
         filterChain.doFilter(request, response);
     }
@@ -81,8 +84,9 @@ public class JwtFilter extends OncePerRequestFilter {
             log.error("Wrong authorization prefix to connect [{}]", requestURI);
             response.setContentType("application/json");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            ErrorResponse errorResponse = new ErrorResponse(
-                    ErrorConstants.ERROR_NOT_AUTHORIZED,
+            ApiErrorResponse errorResponse = new ApiErrorResponse(
+                    ErrorCode.ERROR_UNAUTHORIZED,
+                    HttpStatus.UNAUTHORIZED.value(),
                     "Cannot connect to [/api/room/event]: Authorization header not exists or has wrong prefix");
             String mapperMessage = jsonMapper.writeValueAsString(errorResponse);
             response.getWriter().print(mapperMessage);

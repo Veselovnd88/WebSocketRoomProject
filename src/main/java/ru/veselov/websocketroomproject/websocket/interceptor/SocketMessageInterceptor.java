@@ -13,6 +13,7 @@ import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import ru.veselov.websocketroomproject.exception.InvalidStompHeaderException;
 import ru.veselov.websocketroomproject.security.AuthProperties;
 import ru.veselov.websocketroomproject.security.authentication.JwtAuthenticationToken;
 import ru.veselov.websocketroomproject.security.jwt.JwtValidator;
@@ -51,7 +52,7 @@ public class SocketMessageInterceptor implements ChannelInterceptor {
                     return MessageBuilder.createMessage(message.getPayload(), accessor.getMessageHeaders());
                 }
             }
-            throw new MessagingException("Bad Jwt in header");
+            throw new InvalidStompHeaderException("Bad Jwt in header");
         }
         return message;
     }

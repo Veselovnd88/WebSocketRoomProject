@@ -2,17 +2,21 @@ package ru.veselov.websocketroomproject.exception.error;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.springframework.http.HttpStatus;
 
+import java.io.Serializable;
 import java.util.List;
 
-@EqualsAndHashCode(callSuper = true)
 @Data
-public class ValidationErrorResponse extends CustomErrorResponse {
+public class ValidationErrorResponse extends ApiErrorResponse {
 
     private List<ViolationError> violations;
 
-    public ValidationErrorResponse(String error, List<ViolationError> violations) {
-        super(error);
+    public ValidationErrorResponse(ErrorCode error,
+                                   int code,
+                                   String message,
+                                   List<ViolationError> violations) {
+        super(error, code, message);
         this.violations = violations;
     }
 

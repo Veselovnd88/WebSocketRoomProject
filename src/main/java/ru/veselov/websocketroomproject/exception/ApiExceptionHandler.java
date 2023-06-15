@@ -6,9 +6,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.MessagingException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.*;
-import ru.veselov.websocketroomproject.exception.error.ErrorConstants;
-import ru.veselov.websocketroomproject.exception.error.ErrorResponse;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.veselov.websocketroomproject.exception.error.ApiErrorResponse;
+import ru.veselov.websocketroomproject.exception.error.ErrorCode;
 import ru.veselov.websocketroomproject.exception.error.ValidationErrorResponse;
 import ru.veselov.websocketroomproject.exception.error.ViolationError;
 
@@ -22,54 +25,69 @@ public class ApiExceptionHandler {
     @ExceptionHandler({RoomAlreadyExistsException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
     @ResponseBody
-    public ErrorResponse handleConflictException(RuntimeException exception) {
-        return new ErrorResponse(ErrorConstants.ERROR_CONFLICT, exception.getMessage());
+    public ApiErrorResponse handleConflictException(RuntimeException exception) {
+        return new ApiErrorResponse(ErrorCode.ERROR_CONFLICT, HttpStatus.CONFLICT.value(), exception.getMessage());
     }
 
     @ExceptionHandler({NotCorrectOwnerException.class, NotCorrectTokenException.class})
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ResponseBody
-    public ErrorResponse handleNotAuthorizedException(RuntimeException exception) {
-        return new ErrorResponse(ErrorConstants.ERROR_NOT_AUTHORIZED, exception.getMessage());
+    public ApiErrorResponse handleNotAuthorizedException(RuntimeException exception) {
+        return new ApiErrorResponse(ErrorCode.ERROR_UNAUTHORIZED,
+                HttpStatus.UNAUTHORIZED.value(),
+                exception.getMessage());
     }
 
     @ExceptionHandler({EntityNotFoundException.class, SubscriptionNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ResponseBody
-    public ErrorResponse handleNotFoundException(RuntimeException exception) {
-        return new ErrorResponse(ErrorConstants.ERROR_NOT_FOUND, exception.getMessage());
+    public ApiErrorResponse handleNotFoundException(RuntimeException exception) {
+        return new ApiErrorResponse(ErrorCode.ERROR_NOT_FOUND, HttpStatus.NOT_FOUND.value(), exception.getMessage());
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public ValidationErrorResponse handleConstraintViolationException(ConstraintViolationException exception) {
+    public ApiErrorResponse handleConstraintViolationException(ConstraintViolationException exception) {
         List<ViolationError> violationErrors = exception.getConstraintViolations().stream()
                 .map(v -> new ViolationError(
                         fieldNameFromPath(v.getPropertyPath().toString()),
                         v.getMessage(),
                         v.getInvalidValue().toString()))
                 .toList();
-        return new ValidationErrorResponse(ErrorConstants.ERROR_VALIDATION, violationErrors);
+        return new ValidationErrorResponse(ErrorCode.ERROR_VALIDATION,
+                HttpStatus.BAD_REQUEST.value(),
+                exception.getMessage(), violationErrors);
     }
 
     @ExceptionHandler(MessagingException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
-    public ErrorResponse handleMessagingException(RuntimeException exception) {
-        return new ErrorResponse(ErrorConstants.ERROR_MESSAGING, exception.getMessage());
+    public ApiErrorResponse handleMessagingException(RuntimeException exception) {
+        return new ApiErrorResponse(ErrorCode.ERROR_MESSAGING,
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                exception.getMessage());
+    }
+
+    @ExceptionHandler(InvalidStompHeaderException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ApiErrorResponse handleInvalidStompHeaderException(RuntimeException e) {
+        return new ApiErrorResponse(ErrorCode.ERROR_BAD_REQUEST, HttpStatus.BAD_REQUEST.value(), e.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public ValidationErrorResponse handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+    public ApiErrorResponse handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         final List<ViolationError> violations = e.getBindingResult().getFieldErrors().stream()
                 .map(error -> new ViolationError(error.getField(), error.getDefaultMessage(),
                         error.getRejectedValue() != null ? (String) error.getRejectedValue() : "null"))
                 .toList();
-
-        return new ValidationErrorResponse(ErrorConstants.ERROR_VALIDATION, violations);
+        return new ValidationErrorResponse(ErrorCode.ERROR_VALIDATION,
+                HttpStatus.BAD_REQUEST.value(),
+                e.getMessage(),
+                violations);
     }
 
     private String fieldNameFromPath(String path) {

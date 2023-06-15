@@ -2,8 +2,8 @@ package ru.veselov.websocketroomproject.exception;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-import ru.veselov.websocketroomproject.exception.error.ErrorConstants;
-import ru.veselov.websocketroomproject.exception.error.ErrorResponse;
+import ru.veselov.websocketroomproject.exception.error.ApiErrorResponse;
+import ru.veselov.websocketroomproject.exception.error.ErrorCode;
 
 class ApiExceptionHandlerTest {
 
@@ -13,29 +13,29 @@ class ApiExceptionHandlerTest {
 
     @Test
     void shouldReturnConflictError() {
-        ErrorResponse errorResponse = exceptionHandler.handleConflictException(new RuntimeException(MESSAGE));
-        Assertions.assertThat(errorResponse.getError()).isEqualTo(ErrorConstants.ERROR_CONFLICT);
+        ApiErrorResponse errorResponse = exceptionHandler.handleConflictException(new RuntimeException(MESSAGE));
+        Assertions.assertThat(errorResponse.getError()).isEqualTo(ErrorCode.ERROR_CONFLICT);
         Assertions.assertThat(errorResponse.getMessage()).isEqualTo(MESSAGE);
     }
 
     @Test
     void shouldReturnUnauthorizedError() {
-        ErrorResponse errorResponse = exceptionHandler.handleNotAuthorizedException(new RuntimeException(MESSAGE));
-        Assertions.assertThat(errorResponse.getError()).isEqualTo(ErrorConstants.ERROR_NOT_AUTHORIZED);
+        ApiErrorResponse errorResponse = exceptionHandler.handleNotAuthorizedException(new RuntimeException(MESSAGE));
+        Assertions.assertThat(errorResponse.getError()).isEqualTo(ErrorCode.ERROR_UNAUTHORIZED);
         Assertions.assertThat(errorResponse.getMessage()).isEqualTo(MESSAGE);
     }
 
     @Test
     void shouldReturnNotFoundError() {
-        ErrorResponse errorResponse = exceptionHandler.handleNotFoundException(new RuntimeException(MESSAGE));
-        Assertions.assertThat(errorResponse.getError()).isEqualTo(ErrorConstants.ERROR_NOT_FOUND);
+        ApiErrorResponse errorResponse = exceptionHandler.handleNotFoundException(new RuntimeException(MESSAGE));
+        Assertions.assertThat(errorResponse.getError()).isEqualTo(ErrorCode.ERROR_NOT_FOUND);
         Assertions.assertThat(errorResponse.getMessage()).isEqualTo(MESSAGE);
     }
 
     @Test
     void shouldReturnInternalServerError() {
-        ErrorResponse errorResponse = exceptionHandler.handleMessagingException(new RuntimeException(MESSAGE));
-        Assertions.assertThat(errorResponse.getError()).isEqualTo(ErrorConstants.ERROR_MESSAGING);
+        ApiErrorResponse errorResponse = exceptionHandler.handleMessagingException(new RuntimeException(MESSAGE));
+        Assertions.assertThat(errorResponse.getError()).isEqualTo(ErrorCode.ERROR_MESSAGING);
         Assertions.assertThat(errorResponse.getMessage()).isEqualTo(MESSAGE);
     }
 
