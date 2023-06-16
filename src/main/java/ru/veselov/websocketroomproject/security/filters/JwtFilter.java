@@ -94,7 +94,6 @@ public class JwtFilter extends OncePerRequestFilter {
     private boolean validateChatEventSourceHeader(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String requestURI = request.getRequestURI();
         if (requestURI.equals(authProperties.getChatEventURL())) {
-            log.error("Wrong authorization prefix to connect [{}]", requestURI);
             response.setContentType("application/json");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             ApiErrorResponse errorResponse = new ApiErrorResponse(
@@ -103,7 +102,7 @@ public class JwtFilter extends OncePerRequestFilter {
                     "Cannot connect to [/api/room/event]: Authorization header not exists or has wrong prefix");
             String mapperMessage = jsonMapper.writeValueAsString(errorResponse);
             response.getWriter().print(mapperMessage);
-            log.error("No Authorization header for accessing [/api/room/event], error response sent");
+            log.error("Wrong authorization prefix to connect [{}], error response sent", requestURI);
             return false;
         }
         return true;
