@@ -65,9 +65,22 @@ public class JwtFilter extends OncePerRequestFilter {
                 log.info("Authentication for [{}] created and set to context", request.getRemoteAddr());
             }
         } else {
-            throw new RuntimeException("Problem with Jwt");
+            sendInvalidJwtError(response);
+            return;
         }
         filterChain.doFilter(request, response);
+    }
+
+    private void sendInvalidJwtError(HttpServletResponse response) throws IOException {
+        response.setContentType("application/json");
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        ApiErrorResponse errorResponse = new ApiErrorResponse(
+                ErrorCode.ERROR_UNAUTHORIZED,
+                HttpStatus.UNAUTHORIZED.value(),
+                "Jwt is invalid or empty");
+        String mapperMessage = jsonMapper.writeValueAsString(errorResponse);
+        log.error("Jwt is invalid or empty");
+        response.getWriter().print(mapperMessage);
     }
 
     private Optional<String> getJwtFromRequest(HttpServletRequest request) {
@@ -90,7 +103,7 @@ public class JwtFilter extends OncePerRequestFilter {
                     "Cannot connect to [/api/room/event]: Authorization header not exists or has wrong prefix");
             String mapperMessage = jsonMapper.writeValueAsString(errorResponse);
             response.getWriter().print(mapperMessage);
-            log.error("No Authorization header in ChatEventSource, error response sent");
+            log.error("No Authorization header for accessing [/api/room/event], error response sent");
             return false;
         }
         return true;
