@@ -28,7 +28,7 @@ import java.util.Map;
 
 @ExtendWith(MockitoExtension.class)
 class SocketMessageInterceptorTest {
-
+    //FIXME change to JwtInterceptor
     @Mock
     private CustomStompHeaderValidator customStompHeaderValidator;
 

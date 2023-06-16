@@ -109,8 +109,9 @@ class ChatUserServiceImplTest {
                 .getChatUser(ROOM_ID, TestConstants.TEST_USERNAME, TestConstants.TEST_SESSION_ID);
         Mockito.when(repository.findById(TestConstants.TEST_SESSION_ID)).thenReturn(Optional.of(chatUserEntity));
 
-        ChatUser chatUser = chatUserService.removeChatUser(TestConstants.TEST_SESSION_ID);
+        Optional<ChatUser> chatUserOptional = chatUserService.removeChatUser(TestConstants.TEST_SESSION_ID);
 
+        ChatUser chatUser = chatUserOptional.get(); //FIXME
         Mockito.verify(repository, Mockito.times(1)).findById(TestConstants.TEST_SESSION_ID);
         Mockito.verify(repository, Mockito.times(1)).delete(chatUserEntity);
         Assertions.assertThat(chatUser.getUsername()).isEqualTo(chatUserEntity.getUsername());

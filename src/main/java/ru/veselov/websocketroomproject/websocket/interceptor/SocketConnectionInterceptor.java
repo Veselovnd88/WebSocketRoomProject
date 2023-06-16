@@ -23,7 +23,6 @@ public class SocketConnectionInterceptor implements ChannelInterceptor {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
         if (isConnectCommand(accessor)) {
             customStompHeaderValidator.validateRoomIdHeader(accessor);
-            customStompHeaderValidator.validateAuthHeader(accessor);
         }
         return message;
     }

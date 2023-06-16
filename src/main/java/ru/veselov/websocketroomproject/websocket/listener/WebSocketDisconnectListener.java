@@ -10,6 +10,8 @@ import ru.veselov.websocketroomproject.event.UserDisconnectEventHandler;
 import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.service.ChatUserService;
 
+import java.util.Optional;
+
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -23,9 +25,14 @@ public class WebSocketDisconnectListener {
     public void handleUserDisconnect(SessionDisconnectEvent session) {
         StompHeaderAccessor stompHeaderAccessor = StompHeaderAccessor.wrap(session.getMessage());
         String sessionId = stompHeaderAccessor.getSessionId();
-        ChatUser chatUser = chatUserService.removeChatUser(sessionId);
-        userDisconnectEventHandler.handleDisconnectEvent(chatUser);
-        log.info("[User {}] is disconnected", chatUser.getUsername());
+        Optional<ChatUser> chatUserOptional = chatUserService.removeChatUser(sessionId);
+        if (chatUserOptional.isPresent()) {
+            ChatUser chatUser = chatUserOptional.get();
+            userDisconnectEventHandler.handleDisconnectEvent(chatUser);
+            log.info("[User {}] is disconnected", chatUser.getUsername());
+        } else {
+            log.info("[Session {}] was not connected, disconnect message after error", sessionId);
+        }
     }
 
 }

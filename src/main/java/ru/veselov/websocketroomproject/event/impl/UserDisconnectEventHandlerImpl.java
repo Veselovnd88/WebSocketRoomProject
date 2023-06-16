@@ -9,6 +9,11 @@ import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.service.EventMessageService;
 import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
 
+import java.util.Optional;
+
+/**
+ * Handle disconnect event of user, managing completing subscription and notifying users
+ */
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -20,13 +25,23 @@ public class UserDisconnectEventHandlerImpl implements UserDisconnectEventHandle
 
     @Override
     public void handleDisconnectEvent(ChatUser chatUser) {
-        completeSubscription(chatUser); //complete subscription of removed user
-        eventMessageService.sendUserDisconnectedMessageToAll(chatUser);
-        eventMessageService.sendUserListToAllSubscriptions(chatUser.getRoomId());
+        Optional<SubscriptionData> subOptional = roomSubscriptionService
+                .findSubscription(chatUser.getUsername(), chatUser.getRoomId());
+        if (subOptional.isPresent()) {
+            SubscriptionData sub = subOptional.get();
+            completeSubscription(sub); //complete subscription of removed user
+            eventMessageService.sendUserDisconnectedMessageToAll(chatUser);
+            eventMessageService.sendUserListToAllSubscriptions(chatUser.getRoomId());
+        } else {
+            log.info("No subscription was stored for [session {}]", chatUser.getSession());
+        }
+
     }
 
-    private void completeSubscription(ChatUser chatUser) {
-        SubscriptionData sub = roomSubscriptionService.findSubscription(chatUser.getUsername(), chatUser.getRoomId());
+    private void completeSubscription(SubscriptionData sub) {
         sub.getFluxSink().complete();
+        log.info("Subscription for [user {}] completed", sub.getUsername());
     }
+
 }
+

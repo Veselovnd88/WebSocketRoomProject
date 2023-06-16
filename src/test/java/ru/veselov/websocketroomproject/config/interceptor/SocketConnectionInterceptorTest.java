@@ -22,6 +22,7 @@ import java.util.Map;
 
 @ExtendWith(MockitoExtension.class)
 class SocketConnectionInterceptorTest {
+    //FIXME
 
     private static final String ROOM_ID = "5";
 

@@ -16,11 +16,12 @@ import ru.veselov.websocketroomproject.service.ChatUserService;
 import ru.veselov.websocketroomproject.websocket.listener.WebSocketDisconnectListener;
 
 import java.util.Map;
+import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings({"unchecked"})
 class WebSocketDisconnectListenerTest {
-
+//FIXME
     private static final String ROOM_ID = "5";
 
     @Mock
@@ -44,10 +45,12 @@ class WebSocketDisconnectListenerTest {
                 message,
                 TestConstants.TEST_SESSION_ID,
                 CloseStatus.NORMAL);
-        Mockito.when(chatUserService.removeChatUser(TestConstants.TEST_USERNAME)).thenReturn(new ChatUser(
-                TestConstants.TEST_USERNAME,
-                ROOM_ID,
-                TestConstants.TEST_SESSION_ID)
+        Mockito.when(chatUserService.removeChatUser(TestConstants.TEST_USERNAME)).thenReturn(
+                Optional.of(new ChatUser(
+                        TestConstants.TEST_USERNAME,
+                        ROOM_ID,
+                        TestConstants.TEST_SESSION_ID)
+                )
         );
 
         webSocketDisconnectListener.handleUserDisconnect(sessionDisconnectEvent);

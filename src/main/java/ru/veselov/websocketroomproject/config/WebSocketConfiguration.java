@@ -6,14 +6,17 @@ import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.web.socket.config.annotation.*;
+import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
+import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
+import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
+import ru.veselov.websocketroomproject.security.AuthProperties;
 import ru.veselov.websocketroomproject.security.jwt.JwtValidator;
+import ru.veselov.websocketroomproject.security.managers.JwtAuthenticationManager;
 import ru.veselov.websocketroomproject.websocket.interceptor.CustomStompHeaderValidator;
 import ru.veselov.websocketroomproject.websocket.interceptor.SocketConnectionInterceptor;
-import ru.veselov.websocketroomproject.websocket.interceptor.SocketMessageInterceptor;
+import ru.veselov.websocketroomproject.websocket.interceptor.SocketJwtStompHeaderInterceptor;
 import ru.veselov.websocketroomproject.websocket.interceptor.SocketSubscriptionInterceptor;
-import ru.veselov.websocketroomproject.security.AuthProperties;
-import ru.veselov.websocketroomproject.security.managers.JwtAuthenticationManager;
 
 import java.util.List;
 
@@ -56,14 +59,13 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
                         webSocketProperties.getUserPrefix()
                 ),
                 new SocketConnectionInterceptor(customStompHeaderValidator),
-                new SocketMessageInterceptor(
+                new SocketJwtStompHeaderInterceptor(
                         authProperties,
                         customStompHeaderValidator,
                         authenticationManager,
                         jwtValidator)
         );
     }
-
 
     @Override
     public void configureWebSocketTransport(WebSocketTransportRegistration registry) {

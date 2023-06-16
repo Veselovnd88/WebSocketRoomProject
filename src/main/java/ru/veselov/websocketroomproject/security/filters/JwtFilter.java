@@ -48,7 +48,7 @@ public class JwtFilter extends OncePerRequestFilter {
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
         Optional<String> jwtOpt = getJwtFromRequest(request);
         if (jwtOpt.isEmpty()) {
-            //This part is checking if ChatEventSource request has jwt header or not
+            //This part is checking if ChatEventSource request has jwt header
             if (!validateChatEventSourceHeader(request, response)) {
                 return;
             }
@@ -65,21 +65,22 @@ public class JwtFilter extends OncePerRequestFilter {
                 log.info("Authentication for [{}] created and set to context", request.getRemoteAddr());
             }
         } else {
-            sendInvalidJwtError(response);
+            sendInvalidJwtError(request, response);
             return;
         }
         filterChain.doFilter(request, response);
     }
 
-    private void sendInvalidJwtError(HttpServletResponse response) throws IOException {
+    private void sendInvalidJwtError(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String requestURI = request.getRequestURI();
         response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         ApiErrorResponse errorResponse = new ApiErrorResponse(
                 ErrorCode.ERROR_UNAUTHORIZED,
                 HttpStatus.UNAUTHORIZED.value(),
-                "Jwt is invalid or empty");
+                String.format("Cannot connect to [%s]: Jwt is invalid or empty", requestURI));
         String mapperMessage = jsonMapper.writeValueAsString(errorResponse);
-        log.error("Jwt is invalid or empty");
+        log.error("Cannot connect to [{}]: Jwt is invalid or empty", requestURI);
         response.getWriter().print(mapperMessage);
     }
 
