@@ -13,6 +13,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.stomp.ConnectionLostException;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.test.context.ActiveProfiles;
@@ -28,15 +29,16 @@ import ru.veselov.websocketroomproject.controller.client.TestStompFrameHandler;
 import ru.veselov.websocketroomproject.controller.client.TestStompSessionHandlerAdapter;
 import ru.veselov.websocketroomproject.dto.request.ReceivedChatMessage;
 import ru.veselov.websocketroomproject.dto.response.SendChatMessage;
-import ru.veselov.websocketroomproject.websocket.listener.WebSocketDisconnectListener;
 import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.service.ChatUserService;
 import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
+import ru.veselov.websocketroomproject.websocket.listener.WebSocketDisconnectListener;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -185,6 +187,23 @@ class ChatMessageControllerTest {
         //then
         //Will be thrown TimeoutException if no message received by User
         Assertions.assertThatThrownBy(() -> resultKeeper.get(3, TimeUnit.SECONDS)).isInstanceOf(TimeoutException.class);
+    }
+
+    @Test
+    @SneakyThrows
+    void shouldCloseConnectionIfNoValidAuthHeader() {
+        //given
+        StompHeaders stompHeadersConnect = new StompHeaders();
+        stompHeadersConnect.add(TestConstants.ROOM_ID_HEADER, ROOM_ID);
+        WebSocketStompClient stompClient = createClient();
+
+        Assertions.assertThatThrownBy(() -> stompClient.connectAsync(URL,
+                        new WebSocketHttpHeaders(),
+                        stompHeadersConnect,
+                        new TestStompSessionHandlerAdapter()
+                ).get())
+                .isInstanceOf(ExecutionException.class)
+                .cause().isInstanceOf(ConnectionLostException.class);
     }
 
     private WebSocketStompClient createClient() {

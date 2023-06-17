@@ -32,11 +32,4 @@ class ApiExceptionHandlerTest {
         Assertions.assertThat(errorResponse.getMessage()).isEqualTo(MESSAGE);
     }
 
-    @Test
-    void shouldReturnInternalServerError() {
-        ApiErrorResponse errorResponse = exceptionHandler.handleMessagingException(new RuntimeException(MESSAGE));
-        Assertions.assertThat(errorResponse.getError()).isEqualTo(ErrorCode.ERROR_MESSAGING);
-        Assertions.assertThat(errorResponse.getMessage()).isEqualTo(MESSAGE);
-    }
-
 }

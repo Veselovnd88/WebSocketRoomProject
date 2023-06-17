@@ -4,7 +4,6 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.messaging.MessagingException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -38,7 +37,7 @@ public class ApiExceptionHandler {
                 exception.getMessage());
     }
 
-    @ExceptionHandler({EntityNotFoundException.class, SubscriptionNotFoundException.class})
+    @ExceptionHandler({EntityNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ResponseBody
     public ApiErrorResponse handleNotFoundException(RuntimeException exception) {
@@ -58,22 +57,6 @@ public class ApiExceptionHandler {
         return new ValidationErrorResponse(ErrorCode.ERROR_VALIDATION,
                 HttpStatus.BAD_REQUEST.value(),
                 exception.getMessage(), violationErrors);
-    }
-
-    @ExceptionHandler(MessagingException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ResponseBody
-    public ApiErrorResponse handleMessagingException(RuntimeException exception) {
-        return new ApiErrorResponse(ErrorCode.ERROR_MESSAGING,
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                exception.getMessage());
-    }
-
-    @ExceptionHandler(InvalidStompHeaderException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ResponseBody
-    public ApiErrorResponse handleInvalidStompHeaderException(RuntimeException e) {
-        return new ApiErrorResponse(ErrorCode.ERROR_BAD_REQUEST, HttpStatus.BAD_REQUEST.value(), e.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -97,6 +80,5 @@ public class ApiExceptionHandler {
         }
         return path;
     }
-
 
 }

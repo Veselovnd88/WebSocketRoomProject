@@ -21,7 +21,7 @@ import java.util.Optional;
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings({"unchecked"})
 class WebSocketDisconnectListenerTest {
-//FIXME
+
     private static final String ROOM_ID = "5";
 
     @Mock
@@ -45,7 +45,7 @@ class WebSocketDisconnectListenerTest {
                 message,
                 TestConstants.TEST_SESSION_ID,
                 CloseStatus.NORMAL);
-        Mockito.when(chatUserService.removeChatUser(TestConstants.TEST_USERNAME)).thenReturn(
+        Mockito.when(chatUserService.removeChatUser(TestConstants.TEST_SESSION_ID)).thenReturn(
                 Optional.of(new ChatUser(
                         TestConstants.TEST_USERNAME,
                         ROOM_ID,
@@ -57,6 +57,23 @@ class WebSocketDisconnectListenerTest {
 
         Mockito.verify(chatUserService, Mockito.times(1)).removeChatUser(TestConstants.TEST_SESSION_ID);
         Mockito.verify(userDisconnectEventHandler, Mockito.times(1)).handleDisconnectEvent(chatUserCaptor.capture());
+    }
+
+    @Test
+    void shouldDoNothingAndLogActionIfNoChatUserFound() {
+        Message<byte[]> message = Mockito.mock(Message.class);
+        Map<String, Object> headers = Map.of(StompHeaderAccessor.SESSION_ID_HEADER, TestConstants.TEST_SESSION_ID);
+        Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
+        SessionDisconnectEvent sessionDisconnectEvent = new SessionDisconnectEvent(new Object(),
+                message,
+                TestConstants.TEST_SESSION_ID,
+                CloseStatus.NORMAL);
+        Mockito.when(chatUserService.removeChatUser(TestConstants.TEST_USERNAME)).thenReturn(Optional.empty());
+
+        webSocketDisconnectListener.handleUserDisconnect(sessionDisconnectEvent);
+
+        Mockito.verify(chatUserService, Mockito.times(1)).removeChatUser(TestConstants.TEST_SESSION_ID);
+        Mockito.verify(userDisconnectEventHandler, Mockito.never()).handleDisconnectEvent(chatUserCaptor.capture());
     }
 
 }

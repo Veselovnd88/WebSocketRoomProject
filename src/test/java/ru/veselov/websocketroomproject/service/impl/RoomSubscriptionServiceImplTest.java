@@ -13,7 +13,6 @@ import reactor.core.publisher.FluxSink;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.cache.SubscriptionCache;
 import ru.veselov.websocketroomproject.event.SubscriptionData;
-import ru.veselov.websocketroomproject.exception.SubscriptionNotFoundException;
 
 import java.util.Optional;
 
@@ -72,28 +71,29 @@ class RoomSubscriptionServiceImplTest {
 
     @Test
     @SneakyThrows
-    void shouldFoundSubscription() {
+    void shouldReturnOptionalSubscription() {
         FluxSink fluxSink = Mockito.mock(FluxSink.class);
         SubscriptionData sub = new SubscriptionData(TestConstants.TEST_USERNAME, ROOM_ID, fluxSink);
-        Optional optional = Optional.of(sub);
         Mockito.when(subscriptionCache.findSubscription(ArgumentMatchers.anyString(), ArgumentMatchers.anyString()))
-                .thenReturn(optional);
+                .thenReturn(Optional.of(sub));
 
-        roomSubscriptionService.findSubscription(TestConstants.TEST_USERNAME, ROOM_ID);
+        Optional<SubscriptionData> optional = roomSubscriptionService
+                .findSubscription(TestConstants.TEST_USERNAME, ROOM_ID);
 
+        Assertions.assertThat(optional).isPresent();
         Mockito.verify(subscriptionCache, Mockito.times(1)).findSubscription(TestConstants.TEST_USERNAME, ROOM_ID);
     }
 
     @Test
-    @SneakyThrows
-    void shouldThrowException() {
-        Optional optional = Optional.empty();
+    void shouldReturnEmptyOptionalIfNoSubscription() {
         Mockito.when(subscriptionCache.findSubscription(ArgumentMatchers.anyString(), ArgumentMatchers.anyString()))
-                .thenReturn(optional);
+                .thenReturn(Optional.empty());
 
-        Assertions.assertThatThrownBy(() ->
-                        roomSubscriptionService.findSubscription(TestConstants.TEST_USERNAME, ROOM_ID))
-                .isInstanceOf(SubscriptionNotFoundException.class);
+        Optional<SubscriptionData> optional = roomSubscriptionService
+                .findSubscription(TestConstants.TEST_USERNAME, ROOM_ID);
+
+        Assertions.assertThat(optional).isNotPresent();
+        Mockito.verify(subscriptionCache, Mockito.times(1)).findSubscription(TestConstants.TEST_USERNAME, ROOM_ID);
     }
 
 }

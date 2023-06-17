@@ -22,9 +22,6 @@ import java.util.Map;
 
 @ExtendWith(MockitoExtension.class)
 class SocketConnectionInterceptorTest {
-    //FIXME
-
-    private static final String ROOM_ID = "5";
 
     @Mock
     private CustomStompHeaderValidator customStompHeaderValidator;
@@ -40,7 +37,7 @@ class SocketConnectionInterceptorTest {
                 TestConstants.COMMAND_HEADER, StompCommand.CONNECT,
                 StompHeaderAccessor.SESSION_ID_HEADER, TestConstants.TEST_SESSION_ID,
                 StompHeaderAccessor.NATIVE_HEADERS, Map.of(
-                        TestConstants.ROOM_ID_HEADER, List.of(ROOM_ID),
+                        TestConstants.ROOM_ID_HEADER, List.of(TestConstants.ROOM_ID),
                         TestConstants.AUTH_HEADER, List.of("Bearer ")
                 )
         );
@@ -49,8 +46,6 @@ class SocketConnectionInterceptorTest {
         Assertions.assertThat(interceptor.preSend(message, channel)).isNotNull().isInstanceOf(Message.class);
         Mockito.verify(customStompHeaderValidator, Mockito.times(1))
                 .validateRoomIdHeader(ArgumentMatchers.any(StompHeaderAccessor.class));
-        Mockito.verify(customStompHeaderValidator, Mockito.times(1))
-                .validateAuthHeader(ArgumentMatchers.any(StompHeaderAccessor.class));
     }
 
     @Test
@@ -61,7 +56,7 @@ class SocketConnectionInterceptorTest {
                 TestConstants.COMMAND_HEADER, StompCommand.SUBSCRIBE,
                 StompHeaderAccessor.SESSION_ID_HEADER, TestConstants.TEST_SESSION_ID,
                 StompHeaderAccessor.NATIVE_HEADERS, Map.of(
-                        TestConstants.ROOM_ID_HEADER, List.of(ROOM_ID),
+                        TestConstants.ROOM_ID_HEADER, List.of(TestConstants.ROOM_ID),
                         TestConstants.AUTH_HEADER, List.of("asdf")
                 )
         );
@@ -71,8 +66,6 @@ class SocketConnectionInterceptorTest {
 
         Mockito.verify(customStompHeaderValidator, Mockito.never())
                 .validateRoomIdHeader(ArgumentMatchers.any(StompHeaderAccessor.class));
-        Mockito.verify(customStompHeaderValidator, Mockito.never())
-                .validateAuthHeader(ArgumentMatchers.any(StompHeaderAccessor.class));
     }
 
 }

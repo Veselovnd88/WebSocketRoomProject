@@ -104,14 +104,15 @@ class ChatUserServiceImplTest {
     }
 
     @Test
-    void shouldRemoveChatUser() {
+    void shouldRemoveChatUserIfExists() {
         ChatUserEntity chatUserEntity = ChatUserUtils
                 .getChatUser(ROOM_ID, TestConstants.TEST_USERNAME, TestConstants.TEST_SESSION_ID);
         Mockito.when(repository.findById(TestConstants.TEST_SESSION_ID)).thenReturn(Optional.of(chatUserEntity));
 
         Optional<ChatUser> chatUserOptional = chatUserService.removeChatUser(TestConstants.TEST_SESSION_ID);
 
-        ChatUser chatUser = chatUserOptional.get(); //FIXME
+        Assertions.assertThat(chatUserOptional).isPresent();
+        ChatUser chatUser = chatUserOptional.get();
         Mockito.verify(repository, Mockito.times(1)).findById(TestConstants.TEST_SESSION_ID);
         Mockito.verify(repository, Mockito.times(1)).delete(chatUserEntity);
         Assertions.assertThat(chatUser.getUsername()).isEqualTo(chatUserEntity.getUsername());
@@ -120,12 +121,12 @@ class ChatUserServiceImplTest {
     }
 
     @Test
-    void shouldThrowExceptionIfNoUserInRepository() {
+    void shouldReturnEmptyOptionalIfNoChatUserForDelete() {
         Mockito.when(repository.findById(TestConstants.TEST_SESSION_ID)).thenReturn(Optional.empty());
 
-        Assertions.assertThatThrownBy(() -> chatUserService.removeChatUser(TestConstants.TEST_SESSION_ID))
-                .isInstanceOf(ChatUserNotFoundException.class);
+        Optional<ChatUser> chatUser = chatUserService.removeChatUser(TestConstants.TEST_SESSION_ID);
 
+        Assertions.assertThat(chatUser).isNotPresent();
         Mockito.verify(repository, Mockito.times(1)).findById(TestConstants.TEST_SESSION_ID);
         Mockito.verify(repository, Mockito.never()).delete(ArgumentMatchers.any(ChatUserEntity.class));
     }
