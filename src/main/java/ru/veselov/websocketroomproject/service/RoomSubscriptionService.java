@@ -3,6 +3,7 @@ package ru.veselov.websocketroomproject.service;
 import org.springframework.stereotype.Service;
 import ru.veselov.websocketroomproject.event.SubscriptionData;
 
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -12,7 +13,7 @@ public interface RoomSubscriptionService {
 
     void removeSubscription(SubscriptionData subscriptionData);
 
-    SubscriptionData findSubscription(String username, String roomId);
+    Optional<SubscriptionData> findSubscription(String username, String roomId);
 
     Set<SubscriptionData> findSubscriptionsByRoomId(String roomId);
 

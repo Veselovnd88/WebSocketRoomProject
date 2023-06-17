@@ -10,7 +10,7 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 
 /**
- * Interceptor validates headers in CONNECT messages
+ * Interceptor validates room header in CONNECT messages
  */
 @Slf4j
 @RequiredArgsConstructor
@@ -23,7 +23,6 @@ public class SocketConnectionInterceptor implements ChannelInterceptor {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
         if (isConnectCommand(accessor)) {
             customStompHeaderValidator.validateRoomIdHeader(accessor);
-            customStompHeaderValidator.validateAuthHeader(accessor);
         }
         return message;
     }
