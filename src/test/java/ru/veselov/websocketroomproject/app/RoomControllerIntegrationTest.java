@@ -469,6 +469,16 @@ class RoomControllerIntegrationTest extends PostgresContainersConfig {
                 .exchange().expectStatus().isBadRequest()
                 .expectBody().jsonPath("$.error").isEqualTo(ErrorConstants.ERROR_VALIDATION)
                 .jsonPath("$.violations[0].fieldName").isEqualTo("order");
+
+        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
+                        //.queryParam("page", 0)
+                        .queryParam("sort", "name")
+                        .queryParam("order", "not an order parameter")
+                        .build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .exchange().expectStatus().isBadRequest()
+                .expectBody().jsonPath("$.error").isEqualTo(ErrorConstants.ERROR_VALIDATION)
+                .jsonPath("$.violations[0].fieldName").isEqualTo("order");
     }
 
 

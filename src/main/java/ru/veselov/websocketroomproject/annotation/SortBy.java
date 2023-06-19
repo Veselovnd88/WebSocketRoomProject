@@ -9,7 +9,7 @@ import java.lang.annotation.*;
 /**
  * Annotation for constraint checking sorting parameters
  */
-@Target({ElementType.PARAMETER, ElementType.ANNOTATION_TYPE})
+@Target({ElementType.FIELD, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = SortByFieldValidator.class)
 @Documented
