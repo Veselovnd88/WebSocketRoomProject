@@ -116,20 +116,15 @@ public class RoomServiceImpl implements RoomService {
     }
 
     public List<Room> findAll(int page, String sorting, String order) {
-        if (StringUtils.isBlank(sorting)) {
-            sorting = "createdAt";
-        }
         Sort sortOrder;
-        if (StringUtils.isBlank(order) || order.equals("none")) {
-            sortOrder = Sort.by(sorting);
-        } else if (order.equals("desc")) {
-            sortOrder = Sort.by(sorting).descending();
-        } else {
+        if (StringUtils.equals(order, "asc")) {
             sortOrder = Sort.by(sorting).ascending();
+        } else {
+            sortOrder = Sort.by(sorting).descending();
         }
         Pageable pageable = PageRequest.of(page, 6).withSort(sortOrder);
         Page<RoomEntity> found = roomRepository.findAll(pageable);
-        log.info("Found [{} rooms] with on {} page and {} sorting", found.getNumber(), page, sorting);
+        log.info("Found [{} rooms] on {} page and {} sorting", found.getNumber(), page, sorting);
         return roomMapper.entitiesToRooms(found.getContent());
     }
 

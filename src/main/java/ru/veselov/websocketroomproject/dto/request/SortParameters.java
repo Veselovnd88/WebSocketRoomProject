@@ -11,12 +11,12 @@ import ru.veselov.websocketroomproject.annotation.SortBy;
 public class SortParameters {
 
     @PositiveOrZero(message = "Page number should be positive or zero")
-    Integer page;
+    private Integer page;
 
     @SortBy
-    String sort;
+    private String sort;
 
     @OrderDirection
-    String order;
+    private String order;
 
 }

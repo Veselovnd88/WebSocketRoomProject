@@ -41,7 +41,7 @@ public class SortParameterRequestParamsResolver extends RequestParamMethodArgume
 
     private String resolveOrder(NativeWebRequest request) {
         String order = request.getParameter("order");
-        return order == null ? "asc" : order;
+        return order == null ? "desc" : order;
     }
 
 }
