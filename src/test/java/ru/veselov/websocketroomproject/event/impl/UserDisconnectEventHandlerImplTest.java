@@ -13,6 +13,8 @@ import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.service.EventMessageService;
 import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
 
+import java.util.Optional;
+
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings({"unchecked", "rawtypes"})
 class UserDisconnectEventHandlerImplTest {
@@ -29,19 +31,34 @@ class UserDisconnectEventHandlerImplTest {
     UserDisconnectEventHandlerImpl userDisconnectEventHandler;
 
     @Test
-    void shouldCallRoomSubscriptionAndEventMessageServicesAndCompleteStream() {
+    void shouldCompleteSubscriptionAndSendTwoEventMessages() {
         FluxSink fluxSink = Mockito.mock(FluxSink.class);
         ChatUser chatUser = new ChatUser(TestConstants.TEST_USERNAME, ROOM_ID, TestConstants.TEST_SESSION_ID);
         Mockito.when(roomSubscriptionService.findSubscription(TestConstants.TEST_USERNAME, ROOM_ID)).thenReturn(
-                new SubscriptionData(TestConstants.TEST_USERNAME, ROOM_ID, fluxSink)
+                Optional.of(new SubscriptionData(TestConstants.TEST_USERNAME, ROOM_ID, fluxSink)
+                )
         );
 
         userDisconnectEventHandler.handleDisconnectEvent(chatUser);
 
-
         Mockito.verify(eventMessageService, Mockito.times(1)).sendUserDisconnectedMessageToAll(chatUser);
         Mockito.verify(eventMessageService, Mockito.times(1)).sendUserListToAllSubscriptions(ROOM_ID);
         Mockito.verify(fluxSink, Mockito.times(1)).complete();
+    }
+
+    @Test
+    void shouldNotCompleteSubscriptionAndNotSendEventMessages() {
+        FluxSink fluxSink = Mockito.mock(FluxSink.class);
+        ChatUser chatUser = new ChatUser(TestConstants.TEST_USERNAME, ROOM_ID, TestConstants.TEST_SESSION_ID);
+        Mockito.when(roomSubscriptionService.findSubscription(TestConstants.TEST_USERNAME, ROOM_ID)).thenReturn(
+                Optional.empty()
+        );
+
+        userDisconnectEventHandler.handleDisconnectEvent(chatUser);
+
+        Mockito.verify(eventMessageService, Mockito.never()).sendUserDisconnectedMessageToAll(chatUser);
+        Mockito.verify(eventMessageService, Mockito.never()).sendUserListToAllSubscriptions(ROOM_ID);
+        Mockito.verify(fluxSink, Mockito.never()).complete();
     }
 
 }

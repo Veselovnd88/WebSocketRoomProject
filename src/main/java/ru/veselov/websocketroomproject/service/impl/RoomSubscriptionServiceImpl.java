@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.veselov.websocketroomproject.cache.SubscriptionCache;
 import ru.veselov.websocketroomproject.event.SubscriptionData;
-import ru.veselov.websocketroomproject.exception.SubscriptionNotFoundException;
 import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
 
 import java.util.Optional;
@@ -43,14 +42,8 @@ public class RoomSubscriptionServiceImpl implements RoomSubscriptionService {
     }
 
     @Override
-    public SubscriptionData findSubscription(String username, String roomId) {
-        Optional<SubscriptionData> subscription = subscriptionCache.findSubscription(username, roomId);
-        return subscription.orElseThrow(
-                () -> {
-                    log.warn("[No user's {} subscription] found for room", username);
-                    return new SubscriptionNotFoundException("No such user found for room");
-                }
-        );
+    public Optional<SubscriptionData> findSubscription(String username, String roomId) {
+        return subscriptionCache.findSubscription(username, roomId);
     }
 
 }

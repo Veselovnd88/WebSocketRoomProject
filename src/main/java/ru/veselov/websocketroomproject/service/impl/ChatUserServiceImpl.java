@@ -44,11 +44,15 @@ public class ChatUserServiceImpl implements ChatUserService {
     }
 
     @Override
-    public ChatUser removeChatUser(String sessionId) {
-        ChatUserEntity chatUserEntity = findBySessionId(sessionId);
-        repository.delete(chatUserEntity);
-        log.info("ChatUser with [session: {}] deleted from repository", sessionId);
-        return chatUserEntityMapper.toChatUser(chatUserEntity);
+    public Optional<ChatUser> removeChatUser(String sessionId) {
+        Optional<ChatUserEntity> chatUserEntityOptional = repository.findById(sessionId);
+        if (chatUserEntityOptional.isPresent()) {
+            ChatUserEntity chatUserEntity = chatUserEntityOptional.get();
+            repository.delete(chatUserEntity);
+            log.info("ChatUser with [session: {}] deleted from repository", sessionId);
+            return Optional.of(chatUserEntityMapper.toChatUser(chatUserEntity));
+        }
+        return Optional.empty();
     }
 
     private ChatUserEntity findBySessionId(String sessionId) {
