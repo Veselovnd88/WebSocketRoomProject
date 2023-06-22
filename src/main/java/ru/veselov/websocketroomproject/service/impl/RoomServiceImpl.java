@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.veselov.websocketroomproject.dto.request.RoomSettingsDTO;
 import ru.veselov.websocketroomproject.entity.RoomEntity;
 import ru.veselov.websocketroomproject.entity.UrlEntity;
+import ru.veselov.websocketroomproject.event.ChangeRoomSettingsEvent;
+import ru.veselov.websocketroomproject.event.publisher.ChangeRoomEventPublisher;
 import ru.veselov.websocketroomproject.exception.RoomNotFoundException;
 import ru.veselov.websocketroomproject.mapper.RoomMapper;
 import ru.veselov.websocketroomproject.model.Room;
@@ -48,6 +50,8 @@ public class RoomServiceImpl implements RoomService {
     private final RoomSettingsService roomSettingsService;
 
     private final RoomValidator roomValidator;
+
+    private final ChangeRoomEventPublisher changeRoomEventPublisher;
 
     @PostConstruct
     public void init() {
@@ -101,7 +105,10 @@ public class RoomServiceImpl implements RoomService {
         RoomEntity changedRoomEntity = roomSettingsService.applySettings(roomEntity, settingsDTO);
         RoomEntity saved = roomRepository.save(changedRoomEntity);
         log.info("[Room's {}] settings changed", roomId);
-        return roomMapper.entityToRoom(saved);
+        Room room = roomMapper.entityToRoom(saved);
+        ChangeRoomSettingsEvent changeRoomSettingsEvent = new ChangeRoomSettingsEvent(room);
+        changeRoomEventPublisher.publishEvent(changeRoomSettingsEvent);
+        return room;
     }
 
     @Override
