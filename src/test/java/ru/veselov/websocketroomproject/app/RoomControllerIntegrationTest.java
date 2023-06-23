@@ -19,7 +19,7 @@ import ru.veselov.websocketroomproject.dto.request.RoomSettingsDTO;
 import ru.veselov.websocketroomproject.dto.request.UrlDto;
 import ru.veselov.websocketroomproject.entity.PlayerType;
 import ru.veselov.websocketroomproject.entity.RoomEntity;
-import ru.veselov.websocketroomproject.exception.error.ErrorConstants;
+import ru.veselov.websocketroomproject.exception.error.ErrorCode;
 import ru.veselov.websocketroomproject.model.Room;
 import ru.veselov.websocketroomproject.repository.RoomRepository;
 
@@ -105,7 +105,7 @@ class RoomControllerIntegrationTest extends PostgresContainersConfig {
                 .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
                 .bodyValue(roomToSave)
                 .exchange().expectStatus().isEqualTo(HttpStatus.CONFLICT).expectBody()
-                .jsonPath("$.error").isEqualTo(ErrorConstants.ERROR_CONFLICT);
+                .jsonPath("$.error").isEqualTo(ErrorCode.ERROR_CONFLICT.toString());
     }
 
     @Test
@@ -119,7 +119,7 @@ class RoomControllerIntegrationTest extends PostgresContainersConfig {
                 .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
                 .bodyValue(transferedRoom)
                 .exchange().expectStatus().isBadRequest().expectBody()
-                .jsonPath("$.error").isEqualTo(ErrorConstants.ERROR_VALIDATION)
+                .jsonPath("$.error").isEqualTo(ErrorCode.ERROR_VALIDATION.toString())
                 .jsonPath("$.violations").isArray()
                 .jsonPath("$.violations[0].fieldName").isEqualTo("name");
     }
@@ -137,7 +137,7 @@ class RoomControllerIntegrationTest extends PostgresContainersConfig {
                 .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
                 .bodyValue(transferedRoom)
                 .exchange().expectStatus().isBadRequest().expectBody()
-                .jsonPath("$.error").isEqualTo(ErrorConstants.ERROR_VALIDATION)
+                .jsonPath("$.error").isEqualTo(ErrorCode.ERROR_VALIDATION.toString())
                 .jsonPath("$.violations").isArray()
                 .jsonPath("$.violations[0].fieldName").isEqualTo("name");
     }
@@ -153,7 +153,7 @@ class RoomControllerIntegrationTest extends PostgresContainersConfig {
                 .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
                 .bodyValue(transferedRoom)
                 .exchange().expectStatus().isBadRequest().expectBody()
-                .jsonPath("$.error").isEqualTo(ErrorConstants.ERROR_VALIDATION)
+                .jsonPath("$.error").isEqualTo(ErrorCode.ERROR_VALIDATION.toString())
                 .jsonPath("$.violations").isArray()
                 .jsonPath("$.violations[0].fieldName").isEqualTo("playerType");
     }
@@ -183,7 +183,7 @@ class RoomControllerIntegrationTest extends PostgresContainersConfig {
                         .build())
                 .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
                 .exchange().expectStatus().isNotFound()
-                .expectBody().jsonPath("$.error").isEqualTo(ErrorConstants.ERROR_NOT_FOUND);
+                .expectBody().jsonPath("$.error").isEqualTo(ErrorCode.ERROR_NOT_FOUND.toString());
     }
 
     @Test
@@ -194,7 +194,7 @@ class RoomControllerIntegrationTest extends PostgresContainersConfig {
                         .build())
                 .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
                 .exchange().expectStatus().isEqualTo(HttpStatus.UNAUTHORIZED)
-                .expectBody().jsonPath("$.error").isEqualTo(ErrorConstants.ERROR_NOT_AUTHORIZED);
+                .expectBody().jsonPath("$.error").isEqualTo(ErrorCode.ERROR_UNAUTHORIZED.toString());
     }
 
     @Test
@@ -204,7 +204,7 @@ class RoomControllerIntegrationTest extends PostgresContainersConfig {
                         .build())
                 .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
                 .exchange().expectStatus().isEqualTo(HttpStatus.BAD_REQUEST)
-                .expectBody().jsonPath("$.error").isEqualTo(ErrorConstants.ERROR_VALIDATION)
+                .expectBody().jsonPath("$.error").isEqualTo(ErrorCode.ERROR_VALIDATION.toString())
                 .jsonPath("$.violations").isArray()
                 .jsonPath("$.violations[0].fieldName").isEqualTo("id");
     }
@@ -284,7 +284,7 @@ class RoomControllerIntegrationTest extends PostgresContainersConfig {
                 .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
                 .bodyValue(roomSettingsDTO)
                 .exchange().expectStatus().isBadRequest()
-                .expectBody().jsonPath("$.error").isEqualTo(ErrorConstants.ERROR_VALIDATION)
+                .expectBody().jsonPath("$.error").isEqualTo(ErrorCode.ERROR_VALIDATION.toString())
                 .jsonPath("$.violations").isArray()
                 .jsonPath("$.violations[0].fieldName").isEqualTo("roomName");
     }
@@ -307,7 +307,7 @@ class RoomControllerIntegrationTest extends PostgresContainersConfig {
                 .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
                 .bodyValue(roomSettingsDTO)
                 .exchange().expectStatus().isUnauthorized().expectBody()
-                .jsonPath("$.error").isEqualTo(ErrorConstants.ERROR_NOT_AUTHORIZED);
+                .jsonPath("$.error").isEqualTo(ErrorCode.ERROR_UNAUTHORIZED.toString());
     }
 
     @Test
@@ -341,7 +341,7 @@ class RoomControllerIntegrationTest extends PostgresContainersConfig {
                 .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
                 .bodyValue(urlDto)
                 .exchange().expectStatus().isBadRequest()
-                .expectBody().jsonPath("$.error").isEqualTo(ErrorConstants.ERROR_VALIDATION)
+                .expectBody().jsonPath("$.error").isEqualTo(ErrorCode.ERROR_VALIDATION.toString())
                 .jsonPath("$.violations[0].fieldName").isEqualTo("url");
     }
 
@@ -364,7 +364,6 @@ class RoomControllerIntegrationTest extends PostgresContainersConfig {
         roomEntity.setCreatedAt(ZonedDateTime.now());
         return roomRepository.save(roomEntity);
     }
-
 
 
 }

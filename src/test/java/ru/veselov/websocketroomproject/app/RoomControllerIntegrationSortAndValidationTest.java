@@ -12,7 +12,7 @@ import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.app.containers.PostgresContainersConfig;
 import ru.veselov.websocketroomproject.entity.PlayerType;
 import ru.veselov.websocketroomproject.entity.RoomEntity;
-import ru.veselov.websocketroomproject.exception.error.ErrorConstants;
+import ru.veselov.websocketroomproject.exception.error.ErrorCode;
 import ru.veselov.websocketroomproject.repository.RoomRepository;
 
 import java.time.ZonedDateTime;
@@ -165,7 +165,7 @@ class RoomControllerIntegrationSortAndValidationTest extends PostgresContainersC
                         .build())
                 .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
                 .exchange().expectStatus().isBadRequest()
-                .expectBody().jsonPath("$.error").isEqualTo(ErrorConstants.ERROR_VALIDATION)
+                .expectBody().jsonPath("$.error").isEqualTo(ErrorCode.ERROR_VALIDATION.toString())
                 .jsonPath("$.violations[0].fieldName").isEqualTo("page");
 
         webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
@@ -175,7 +175,7 @@ class RoomControllerIntegrationSortAndValidationTest extends PostgresContainersC
                         .build())
                 .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
                 .exchange().expectStatus().isBadRequest()
-                .expectBody().jsonPath("$.error").isEqualTo(ErrorConstants.ERROR_VALIDATION)
+                .expectBody().jsonPath("$.error").isEqualTo(ErrorCode.ERROR_VALIDATION.toString())
                 .jsonPath("$.violations[0].fieldName").isEqualTo("sort");
 
         webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
@@ -185,7 +185,7 @@ class RoomControllerIntegrationSortAndValidationTest extends PostgresContainersC
                         .build())
                 .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
                 .exchange().expectStatus().isBadRequest()
-                .expectBody().jsonPath("$.error").isEqualTo(ErrorConstants.ERROR_VALIDATION)
+                .expectBody().jsonPath("$.error").isEqualTo(ErrorCode.ERROR_VALIDATION.toString())
                 .jsonPath("$.violations[0].fieldName").isEqualTo("order");
     }
 

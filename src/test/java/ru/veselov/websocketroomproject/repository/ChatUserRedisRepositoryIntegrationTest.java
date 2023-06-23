@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.entity.ChatUserEntity;
 import ru.veselov.websocketroomproject.ChatUserUtils;
@@ -11,7 +12,8 @@ import ru.veselov.websocketroomproject.ChatUserUtils;
 import java.util.Optional;
 import java.util.Set;
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
 class ChatUserRedisRepositoryIntegrationTest extends RedisTestContainersConfiguration {
 
     private final static String ROOM_ID = "5";

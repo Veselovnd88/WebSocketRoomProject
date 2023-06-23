@@ -45,7 +45,7 @@ class ServerEventControllerTest {
     }
 
     @Test
-    void shouldThrowExceptionIfNoHeader() {
+    void shouldReturnUnauthorizedErrorResponse() {
         webTestClient.get().uri("/api/room/event?roomId=" + ROOM_ID)
                 .exchange().expectStatus().is4xxClientError();
     }
