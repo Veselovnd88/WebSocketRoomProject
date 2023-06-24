@@ -10,7 +10,7 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import ru.veselov.websocketroomproject.TestConstants;
-import ru.veselov.websocketroomproject.event.UserDisconnectEventHandler;
+import ru.veselov.websocketroomproject.event.handler.UserDisconnectEventHandler;
 import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.service.ChatUserService;
 import ru.veselov.websocketroomproject.websocket.listener.WebSocketDisconnectListener;

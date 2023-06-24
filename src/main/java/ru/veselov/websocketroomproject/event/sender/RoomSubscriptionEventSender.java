@@ -1,8 +1,8 @@
-package ru.veselov.websocketroomproject.event;
+package ru.veselov.websocketroomproject.event.sender;
 
 import ru.veselov.websocketroomproject.dto.response.EventMessageDTO;
 
-public interface EventSender {
+public interface RoomSubscriptionEventSender {
 
     void sendEventToRoomSubscriptions(String roomId, EventMessageDTO eventMessageDTO);
 

@@ -8,7 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.FluxSink;
-import ru.veselov.websocketroomproject.event.SubscriptionData;
+import ru.veselov.websocketroomproject.cache.SubscriptionData;
 
 import java.lang.reflect.Field;
 import java.util.Map;

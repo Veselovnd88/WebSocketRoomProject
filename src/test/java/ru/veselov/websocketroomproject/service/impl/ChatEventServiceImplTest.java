@@ -12,7 +12,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
 import reactor.test.StepVerifier;
 import ru.veselov.websocketroomproject.TestConstants;
-import ru.veselov.websocketroomproject.event.SubscriptionData;
+import ru.veselov.websocketroomproject.cache.SubscriptionData;
 import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
 
 import java.security.Principal;

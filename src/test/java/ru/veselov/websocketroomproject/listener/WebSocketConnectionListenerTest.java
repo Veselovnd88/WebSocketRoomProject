@@ -15,7 +15,7 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import ru.veselov.websocketroomproject.TestConstants;
-import ru.veselov.websocketroomproject.event.UserConnectEventHandler;
+import ru.veselov.websocketroomproject.event.handler.UserConnectEventHandler;
 import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.security.AuthProperties;
 import ru.veselov.websocketroomproject.security.jwt.impl.JwtHelperImpl;

@@ -10,7 +10,8 @@ import org.springframework.http.codec.ServerSentEvent;
 import reactor.core.publisher.FluxSink;
 import ru.veselov.websocketroomproject.dto.response.EventMessageDTO;
 import ru.veselov.websocketroomproject.event.EventType;
-import ru.veselov.websocketroomproject.event.SubscriptionData;
+import ru.veselov.websocketroomproject.cache.SubscriptionData;
+import ru.veselov.websocketroomproject.event.sender.impl.RoomSubscriptionEventSenderImpl;
 import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
 
 import java.util.Collections;
@@ -19,7 +20,7 @@ import java.util.Set;
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings({"rawtypes", "unchecked"})
-class EventSenderImplTest {
+class RoomSubscriptionEventSenderImplTest {
 
     private static final String ROOM_ID = "5";
 
@@ -29,7 +30,7 @@ class EventSenderImplTest {
     RoomSubscriptionService roomSubscriptionService;
 
     @InjectMocks
-    EventSenderImpl eventSender;
+    RoomSubscriptionEventSenderImpl eventSender;
 
     @Captor
     ArgumentCaptor<ServerSentEvent> sseCaptor;

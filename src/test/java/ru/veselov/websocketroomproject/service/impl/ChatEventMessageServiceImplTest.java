@@ -10,7 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import ru.veselov.websocketroomproject.dto.response.ChatUserDTO;
 import ru.veselov.websocketroomproject.dto.response.EventMessageDTO;
-import ru.veselov.websocketroomproject.event.EventSender;
+import ru.veselov.websocketroomproject.event.sender.RoomSubscriptionEventSender;
 import ru.veselov.websocketroomproject.event.EventType;
 import ru.veselov.websocketroomproject.mapper.ChatUserMapper;
 import ru.veselov.websocketroomproject.mapper.ChatUserMapperImpl;
@@ -20,17 +20,17 @@ import ru.veselov.websocketroomproject.service.ChatUserService;
 import java.util.Set;
 
 @ExtendWith(MockitoExtension.class)
-class EventMessageServiceImplTest {
+class ChatEventMessageServiceImplTest {
 
     private static final String ROOM_ID = "5";
 
     private final Faker faker = new Faker();
 
     @InjectMocks
-    EventMessageServiceImpl eventMessageService;
+    ChatEventMessageServiceImpl eventMessageService;
 
     @Mock
-    EventSender eventSender;
+    RoomSubscriptionEventSender roomSubscriptionEventSender;
 
     @Mock
     ChatUserService chatUserService;
@@ -60,7 +60,7 @@ class EventMessageServiceImplTest {
 
         eventMessageService.sendUserListToAllSubscriptions(ROOM_ID);
 
-        Mockito.verify(eventSender, Mockito.times(1))
+        Mockito.verify(roomSubscriptionEventSender, Mockito.times(1))
                 .sendEventToRoomSubscriptions(ArgumentMatchers.anyString(), eventMessageCaptorSet.capture());
         EventMessageDTO<Set<ChatUserDTO>> capturedMsg = eventMessageCaptorSet.getValue();
         Assertions.assertThat(capturedMsg.getEventType()).isEqualTo(EventType.USER_LIST_REFRESH);
@@ -74,7 +74,7 @@ class EventMessageServiceImplTest {
 
         eventMessageService.sendUserConnectedMessageToAll(stubChatUser);
 
-        Mockito.verify(eventSender, Mockito.times(1))
+        Mockito.verify(roomSubscriptionEventSender, Mockito.times(1))
                 .sendEventToRoomSubscriptions(ArgumentMatchers.anyString(), eventMessageCaptorChatUser.capture());
         EventMessageDTO<ChatUserDTO> capturedMsg = eventMessageCaptorChatUser.getValue();
         Assertions.assertThat(capturedMsg.getEventType()).isEqualTo(EventType.USER_CONNECT);
@@ -87,7 +87,7 @@ class EventMessageServiceImplTest {
 
         eventMessageService.sendUserDisconnectedMessageToAll(stubChatUser);
 
-        Mockito.verify(eventSender, Mockito.times(1))
+        Mockito.verify(roomSubscriptionEventSender, Mockito.times(1))
                 .sendEventToRoomSubscriptions(ArgumentMatchers.anyString(), eventMessageCaptorChatUser.capture());
         EventMessageDTO<ChatUserDTO> capturedMsg = eventMessageCaptorChatUser.getValue();
         Assertions.assertThat(capturedMsg.getEventType()).isEqualTo(EventType.USER_DISCONNECT);
