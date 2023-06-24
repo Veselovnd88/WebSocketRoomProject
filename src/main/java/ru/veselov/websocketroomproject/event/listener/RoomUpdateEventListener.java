@@ -12,6 +12,9 @@ import ru.veselov.websocketroomproject.event.sender.RoomSubscriptionEventSender;
 import ru.veselov.websocketroomproject.event.EventType;
 import ru.veselov.websocketroomproject.model.Room;
 
+/**
+ * Listening events about update of room settings and active URL
+ */
 @Component
 @RequiredArgsConstructor
 @Slf4j

@@ -2,7 +2,7 @@ package ru.veselov.websocketroomproject.event.handler;
 
 import ru.veselov.websocketroomproject.model.Room;
 
-public interface RoomUpdateEventHandler {
+public interface RoomUpdateHandler {
 
     void handleRoomSettingUpdateEvent(Room room);
 

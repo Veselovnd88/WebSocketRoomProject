@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.veselov.websocketroomproject.dto.request.RoomSettingsDTO;
 import ru.veselov.websocketroomproject.entity.RoomEntity;
 import ru.veselov.websocketroomproject.entity.UrlEntity;
-import ru.veselov.websocketroomproject.event.handler.RoomUpdateEventHandler;
+import ru.veselov.websocketroomproject.event.handler.RoomUpdateHandler;
 import ru.veselov.websocketroomproject.exception.RoomNotFoundException;
 import ru.veselov.websocketroomproject.mapper.RoomMapper;
 import ru.veselov.websocketroomproject.model.Room;
@@ -50,7 +50,7 @@ public class RoomServiceImpl implements RoomService {
 
     private final RoomValidator roomValidator;
 
-    private final RoomUpdateEventHandler roomUpdateEventHandler;
+    private final RoomUpdateHandler roomUpdateHandler;
 
     @PostConstruct
     public void init() {
@@ -105,7 +105,7 @@ public class RoomServiceImpl implements RoomService {
         RoomEntity saved = roomRepository.save(changedRoomEntity);
         log.info("[Room's {}] settings changed", roomId);
         Room room = roomMapper.entityToRoom(saved);
-        roomUpdateEventHandler.handleRoomSettingUpdateEvent(room);
+        roomUpdateHandler.handleRoomSettingUpdateEvent(room);
         return room;
     }
 
@@ -118,7 +118,7 @@ public class RoomServiceImpl implements RoomService {
         roomEntity.addUrl(urlEntity);
         roomRepository.save(roomEntity);
         log.info("New [active url {}] added to [room {}]", url, roomId);
-        roomUpdateEventHandler.handleActiveURLUpdateEvent(roomId, url);
+        roomUpdateHandler.handleActiveURLUpdateEvent(roomId, url);
     }
 
     public List<Room> findAll(int page, String sorting, String order) {

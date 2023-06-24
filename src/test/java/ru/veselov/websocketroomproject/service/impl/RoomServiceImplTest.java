@@ -12,6 +12,7 @@ import ru.veselov.websocketroomproject.dto.request.RoomSettingsDTO;
 import ru.veselov.websocketroomproject.entity.PlayerType;
 import ru.veselov.websocketroomproject.entity.RoomEntity;
 import ru.veselov.websocketroomproject.entity.UrlEntity;
+import ru.veselov.websocketroomproject.event.handler.impl.RoomUpdateHandlerImpl;
 import ru.veselov.websocketroomproject.exception.RoomNotFoundException;
 import ru.veselov.websocketroomproject.mapper.RoomMapper;
 import ru.veselov.websocketroomproject.mapper.RoomMapperImpl;
@@ -44,6 +45,9 @@ class RoomServiceImplTest {
 
     @Mock
     Principal principal;
+
+    @Mock
+    RoomUpdateHandlerImpl roomUpdateHandler;
 
     @InjectMocks
     RoomServiceImpl roomService;
@@ -173,6 +177,7 @@ class RoomServiceImplTest {
         Mockito.verify(roomRepository, Mockito.times(1)).findById(ArgumentMatchers.any());
         Mockito.verify(roomValidator, Mockito.times(1)).validateOwner(principal, roomEntity);
         Mockito.verify(roomSettingsService, Mockito.times(1)).applySettings(roomEntity, settings);
+        Mockito.verify(roomUpdateHandler, Mockito.times(1)).handleRoomSettingUpdateEvent(ArgumentMatchers.any());
     }
 
     @Test
@@ -207,6 +212,8 @@ class RoomServiceImplTest {
         Assertions.assertThat(captured.getUrls()).hasSize(1);
         Assertions.assertThat(captured.getUrls().get(0).getUrl()).isEqualTo(urlEntity.getUrl());
         Assertions.assertThat(captured.getActiveUrl()).isEqualTo(url);
+        Mockito.verify(roomUpdateHandler, Mockito.times(1))
+                .handleActiveURLUpdateEvent(ArgumentMatchers.anyString(), ArgumentMatchers.anyString());
     }
 
     @Test
