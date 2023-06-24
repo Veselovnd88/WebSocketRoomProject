@@ -15,8 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.veselov.websocketroomproject.dto.request.RoomSettingsDTO;
 import ru.veselov.websocketroomproject.entity.RoomEntity;
 import ru.veselov.websocketroomproject.entity.UrlEntity;
-import ru.veselov.websocketroomproject.event.ChangeRoomSettingsEvent;
-import ru.veselov.websocketroomproject.event.publisher.ChangeRoomEventPublisher;
+import ru.veselov.websocketroomproject.event.handler.RoomUpdateEventHandler;
 import ru.veselov.websocketroomproject.exception.RoomNotFoundException;
 import ru.veselov.websocketroomproject.mapper.RoomMapper;
 import ru.veselov.websocketroomproject.model.Room;
@@ -51,7 +50,7 @@ public class RoomServiceImpl implements RoomService {
 
     private final RoomValidator roomValidator;
 
-    private final ChangeRoomEventPublisher changeRoomEventPublisher;
+    private final RoomUpdateEventHandler roomUpdateEventHandler;
 
     @PostConstruct
     public void init() {
@@ -66,7 +65,7 @@ public class RoomServiceImpl implements RoomService {
         RoomEntity roomEntity = roomMapper.toEntity(room);
         roomEntity.setCreatedAt(ZonedDateTime.now(zone));
         roomEntity.setOwnerName(ownerName);
-        if (roomEntity.getIsPrivate()) {
+        if (Boolean.TRUE.equals(roomEntity.getIsPrivate())) {
             roomEntity.setRoomToken(RandomStringUtils.randomAlphanumeric(10));
         }
         RoomEntity saved = roomRepository.save(roomEntity);
@@ -77,7 +76,7 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public Room getRoomById(String id, String token) {
         RoomEntity roomEntity = findRoomById(id);
-        if (roomEntity.getIsPrivate()) {
+        if (Boolean.TRUE.equals(roomEntity.getIsPrivate())) {
             roomValidator.validateToken(roomEntity, token);
         }
         log.info("Retrieving [room {}] from repo", id);
@@ -106,8 +105,7 @@ public class RoomServiceImpl implements RoomService {
         RoomEntity saved = roomRepository.save(changedRoomEntity);
         log.info("[Room's {}] settings changed", roomId);
         Room room = roomMapper.entityToRoom(saved);
-        ChangeRoomSettingsEvent changeRoomSettingsEvent = new ChangeRoomSettingsEvent(room);
-        changeRoomEventPublisher.publishEvent(changeRoomSettingsEvent);
+        roomUpdateEventHandler.handleRoomSettingUpdateEvent(room);
         return room;
     }
 
@@ -119,7 +117,8 @@ public class RoomServiceImpl implements RoomService {
         UrlEntity urlEntity = new UrlEntity(url, ZonedDateTime.now(zone));
         roomEntity.addUrl(urlEntity);
         roomRepository.save(roomEntity);
-        log.info("New [url {}] added to [room {}]", url, roomId);
+        log.info("New [active url {}] added to [room {}]", url, roomId);
+        roomUpdateEventHandler.handleActiveURLUpdateEvent(roomId, url);
     }
 
     public List<Room> findAll(int page, String sorting, String order) {

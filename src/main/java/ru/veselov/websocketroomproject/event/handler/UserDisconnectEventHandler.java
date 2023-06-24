@@ -1,4 +1,4 @@
-package ru.veselov.websocketroomproject.event;
+package ru.veselov.websocketroomproject.event.handler;
 
 import ru.veselov.websocketroomproject.model.ChatUser;
 

@@ -7,7 +7,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
-import ru.veselov.websocketroomproject.event.UserConnectEventHandler;
+import ru.veselov.websocketroomproject.event.handler.UserConnectEventHandler;
 import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.security.AuthProperties;
 import ru.veselov.websocketroomproject.security.jwt.JwtHelper;

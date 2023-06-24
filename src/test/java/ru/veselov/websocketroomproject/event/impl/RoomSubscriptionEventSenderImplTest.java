@@ -19,7 +19,7 @@ import java.util.Set;
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings({"rawtypes", "unchecked"})
-class EventSenderImplTest {
+class RoomSubscriptionEventSenderImplTest {
 
     private static final String ROOM_ID = "5";
 
@@ -29,7 +29,7 @@ class EventSenderImplTest {
     RoomSubscriptionService roomSubscriptionService;
 
     @InjectMocks
-    EventSenderImpl eventSender;
+    RoomSubscriptionEventSenderImpl eventSender;
 
     @Captor
     ArgumentCaptor<ServerSentEvent> sseCaptor;

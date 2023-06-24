@@ -6,7 +6,7 @@ import ru.veselov.websocketroomproject.model.Room;
 
 @Data
 @AllArgsConstructor
-public class ChangeRoomSettingsEvent {
+public class RoomSettingsUpdateEvent {
 
     private Room room;
 

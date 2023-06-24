@@ -1,12 +1,12 @@
-package ru.veselov.websocketroomproject.event.impl;
+package ru.veselov.websocketroomproject.event.handler.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.veselov.websocketroomproject.event.SubscriptionData;
-import ru.veselov.websocketroomproject.event.UserDisconnectEventHandler;
+import ru.veselov.websocketroomproject.event.handler.UserDisconnectEventHandler;
 import ru.veselov.websocketroomproject.model.ChatUser;
-import ru.veselov.websocketroomproject.service.EventMessageService;
+import ru.veselov.websocketroomproject.service.ChatEventMessageService;
 import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
 
 import java.util.Optional;
@@ -19,7 +19,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserDisconnectEventHandlerImpl implements UserDisconnectEventHandler {
 
-    private final EventMessageService eventMessageService;
+    private final ChatEventMessageService chatEventMessageService;
 
     private final RoomSubscriptionService roomSubscriptionService;
 
@@ -30,8 +30,8 @@ public class UserDisconnectEventHandlerImpl implements UserDisconnectEventHandle
         if (subOptional.isPresent()) {
             SubscriptionData sub = subOptional.get();
             completeSubscription(sub); //complete subscription of removed user
-            eventMessageService.sendUserDisconnectedMessageToAll(chatUser);
-            eventMessageService.sendUserListToAllSubscriptions(chatUser.getRoomId());
+            chatEventMessageService.sendUserDisconnectedMessageToAll(chatUser);
+            chatEventMessageService.sendUserListToAllSubscriptions(chatUser.getRoomId());
         } else {
             log.info("No subscription was stored for [session {}]", chatUser.getSession());
         }

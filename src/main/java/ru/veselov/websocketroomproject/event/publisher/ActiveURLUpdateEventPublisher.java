@@ -4,18 +4,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
-import ru.veselov.websocketroomproject.event.ChangeRoomSettingsEvent;
+import ru.veselov.websocketroomproject.event.ActiveURLUpdateEvent;
 
 @Component
-@Slf4j
 @RequiredArgsConstructor
-public class ChangeRoomEventPublisher {
+@Slf4j
+public class ActiveURLUpdateEventPublisher {
 
     private final ApplicationEventPublisher applicationEventPublisher;
 
-    public void publishEvent(ChangeRoomSettingsEvent changeRoomSettingsEvent) {
-        applicationEventPublisher.publishEvent(changeRoomSettingsEvent);
-        log.info("Created event for changing room settings");
+    public void publishEvent(ActiveURLUpdateEvent activeURLUpdateEvent) {
+        log.info("Publishing event for update active URL");
+        applicationEventPublisher.publishEvent(activeURLUpdateEvent);
     }
-
 }
