@@ -21,6 +21,7 @@ import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
 class RoomUpdateHandlerImplTest {
+
     @Mock
     RoomSettingsUpdateEventPublisher roomSettingsUpdateEventPublisher;
 

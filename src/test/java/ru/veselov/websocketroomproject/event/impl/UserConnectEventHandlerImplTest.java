@@ -22,7 +22,6 @@ class UserConnectEventHandlerImplTest {
     @InjectMocks
     UserConnectEventHandlerImpl userConnectEventHandler;
 
-
     @Test
     void shouldSentTwoEventMessages() {
         ChatUser chatUser = new ChatUser(TestConstants.TEST_USERNAME, ROOM_ID, TestConstants.TEST_SESSION_ID);
