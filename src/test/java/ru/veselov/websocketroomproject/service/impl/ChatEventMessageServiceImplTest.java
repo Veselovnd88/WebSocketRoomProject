@@ -10,7 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import ru.veselov.websocketroomproject.dto.response.ChatUserDTO;
 import ru.veselov.websocketroomproject.dto.response.EventMessageDTO;
-import ru.veselov.websocketroomproject.event.RoomSubscriptionEventSender;
+import ru.veselov.websocketroomproject.event.sender.RoomSubscriptionEventSender;
 import ru.veselov.websocketroomproject.event.EventType;
 import ru.veselov.websocketroomproject.mapper.ChatUserMapper;
 import ru.veselov.websocketroomproject.mapper.ChatUserMapperImpl;

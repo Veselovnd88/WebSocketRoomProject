@@ -12,7 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.FluxSink;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.cache.SubscriptionCache;
-import ru.veselov.websocketroomproject.event.SubscriptionData;
+import ru.veselov.websocketroomproject.cache.SubscriptionData;
 
 import java.util.Optional;
 

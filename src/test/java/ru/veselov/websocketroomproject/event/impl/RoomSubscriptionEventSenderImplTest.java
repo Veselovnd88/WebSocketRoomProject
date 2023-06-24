@@ -10,7 +10,8 @@ import org.springframework.http.codec.ServerSentEvent;
 import reactor.core.publisher.FluxSink;
 import ru.veselov.websocketroomproject.dto.response.EventMessageDTO;
 import ru.veselov.websocketroomproject.event.EventType;
-import ru.veselov.websocketroomproject.event.SubscriptionData;
+import ru.veselov.websocketroomproject.cache.SubscriptionData;
+import ru.veselov.websocketroomproject.event.sender.impl.RoomSubscriptionEventSenderImpl;
 import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
 
 import java.util.Collections;

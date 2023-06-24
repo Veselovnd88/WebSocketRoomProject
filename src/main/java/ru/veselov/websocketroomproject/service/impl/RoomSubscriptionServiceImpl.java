@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.veselov.websocketroomproject.cache.SubscriptionCache;
-import ru.veselov.websocketroomproject.event.SubscriptionData;
+import ru.veselov.websocketroomproject.cache.SubscriptionData;
 import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
 
 import java.util.Optional;

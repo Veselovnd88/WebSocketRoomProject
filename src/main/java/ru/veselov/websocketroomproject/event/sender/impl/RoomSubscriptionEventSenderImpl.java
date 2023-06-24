@@ -1,13 +1,13 @@
-package ru.veselov.websocketroomproject.event.impl;
+package ru.veselov.websocketroomproject.event.sender.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Component;
 import ru.veselov.websocketroomproject.dto.response.EventMessageDTO;
-import ru.veselov.websocketroomproject.event.RoomSubscriptionEventSender;
+import ru.veselov.websocketroomproject.event.sender.RoomSubscriptionEventSender;
 import ru.veselov.websocketroomproject.event.EventType;
-import ru.veselov.websocketroomproject.event.SubscriptionData;
+import ru.veselov.websocketroomproject.cache.SubscriptionData;
 import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
 
 import java.util.Set;

@@ -1,4 +1,4 @@
-package ru.veselov.websocketroomproject.event;
+package ru.veselov.websocketroomproject.event.sender;
 
 import ru.veselov.websocketroomproject.dto.response.EventMessageDTO;
 

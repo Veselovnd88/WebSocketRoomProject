@@ -8,7 +8,7 @@ import ru.veselov.websocketroomproject.dto.request.UrlDto;
 import ru.veselov.websocketroomproject.dto.response.EventMessageDTO;
 import ru.veselov.websocketroomproject.event.ActiveURLUpdateEvent;
 import ru.veselov.websocketroomproject.event.RoomSettingsUpdateEvent;
-import ru.veselov.websocketroomproject.event.RoomSubscriptionEventSender;
+import ru.veselov.websocketroomproject.event.sender.RoomSubscriptionEventSender;
 import ru.veselov.websocketroomproject.event.EventType;
 import ru.veselov.websocketroomproject.model.Room;
 
