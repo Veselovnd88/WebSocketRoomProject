@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.veselov.websocketroomproject.exception.error.ApiErrorResponse;
@@ -23,14 +22,12 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler({RoomAlreadyExistsException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
-    @ResponseBody
     public ApiErrorResponse handleConflictException(RuntimeException exception) {
         return new ApiErrorResponse(ErrorCode.ERROR_CONFLICT, HttpStatus.CONFLICT.value(), exception.getMessage());
     }
 
     @ExceptionHandler({NotCorrectOwnerException.class, NotCorrectTokenException.class})
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    @ResponseBody
     public ApiErrorResponse handleNotAuthorizedException(RuntimeException exception) {
         return new ApiErrorResponse(ErrorCode.ERROR_UNAUTHORIZED,
                 HttpStatus.UNAUTHORIZED.value(),
@@ -39,14 +36,12 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler({EntityNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ResponseBody
     public ApiErrorResponse handleNotFoundException(RuntimeException exception) {
         return new ApiErrorResponse(ErrorCode.ERROR_NOT_FOUND, HttpStatus.NOT_FOUND.value(), exception.getMessage());
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ResponseBody
     public ApiErrorResponse handleConstraintViolationException(ConstraintViolationException exception) {
         List<ViolationError> violationErrors = exception.getConstraintViolations().stream()
                 .map(v -> new ViolationError(
@@ -61,7 +56,6 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ResponseBody
     public ApiErrorResponse handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         final List<ViolationError> violations = e.getBindingResult().getFieldErrors().stream()
                 .map(error -> new ViolationError(error.getField(), error.getDefaultMessage(),
