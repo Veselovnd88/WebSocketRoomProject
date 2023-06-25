@@ -1,6 +1,7 @@
 package ru.veselov.websocketroomproject.app;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
@@ -31,14 +32,18 @@ class RoomControllerIntegrationSortAndValidationTest extends PostgresContainersC
     @Autowired
     private RoomRepository roomRepository;
 
+    @BeforeEach
+    void setUp() {
+        fillRepoWithRooms();
+    }
+
     @AfterEach
-    void clearAll() {
+    void clear() {
         roomRepository.deleteAll();
     }
 
     @Test
-    void shouldReturnArrayOfRoomWithSorting() {
-        fillRepoWithRooms();
+    void shouldReturnRoomArrayPage0SortedByNameAscending() {
         //0 page, sorted by name, ascending
         webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
                         .queryParam("page", 0)
@@ -50,49 +55,10 @@ class RoomControllerIntegrationSortAndValidationTest extends PostgresContainersC
                 .expectBody().jsonPath("$").isArray()
                 .jsonPath("$.size()").isEqualTo(3)
                 .jsonPath("$[0].name").isEqualTo("aaa");
+    }
 
-        //if we not pass page parameter it will set to 0 by default, sorted by name, ascending
-        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
-                        .queryParam("sort", "name")
-                        .queryParam("order", "asc")
-                        .build())
-                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
-                .exchange().expectStatus().isOk()
-                .expectBody().jsonPath("$").isArray()
-                .jsonPath("$.size()").isEqualTo(3)
-                .jsonPath("$[0].name").isEqualTo("aaa");
-
-        //if we will not pass order parameter - it will be set to desc by default
-        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
-                        .queryParam("sort", "name")
-                        .build())
-                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
-                .exchange().expectStatus().isOk()
-                .expectBody().jsonPath("$").isArray()
-                .jsonPath("$.size()").isEqualTo(3)
-                .jsonPath("$[0].name").isEqualTo("ccc");
-
-        //default page, sorting by name, ascending
-        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
-                        .queryParam("sort", "name")
-                        .queryParam("order", "asc")
-                        .build())
-                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
-                .exchange().expectStatus().isOk()
-                .expectBody().jsonPath("$").isArray()
-                .jsonPath("$.size()").isEqualTo(3)
-                .jsonPath("$[0].name").isEqualTo("aaa");
-
-        //default page, sorting by ownerName, default order
-        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
-                        .queryParam("sort", "ownerName")
-                        .build())
-                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
-                .exchange().expectStatus().isOk()
-                .expectBody().jsonPath("$").isArray()
-                .jsonPath("$.size()").isEqualTo(3)
-                .jsonPath("$[0].name").isEqualTo("ccc");
-
+    @Test
+    void shouldReturnRoomArrayPage0ByDefaultSortedByOwnerNameAscending() {
         //default page, sorting by ownerName, ascending
         webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
                         .queryParam("sort", "ownerName")
@@ -103,7 +69,10 @@ class RoomControllerIntegrationSortAndValidationTest extends PostgresContainersC
                 .expectBody().jsonPath("$").isArray()
                 .jsonPath("$.size()").isEqualTo(3)
                 .jsonPath("$[0].name").isEqualTo("aaa");
+    }
 
+    @Test
+    void shouldReturnRoomArrayPage0ByDefaultSortedByCreatedAtDescendingByDefault() {
         //default page, sorting by createdAt, default order - descending
         webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
                         .queryParam("sort", "createdAt")
@@ -113,7 +82,10 @@ class RoomControllerIntegrationSortAndValidationTest extends PostgresContainersC
                 .expectBody().jsonPath("$").isArray()
                 .jsonPath("$.size()").isEqualTo(3)
                 .jsonPath("$[0].name").isEqualTo("ccc");
+    }
 
+    @Test
+    void shouldReturnRoomArrayPage0ByDefaultSortedByCreatedAtByDefaultDescendingByDefault() {
         //default page, default sorting, default order
         webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
                         .build())
@@ -122,18 +94,10 @@ class RoomControllerIntegrationSortAndValidationTest extends PostgresContainersC
                 .expectBody().jsonPath("$").isArray()
                 .jsonPath("$.size()").isEqualTo(3)
                 .jsonPath("$[0].name").isEqualTo("ccc");
+    }
 
-        //default page, sorting by ownerName, ascending
-        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
-                        .queryParam("sort", "ownerName")
-                        .queryParam("order", "asc")
-                        .build())
-                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
-                .exchange().expectStatus().isOk()
-                .expectBody().jsonPath("$").isArray()
-                .jsonPath("$.size()").isEqualTo(3)
-                .jsonPath("$[0].name").isEqualTo("aaa");
-
+    @Test
+    void shouldReturnRoomArrayPage0ByDefaultSortedByPlayerTypeAscending() {
         //default page, sorting by playerType, ascending
         webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
                         .queryParam("sort", "playerType")
@@ -144,10 +108,28 @@ class RoomControllerIntegrationSortAndValidationTest extends PostgresContainersC
                 .expectBody().jsonPath("$").isArray()
                 .jsonPath("$.size()").isEqualTo(3)
                 .jsonPath("$[0].name").isEqualTo("bbb");
+    }
 
+    @Test
+    void shouldReturnRoomArrayPage0ByDefaultSortedByPlayerTypeDescendingByDefault() {
         //default page, sorting by playerType, default order
-        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
+        webTestClient.get().
+                uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
                         .queryParam("sort", "playerType")
+                        .build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .exchange().expectStatus().isOk().expectBody().jsonPath("$").isArray()
+                .jsonPath("$.size()").isEqualTo(3)
+                .jsonPath("$[0].name")
+                .isEqualTo("aaa");
+    }
+
+    @Test
+    void shouldReturnRoomArrayWithSortingPage0ByDefaultSortedByNameAscending() {
+        //if we not pass page parameter it will set to 0 by default, sorted by name, ascending
+        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
+                        .queryParam("sort", "name")
+                        .queryParam("order", "asc")
                         .build())
                 .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
                 .exchange().expectStatus().isOk()
@@ -157,7 +139,33 @@ class RoomControllerIntegrationSortAndValidationTest extends PostgresContainersC
     }
 
     @Test
-    void shouldReturnValidationErrorWhenTryingPassNotCorrectSortParameters() {
+    void shouldReturnRoomArrayPage0ByDefaultSortedByNameDescendingByDefault() {
+        //if we will not pass order parameter - it will be set to desc by default
+        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
+                        .queryParam("sort", "name")
+                        .build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .exchange().expectStatus().isOk()
+                .expectBody().jsonPath("$").isArray()
+                .jsonPath("$.size()").isEqualTo(3)
+                .jsonPath("$[0].name").isEqualTo("ccc");
+    }
+
+    @Test
+    void shouldReturnRoomArrayPage0ByDefaultSortedByOwnerNameDescendingByDefault() {
+        //default page, sorting by ownerName, default order
+        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
+                        .queryParam("sort", "ownerName")
+                        .build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .exchange().expectStatus().isOk()
+                .expectBody().jsonPath("$").isArray()
+                .jsonPath("$.size()").isEqualTo(3)
+                .jsonPath("$[0].name").isEqualTo("ccc");
+    }
+
+    @Test
+    void shouldReturnValidationErrorWhenPassNegativePage() {
         webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
                         .queryParam("page", -1)
                         .queryParam("sort", "ownerName")
@@ -167,7 +175,10 @@ class RoomControllerIntegrationSortAndValidationTest extends PostgresContainersC
                 .exchange().expectStatus().isBadRequest()
                 .expectBody().jsonPath("$.error").isEqualTo(ErrorCode.ERROR_VALIDATION.toString())
                 .jsonPath("$.violations[0].fieldName").isEqualTo("page");
+    }
 
+    @Test
+    void shouldReturnValidationErrorWhenPassNotCorrectSortField() {
         webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
                         .queryParam("page", 0)
                         .queryParam("sort", "Not a sort parameter")
@@ -177,7 +188,10 @@ class RoomControllerIntegrationSortAndValidationTest extends PostgresContainersC
                 .exchange().expectStatus().isBadRequest()
                 .expectBody().jsonPath("$.error").isEqualTo(ErrorCode.ERROR_VALIDATION.toString())
                 .jsonPath("$.violations[0].fieldName").isEqualTo("sort");
+    }
 
+    @Test
+    void shouldReturnValidationErrorWhenPassNotCorrectSortingOrder() {
         webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
                         .queryParam("page", 0)
                         .queryParam("sort", "name")
