@@ -12,8 +12,6 @@ public interface ChatUserService {
 
     void saveChatUser(ChatUser chatUser);
 
-    ChatUser findChatUserBySessionId(String sessionId);
-
     Set<ChatUser> findChatUsersByRoomId(String roomId);
 
     Optional<ChatUser> removeChatUser(String sessionId);

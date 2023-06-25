@@ -10,10 +10,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.entity.RoomEntity;
 import ru.veselov.websocketroomproject.exception.NotCorrectOwnerException;
-import ru.veselov.websocketroomproject.exception.NotCorrectTokenException;
+import ru.veselov.websocketroomproject.exception.InvalidRoomTokenException;
 import ru.veselov.websocketroomproject.exception.RoomAlreadyExistsException;
 import ru.veselov.websocketroomproject.repository.RoomRepository;
-import ru.veselov.websocketroomproject.validation.impl.RoomValidatorImpl;
 
 import java.security.Principal;
 import java.util.Optional;
@@ -69,7 +68,7 @@ class RoomValidatorImplTest {
 
         Assertions.assertThatThrownBy(
                 () -> roomValidator.validateToken(roomEntity, token)
-        ).isInstanceOf(NotCorrectTokenException.class);
+        ).isInstanceOf(InvalidRoomTokenException.class);
     }
 
     @Test

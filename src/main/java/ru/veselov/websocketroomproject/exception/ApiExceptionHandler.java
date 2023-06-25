@@ -26,11 +26,19 @@ public class ApiExceptionHandler {
         return new ApiErrorResponse(ErrorCode.ERROR_CONFLICT, HttpStatus.CONFLICT.value(), exception.getMessage());
     }
 
-    @ExceptionHandler({NotCorrectOwnerException.class, NotCorrectTokenException.class})
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(InvalidRoomTokenException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ApiErrorResponse handleInvalidRoomTokenException(RuntimeException exception) {
+        return new ApiErrorResponse(ErrorCode.ERROR_INVALID_ROOM_TOKEN,
+                HttpStatus.FORBIDDEN.value(),
+                exception.getMessage());
+    }
+
+    @ExceptionHandler(NotCorrectOwnerException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
     public ApiErrorResponse handleNotAuthorizedException(RuntimeException exception) {
-        return new ApiErrorResponse(ErrorCode.ERROR_UNAUTHORIZED,
-                HttpStatus.UNAUTHORIZED.value(),
+        return new ApiErrorResponse(ErrorCode.ERROR_NOT_ROOM_OWNER,
+                HttpStatus.FORBIDDEN.value(),
                 exception.getMessage());
     }
 

@@ -5,13 +5,17 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Captor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import ru.veselov.websocketroomproject.ChatUserUtils;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.entity.ChatUserEntity;
-import ru.veselov.websocketroomproject.exception.ChatUserNotFoundException;
 import ru.veselov.websocketroomproject.mapper.ChatUserEntityMapper;
 import ru.veselov.websocketroomproject.mapper.ChatUserEntityMapperImpl;
 import ru.veselov.websocketroomproject.model.ChatUser;
@@ -56,30 +60,6 @@ class ChatUserServiceImplTest {
         Assertions.assertThat(captured.getUsername()).isEqualTo(chatUser.getUsername());
         Assertions.assertThat(captured.getSession()).isEqualTo(chatUser.getSession());
         Assertions.assertThat(captured.getRoomId()).isEqualTo(chatUser.getRoomId());
-    }
-
-    @Test
-    void shouldFindChatUserBySessionIdFromRepo() {
-        ChatUserEntity chatUserEntity = ChatUserUtils
-                .getChatUser(ROOM_ID, TestConstants.TEST_USERNAME, TestConstants.TEST_SESSION_ID);
-        Mockito.when(repository.findById(TestConstants.TEST_SESSION_ID)).thenReturn(Optional.of(chatUserEntity));
-
-        ChatUser userBySessionId = chatUserService.findChatUserBySessionId(TestConstants.TEST_SESSION_ID);
-
-        Mockito.verify(repository, Mockito.times(1)).findById(TestConstants.TEST_SESSION_ID);
-        Assertions.assertThat(userBySessionId.getUsername()).isEqualTo(chatUserEntity.getUsername());
-        Assertions.assertThat(userBySessionId.getSession()).isEqualTo(chatUserEntity.getSession());
-        Assertions.assertThat(userBySessionId.getRoomId()).isEqualTo(chatUserEntity.getRoomId());
-    }
-
-    @Test
-    void shouldThrowExceptionIfChatUserNotFound() {
-        Mockito.when(repository.findById(TestConstants.TEST_SESSION_ID)).thenReturn(Optional.empty());
-
-        Assertions.assertThatThrownBy(() -> chatUserService.findChatUserBySessionId(TestConstants.TEST_SESSION_ID))
-                .isInstanceOf(ChatUserNotFoundException.class);
-
-        Mockito.verify(repository, Mockito.times(1)).findById(TestConstants.TEST_SESSION_ID);
     }
 
     @Test

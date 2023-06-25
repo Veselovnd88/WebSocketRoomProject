@@ -6,7 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import ru.veselov.websocketroomproject.entity.RoomEntity;
 import ru.veselov.websocketroomproject.exception.NotCorrectOwnerException;
-import ru.veselov.websocketroomproject.exception.NotCorrectTokenException;
+import ru.veselov.websocketroomproject.exception.InvalidRoomTokenException;
 import ru.veselov.websocketroomproject.exception.RoomAlreadyExistsException;
 import ru.veselov.websocketroomproject.repository.RoomRepository;
 import ru.veselov.websocketroomproject.validation.RoomValidator;
@@ -34,7 +34,7 @@ public class RoomValidatorImpl implements RoomValidator {
     public void validateToken(RoomEntity roomEntity, String token) {
         if (!StringUtils.equals(roomEntity.getRoomToken(), token)) {
             log.error("Not correct [token: {}]", token);
-            throw new NotCorrectTokenException(String.format("Not correct token %s for access to private room", token));
+            throw new InvalidRoomTokenException(String.format("Not correct token %s for access to private room", token));
         }
         log.info("Token for private [room {}] validated", roomEntity.getId());
     }
