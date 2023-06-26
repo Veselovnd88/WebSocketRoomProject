@@ -12,6 +12,7 @@ import ru.veselov.websocketroomproject.entity.PlayerType;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 @Data
@@ -36,6 +37,8 @@ public class Room implements Serializable {
 
     @NotNull(message = "Player type cannot be null")
     private PlayerType playerType;
+
+    private Set<Tag> tags;//TODO Json as array of strings
 
     @JsonFormat(pattern = "yyyy-mm-dd HH:mm:ss")
     private ZonedDateTime createdAt;

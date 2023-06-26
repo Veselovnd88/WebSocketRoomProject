@@ -13,12 +13,12 @@ import java.util.UUID;
 
 @Repository
 public interface RoomRepository extends JpaRepository<RoomEntity, UUID> {
-    @Query("SELECT r FROM RoomEntity r where r.name= ?1")
+    @Query("SELECT r FROM RoomEntity r join fetch r.tags where r.name= ?1")
     Optional<RoomEntity> findByName(String name);
 
     @Query("SELECT r FROM RoomEntity r where r.isPrivate=false")
     List<RoomEntity> findAllPublicRooms();
 
-    @Query("SELECT r FROM RoomEntity r where r.isPrivate=false")
+    @Query("SELECT r FROM RoomEntity r where r.isPrivate=false ")
     Page<RoomEntity> findAll(Pageable pageable);
 }

@@ -9,7 +9,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -35,8 +34,8 @@ public class TagEntity {
     @Column(name = "tag_id", nullable = false)
     private Long tagId;
 
-    @Column(name = "tag", nullable = false)
-    private String tag;
+    @Column(name = "name", nullable = false)
+    private String name;
 
     @Column(name = "created_at", updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -50,8 +49,8 @@ public class TagEntity {
     )
     private Set<RoomEntity> rooms = new HashSet<>();
 
-    public TagEntity(String tag, ZonedDateTime createdAt) {
-        this.tag = tag;
+    public TagEntity(String name, ZonedDateTime createdAt) {
+        this.name = name;
         this.createdAt = createdAt;
     }
 
