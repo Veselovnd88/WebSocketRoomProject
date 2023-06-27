@@ -65,7 +65,8 @@ public class RoomEntity {
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UrlEntity> urls = new LinkedList<>();
 
-    @ManyToMany(mappedBy = "rooms", fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "rooms", fetch = FetchType.LAZY,
+            cascade = {CascadeType.REFRESH, CascadeType.MERGE, CascadeType.PERSIST})
     private Set<TagEntity> tags = new HashSet<>();
 
     public void addUrl(UrlEntity url) {

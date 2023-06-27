@@ -75,7 +75,7 @@ public class RoomServiceImpl implements RoomService {
         }
         for (Tag t : room.getTags()) {
             Optional<TagEntity> tagOptional = tagRepository.findByName(t.getName());
-            tagOptional.ifPresent(roomEntity::addTag);//TODO doesnt findByName????
+            tagOptional.ifPresent(roomEntity::addTag);
         }
         RoomEntity saved = roomRepository.save(roomEntity);
         log.info("[Saved room {}]", saved);

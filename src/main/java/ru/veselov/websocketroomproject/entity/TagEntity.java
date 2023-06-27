@@ -1,5 +1,6 @@
 package ru.veselov.websocketroomproject.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -41,7 +42,8 @@ public class TagEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private ZonedDateTime createdAt;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY,
+            cascade = {CascadeType.REFRESH, CascadeType.MERGE, CascadeType.PERSIST})
     @JoinTable(
             name = "room_tag",
             joinColumns = {@JoinColumn(name = "tag_id")},

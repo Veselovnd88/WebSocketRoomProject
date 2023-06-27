@@ -14,7 +14,7 @@ public interface TagRepository extends JpaRepository<TagEntity, Long> {
     @Query("SELECT t FROM TagEntity t WHERE t.tagId=?1")
     Optional<TagEntity> findByTagId(Long id);
 
-    @Query("SELECT t FROM TagEntity t join fetch t.rooms WHERE t.name=?1")
+    @Query("SELECT t FROM TagEntity t left join fetch t.rooms WHERE t.name=?1")
     Optional<TagEntity> findByName(String name);
 
     @Query("SELECT t FROM TagEntity t")
