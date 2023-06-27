@@ -50,7 +50,6 @@ public class TagEntity {
             inverseJoinColumns = {@JoinColumn(name = "room_id")}
     )
     private Set<RoomEntity> rooms = new HashSet<>();
-
     public TagEntity(String name, ZonedDateTime createdAt) {
         this.name = name;
         this.createdAt = createdAt;

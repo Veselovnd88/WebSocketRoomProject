@@ -3,6 +3,7 @@ package ru.veselov.websocketroomproject.app;
 import net.datafaker.Faker;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
@@ -11,17 +12,22 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.transaction.annotation.Transactional;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.app.containers.PostgresContainersConfig;
 import ru.veselov.websocketroomproject.dto.request.RoomSettingsDTO;
 import ru.veselov.websocketroomproject.dto.request.UrlDto;
 import ru.veselov.websocketroomproject.entity.PlayerType;
 import ru.veselov.websocketroomproject.entity.RoomEntity;
+import ru.veselov.websocketroomproject.entity.TagEntity;
 import ru.veselov.websocketroomproject.exception.error.ErrorCode;
 import ru.veselov.websocketroomproject.model.Room;
+import ru.veselov.websocketroomproject.model.Tag;
 import ru.veselov.websocketroomproject.repository.RoomRepository;
+import ru.veselov.websocketroomproject.repository.TagRepository;
 
 import java.time.ZonedDateTime;
+import java.util.Set;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
@@ -41,16 +47,30 @@ class RoomControllerIntegrationTest extends PostgresContainersConfig {
     @Autowired
     private RoomRepository roomRepository;
 
+    @Autowired
+    private TagRepository tagRepository;
+
+    @BeforeEach
+    void init() {
+        tagRepository.deleteAll();
+    }
+
     @AfterEach
     void clearAll() {
+        tagRepository.deleteAll();
         roomRepository.deleteAll();
     }
 
     @Test
     void shouldCreateAndReturnPrivateRoom() {
+        tagRepository.save(new TagEntity("Movie", ZonedDateTime.now()));
+        tagRepository.save(new TagEntity("Cartoon", ZonedDateTime.now()));
         Room roomToSave = Room.builder()
                 .name(faker.elderScrolls().region())
                 .isPrivate(true)
+                .tags(Set.of(
+                        new Tag("Movie"),
+                        new Tag("Cartoon")))
                 .playerType(PlayerType.YOUTUBE).build();
 
         WebTestClient.BodyContentSpec resultBody = webTestClient.post().uri(
@@ -60,7 +80,9 @@ class RoomControllerIntegrationTest extends PostgresContainersConfig {
                 .exchange().expectStatus().isCreated().expectBody()
                 .jsonPath("$.roomToken").exists()
                 .jsonPath("$.isPrivate").isEqualTo(true)
-                .jsonPath("$.changedAt").doesNotExist();
+                .jsonPath("$.changedAt").doesNotExist()
+                .jsonPath("$.tags").isArray()
+                .jsonPath("$.tags.size()").isEqualTo(2);
         validateReturnedRoomBody(resultBody, roomToSave);
     }
 
@@ -96,7 +118,9 @@ class RoomControllerIntegrationTest extends PostgresContainersConfig {
                 .jsonPath("$.id").isEqualTo(saved.getId().toString())
                 .jsonPath("$.isPrivate").isEqualTo(saved.getIsPrivate())
                 .jsonPath("$.playerType").isEqualTo(saved.getPlayerType().toString())
-                .jsonPath("$.createdAt").exists();
+                .jsonPath("$.createdAt").exists()
+                .jsonPath("$.tags").isArray()
+                .jsonPath("$.tags.size()").isEqualTo(2);
     }
 
 
@@ -206,6 +230,8 @@ class RoomControllerIntegrationTest extends PostgresContainersConfig {
     }
 
     private RoomEntity saveRoomToRepo() {
+        TagEntity movieTag = tagRepository.save(new TagEntity("Movie", ZonedDateTime.now()));
+        TagEntity cartoonTag = tagRepository.save(new TagEntity("Cartoon", ZonedDateTime.now()));
         RoomEntity roomEntity = new RoomEntity();
         roomEntity.setPlayerType(PlayerType.YOUTUBE);
         roomEntity.setName(faker.elderScrolls().region());
@@ -213,6 +239,8 @@ class RoomControllerIntegrationTest extends PostgresContainersConfig {
         roomEntity.setOwnerName(OWNER);
         roomEntity.setRoomToken("abc");
         roomEntity.setCreatedAt(ZonedDateTime.now());
+        roomEntity.addTag(tagRepository.findByName("Movie").get());
+        roomEntity.addTag(tagRepository.findByName("Cartoon").get());
         return roomRepository.save(roomEntity);
     }
 
