@@ -78,7 +78,7 @@ public class JwtFilter extends OncePerRequestFilter {
         ApiErrorResponse errorResponse = new ApiErrorResponse(
                 ErrorCode.ERROR_UNAUTHORIZED,
                 HttpStatus.UNAUTHORIZED.value(),
-                String.format("Cannot connect to [%s]: Jwt is invalid or empty", requestURI));
+                "Cannot connect to [%s]: Jwt is invalid or empty".formatted(requestURI));
         String mapperMessage = jsonMapper.writeValueAsString(errorResponse);
         log.error("Cannot connect to [{}]: Jwt is invalid or empty", requestURI);
         response.getWriter().print(mapperMessage);
