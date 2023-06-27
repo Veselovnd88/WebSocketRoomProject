@@ -83,7 +83,7 @@ class RoomServiceImplTest {
         Mockito.when(principal.getName()).thenReturn(ownerName);
         Mockito.when(tagRepository.findByName("Movie"))
                 .thenReturn(Optional.of(movieTagEntity));
-        Mockito.when(tagRepository.findByName("Stupid Video"))
+        Mockito.when(tagRepository.findByName("Stupid Video"))//FIXME
                 .thenReturn(Optional.of(stupidVideotagEntity));
 
         //when
@@ -141,7 +141,7 @@ class RoomServiceImplTest {
         RoomEntity roomEntity = new RoomEntity();
         roomEntity.setIsPrivate(true);
         Mockito.when(roomRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.of(roomEntity));
-
+//FIXME
         Assertions.assertThatNoException().isThrownBy(
                 () -> roomService.getRoomById(ROOM_ID, "token")
         );
@@ -155,7 +155,7 @@ class RoomServiceImplTest {
         RoomEntity roomEntity = new RoomEntity();
         roomEntity.setIsPrivate(false);
         Mockito.when(roomRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.of(roomEntity));
-
+        //FIXME
         Assertions.assertThatNoException().isThrownBy(
                 () -> roomService.getRoomById(ROOM_ID, null)
         );

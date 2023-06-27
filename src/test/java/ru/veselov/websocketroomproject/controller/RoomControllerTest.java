@@ -15,10 +15,12 @@ import ru.veselov.websocketroomproject.dto.request.RoomSettingsDTO;
 import ru.veselov.websocketroomproject.dto.request.UrlDto;
 import ru.veselov.websocketroomproject.entity.PlayerType;
 import ru.veselov.websocketroomproject.model.Room;
+import ru.veselov.websocketroomproject.model.Tag;
 import ru.veselov.websocketroomproject.service.RoomService;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Set;
 import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
@@ -92,6 +94,7 @@ class RoomControllerTest {
         Room transferedRoom = Room.builder()
                 .name(savedRoom.getName())
                 .ownerName(savedRoom.getOwnerName())
+                .tags(Set.of(new Tag("Other")))
                 .playerType(PlayerType.YOUTUBE)
                 .isPrivate(true).build();
         Mockito.when(roomService.createRoom(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(savedRoom);

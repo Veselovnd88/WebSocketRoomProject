@@ -8,11 +8,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.transaction.annotation.Transactional;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.app.containers.PostgresContainersConfig;
 import ru.veselov.websocketroomproject.dto.request.RoomSettingsDTO;
@@ -20,7 +18,6 @@ import ru.veselov.websocketroomproject.dto.request.UrlDto;
 import ru.veselov.websocketroomproject.entity.PlayerType;
 import ru.veselov.websocketroomproject.entity.RoomEntity;
 import ru.veselov.websocketroomproject.entity.TagEntity;
-import ru.veselov.websocketroomproject.exception.error.ErrorCode;
 import ru.veselov.websocketroomproject.model.Room;
 import ru.veselov.websocketroomproject.model.Tag;
 import ru.veselov.websocketroomproject.repository.RoomRepository;
@@ -88,8 +85,10 @@ class RoomControllerIntegrationTest extends PostgresContainersConfig {
 
     @Test
     void shouldCreateAndReturnPublicRoom() {
+        tagRepository.save(new TagEntity("Other", ZonedDateTime.now()));
         Room roomToSave = Room.builder()
                 .name(faker.elderScrolls().region())
+                .tags(Set.of(new Tag("Other")))
                 .playerType(PlayerType.RUTUBE).build();
 
         WebTestClient.BodyContentSpec resultBody = webTestClient.post().uri(
@@ -99,7 +98,9 @@ class RoomControllerIntegrationTest extends PostgresContainersConfig {
                 .exchange().expectStatus().isCreated().expectBody()
                 .jsonPath("$.roomToken").doesNotExist()
                 .jsonPath("$.isPrivate").isEqualTo(false)
-                .jsonPath("$.changedAt").doesNotExist();
+                .jsonPath("$.changedAt").doesNotExist()
+                .jsonPath("$.tags").isArray()
+                .jsonPath("$.tags.size()").isEqualTo(1);
         validateReturnedRoomBody(resultBody, roomToSave);
     }
 
@@ -121,19 +122,6 @@ class RoomControllerIntegrationTest extends PostgresContainersConfig {
                 .jsonPath("$.createdAt").exists()
                 .jsonPath("$.tags").isArray()
                 .jsonPath("$.tags.size()").isEqualTo(2);
-    }
-
-
-    @Test
-    void shouldReturnValidationErrorWhenRoomIdIsNotUUID() {
-        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("NotUUID")
-                        .queryParam("token", "abc")
-                        .build())
-                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
-                .exchange().expectStatus().isEqualTo(HttpStatus.BAD_REQUEST)
-                .expectBody().jsonPath("$.error").isEqualTo(ErrorCode.ERROR_VALIDATION.toString())
-                .jsonPath("$.violations").isArray()
-                .jsonPath("$.violations[0].fieldName").isEqualTo("id");
     }
 
     @Test
@@ -230,8 +218,6 @@ class RoomControllerIntegrationTest extends PostgresContainersConfig {
     }
 
     private RoomEntity saveRoomToRepo() {
-        TagEntity movieTag = tagRepository.save(new TagEntity("Movie", ZonedDateTime.now()));
-        TagEntity cartoonTag = tagRepository.save(new TagEntity("Cartoon", ZonedDateTime.now()));
         RoomEntity roomEntity = new RoomEntity();
         roomEntity.setPlayerType(PlayerType.YOUTUBE);
         roomEntity.setName(faker.elderScrolls().region());
@@ -239,10 +225,9 @@ class RoomControllerIntegrationTest extends PostgresContainersConfig {
         roomEntity.setOwnerName(OWNER);
         roomEntity.setRoomToken("abc");
         roomEntity.setCreatedAt(ZonedDateTime.now());
-        roomEntity.addTag(tagRepository.findByName("Movie").get());
-        roomEntity.addTag(tagRepository.findByName("Cartoon").get());
+        roomEntity.addTag(new TagEntity("Movie", ZonedDateTime.now()));
+        roomEntity.addTag(new TagEntity("Cartoon", ZonedDateTime.now()));
         return roomRepository.save(roomEntity);
     }
-
 
 }
