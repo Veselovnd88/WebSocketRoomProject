@@ -12,7 +12,6 @@ import ru.veselov.websocketroomproject.entity.PlayerType;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -39,9 +38,9 @@ public class Room implements Serializable {
     @NotNull(message = "Player type cannot be null")
     private PlayerType playerType;
 
-    @NotEmpty
-    @Builder.Default
-    private Set<Tag> tags = new HashSet<>();
+    @NotEmpty(message = "Room should has at least 1 tag")
+    @NotNull(message = "Room should has at least 1 tag")
+    private Set<Tag> tags;
 
     @JsonFormat(pattern = "yyyy-mm-dd HH:mm:ss")
     private ZonedDateTime createdAt;

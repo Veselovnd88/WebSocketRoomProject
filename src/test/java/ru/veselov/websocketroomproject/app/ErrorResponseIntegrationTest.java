@@ -114,7 +114,6 @@ public class ErrorResponseIntegrationTest extends PostgresContainersConfig {
         Room transferedRoom = Room.builder()
                 .isPrivate(true)
                 .name("name")
-                .tags(Set.of(new Tag("Other")))
                 .playerType(PlayerType.YOUTUBE).build();
 
         webTestClient.post().uri(

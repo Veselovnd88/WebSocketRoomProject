@@ -5,7 +5,12 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Captor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import ru.veselov.websocketroomproject.dto.request.RoomSettingsDTO;
@@ -17,6 +22,8 @@ import ru.veselov.websocketroomproject.event.handler.impl.RoomUpdateHandlerImpl;
 import ru.veselov.websocketroomproject.exception.RoomNotFoundException;
 import ru.veselov.websocketroomproject.mapper.RoomMapper;
 import ru.veselov.websocketroomproject.mapper.RoomMapperImpl;
+import ru.veselov.websocketroomproject.mapper.TagMapper;
+import ru.veselov.websocketroomproject.mapper.TagMapperImpl;
 import ru.veselov.websocketroomproject.model.Room;
 import ru.veselov.websocketroomproject.model.Tag;
 import ru.veselov.websocketroomproject.repository.RoomRepository;
@@ -64,9 +71,11 @@ class RoomServiceImplTest {
 
     @BeforeEach
     void init() {
+        RoomMapperImpl roomMapper = new RoomMapperImpl();
         ReflectionTestUtils.setField(roomService, "zoneId", "Europe/Moscow", String.class);
         ReflectionTestUtils.setField(roomService, "zone", ZoneId.of("Europe/Moscow"), ZoneId.class);
-        ReflectionTestUtils.setField(roomService, "roomMapper", new RoomMapperImpl(), RoomMapper.class);
+        ReflectionTestUtils.setField(roomService, "roomMapper", roomMapper, RoomMapper.class);
+        ReflectionTestUtils.setField(roomMapper, "tagMapper", new TagMapperImpl(), TagMapper.class);
     }
 
     @Test
@@ -74,17 +83,13 @@ class RoomServiceImplTest {
         //given
         Room room = getRoom(true);
         room.setTags(Set.of(
-                new Tag("Movie"),
-                new Tag("Stupid Video")
+                new Tag("Movie")
         ));
         TagEntity movieTagEntity = new TagEntity("Movie", ZonedDateTime.now());
-        TagEntity stupidVideotagEntity = new TagEntity("Stupid Video", ZonedDateTime.now());
         String ownerName = faker.elderScrolls().firstName();
         Mockito.when(principal.getName()).thenReturn(ownerName);
         Mockito.when(tagRepository.findByName("Movie"))
                 .thenReturn(Optional.of(movieTagEntity));
-        Mockito.when(tagRepository.findByName("Stupid Video"))//FIXME
-                .thenReturn(Optional.of(stupidVideotagEntity));
 
         //when
         roomService.createRoom(room, principal);
@@ -92,14 +97,14 @@ class RoomServiceImplTest {
         //then
         Mockito.verify(roomRepository, Mockito.times(1)).save(roomCaptor.capture());
         Mockito.verify(roomValidator, Mockito.times(1)).validateRoomName(ArgumentMatchers.anyString());
-        Mockito.verify(tagRepository, Mockito.times(2)).findByName(ArgumentMatchers.anyString());
+        Mockito.verify(tagRepository, Mockito.times(1)).findByName(ArgumentMatchers.anyString());
         RoomEntity captured = roomCaptor.getValue();
         Assertions.assertThat(captured.getCreatedAt()).isNotNull();
         Assertions.assertThat(captured.getIsPrivate()).isTrue();
         Assertions.assertThat(captured.getRoomToken()).isNotBlank();
         Assertions.assertThat(captured.getName()).isEqualTo(room.getName());
         Assertions.assertThat(captured.getOwnerName()).isEqualTo(ownerName);
-        Assertions.assertThat(captured.getTags()).contains(movieTagEntity).contains(stupidVideotagEntity);
+        Assertions.assertThat(captured.getTags()).contains(movieTagEntity);
     }
 
     @Test
@@ -108,17 +113,13 @@ class RoomServiceImplTest {
         Room room = getRoom(false);
         room.setRoomToken(null);
         room.setTags(Set.of(
-                new Tag("Movie"),
-                new Tag("Stupid Video")
+                new Tag("Movie")
         ));
         TagEntity movieTagEntity = new TagEntity("Movie", ZonedDateTime.now());
-        TagEntity stupidVideotagEntity = new TagEntity("Stupid Video", ZonedDateTime.now());
         String ownerName = faker.elderScrolls().firstName();
         Mockito.when(principal.getName()).thenReturn(ownerName);
         Mockito.when(tagRepository.findByName("Movie"))
                 .thenReturn(Optional.of(movieTagEntity));
-        Mockito.when(tagRepository.findByName("Stupid Video"))
-                .thenReturn(Optional.of(stupidVideotagEntity));
 
         //when
         roomService.createRoom(room, principal);
@@ -126,14 +127,14 @@ class RoomServiceImplTest {
         //then
         Mockito.verify(roomRepository, Mockito.times(1)).save(roomCaptor.capture());
         Mockito.verify(roomValidator, Mockito.times(1)).validateRoomName(ArgumentMatchers.anyString());
+        Mockito.verify(tagRepository, Mockito.times(1)).findByName(ArgumentMatchers.anyString());
         RoomEntity captured = roomCaptor.getValue();
         Assertions.assertThat(captured.getCreatedAt()).isNotNull();
         Assertions.assertThat(captured.getIsPrivate()).isFalse();
         Assertions.assertThat(captured.getRoomToken()).isNull();
         Assertions.assertThat(captured.getName()).isEqualTo(room.getName());
         Assertions.assertThat(captured.getOwnerName()).isEqualTo(ownerName);
-        Assertions.assertThat(captured.getTags()).contains(movieTagEntity).contains(stupidVideotagEntity);
-        Mockito.verify(tagRepository, Mockito.times(2)).findByName(ArgumentMatchers.anyString());
+        Assertions.assertThat(captured.getTags()).contains(movieTagEntity);
     }
 
     @Test
