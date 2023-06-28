@@ -32,7 +32,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -71,13 +70,8 @@ public class RoomServiceImpl implements RoomService {
         RoomEntity roomEntity = roomMapper.toEntity(room);
         roomEntity.setCreatedAt(ZonedDateTime.now(zone));
         roomEntity.setOwnerName(ownerName);
-        if (Boolean.TRUE.equals(roomEntity.getIsPrivate())) {
-            roomEntity.setRoomToken(RandomStringUtils.randomAlphanumeric(10));
-        }
-        for (Tag t : room.getTags()) {
-            Optional<TagEntity> tagOptional = tagRepository.findByName(t.getName());
-            tagOptional.ifPresent(roomEntity::addTag);
-        }
+        setRoomTokenIfPrivate(roomEntity);
+        setRoomTags(room, roomEntity);
         RoomEntity saved = roomRepository.save(roomEntity);
         log.info("[Saved room {}]", saved);
         return roomMapper.entityToRoom(saved);
@@ -153,6 +147,19 @@ public class RoomServiceImpl implements RoomService {
                     throw new RoomNotFoundException(String.format("No room found with id [%s]", id));
                 }
         );
+    }
+
+    private void setRoomTokenIfPrivate(RoomEntity roomEntity) {
+        if (Boolean.TRUE.equals(roomEntity.getIsPrivate())) {
+            roomEntity.setRoomToken(RandomStringUtils.randomAlphanumeric(10));
+        }
+    }
+
+    private void setRoomTags(Room room, RoomEntity roomEntity) {
+        for (Tag t : room.getTags()) {
+            Optional<TagEntity> tagOptional = tagRepository.findByName(t.getName());
+            tagOptional.ifPresent(roomEntity::addTag);
+        }
     }
 
 }
