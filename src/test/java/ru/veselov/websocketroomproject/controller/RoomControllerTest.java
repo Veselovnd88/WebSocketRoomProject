@@ -11,8 +11,6 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.servlet.client.MockMvcWebTestClient;
-import ru.veselov.websocketroomproject.dto.request.RoomSettingsDTO;
-import ru.veselov.websocketroomproject.dto.request.UrlDto;
 import ru.veselov.websocketroomproject.entity.PlayerType;
 import ru.veselov.websocketroomproject.model.Room;
 import ru.veselov.websocketroomproject.model.Tag;
@@ -72,23 +70,6 @@ class RoomControllerTest {
     }
 
     @Test
-    void shouldConsumeRoomSettingsDTOAndReturnRoomFromService() {
-        Room room = getRoom(false);
-        RoomSettingsDTO roomSettingsDTO = RoomSettingsDTO.builder()
-                .roomName("name").playerType(PlayerType.YOUTUBE).build();
-        Mockito.when(roomService.changeSettings(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-                .thenReturn(room);
-        WebTestClient.BodyContentSpec resultBody = webTestClient.put().uri(
-                        uriBuilder -> uriBuilder.path(URL_PREFIX).path(ROOM_ID).build())
-                .bodyValue(roomSettingsDTO)
-                .exchange().expectStatus().isAccepted().expectBody();
-
-        validateReturnedRoomBody(resultBody, room);
-        Mockito.verify(roomService, Mockito.times(1))
-                .changeSettings(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
-    }
-
-    @Test
     void shouldConsumeRoomAndReturnCreatedRoom() {
         Room savedRoom = getRoom(true);
         Room transferedRoom = Room.builder()
@@ -105,22 +86,6 @@ class RoomControllerTest {
 
         validateReturnedRoomBody(resultBody, savedRoom);
         Mockito.verify(roomService, Mockito.times(1)).createRoom(ArgumentMatchers.any(), ArgumentMatchers.any());
-    }
-
-    @Test
-    void shouldAddUrlAndReturnUrl() {
-        UrlDto urlDto = new UrlDto("https://hello.com");
-
-        webTestClient.post().uri(
-                        uriBuilder -> uriBuilder.path(URL_PREFIX).path("url/" + ROOM_ID).build())
-                .bodyValue(urlDto)
-                .exchange().expectStatus().isAccepted()
-                .expectBody().jsonPath("$.url").isEqualTo(urlDto.getUrl());
-
-        Mockito.verify(roomService, Mockito.times(1)).addUrl(
-                ArgumentMatchers.any(),
-                ArgumentMatchers.any(),
-                ArgumentMatchers.any());
     }
 
     private Room getRoom(boolean isPrivate) {

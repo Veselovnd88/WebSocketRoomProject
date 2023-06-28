@@ -1,10 +1,14 @@
 package ru.veselov.websocketroomproject.service;
 
 import ru.veselov.websocketroomproject.dto.request.RoomSettingsDTO;
-import ru.veselov.websocketroomproject.entity.RoomEntity;
+import ru.veselov.websocketroomproject.model.Room;
+
+import java.security.Principal;
 
 public interface RoomSettingsService {
 
-    RoomEntity applySettings(RoomEntity roomEntity, RoomSettingsDTO roomSettingsDTO);
+    Room changeSettings(String roomId, RoomSettingsDTO settings, Principal principal);
+
+    void addUrl(String roomId, String url, Principal principal);
 
 }
