@@ -9,13 +9,14 @@ import ru.veselov.websocketroomproject.model.Room;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {TagMapper.class})
 @MapperConfig(unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface RoomMapper {
 
     Room entityToRoom(RoomEntity roomEntity);
 
     @Mapping(target = "urls", ignore = true)
+    @Mapping(target = "tags", ignore = true)
     @Mapping(target = "isPrivate", source = "isPrivate", defaultValue = "false")
     RoomEntity toEntity(Room room);
 

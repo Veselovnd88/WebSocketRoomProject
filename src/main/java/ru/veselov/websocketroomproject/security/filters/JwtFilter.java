@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -73,12 +74,12 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private void sendInvalidJwtError(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String requestURI = request.getRequestURI();
-        response.setContentType("application/json");
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         ApiErrorResponse errorResponse = new ApiErrorResponse(
                 ErrorCode.ERROR_UNAUTHORIZED,
                 HttpStatus.UNAUTHORIZED.value(),
-                String.format("Cannot connect to [%s]: Jwt is invalid or empty", requestURI));
+                "Cannot connect to [%s]: Jwt is invalid or empty".formatted(requestURI));
         String mapperMessage = jsonMapper.writeValueAsString(errorResponse);
         log.error("Cannot connect to [{}]: Jwt is invalid or empty", requestURI);
         response.getWriter().print(mapperMessage);
@@ -95,7 +96,7 @@ public class JwtFilter extends OncePerRequestFilter {
     private boolean validateChatEventSourceHeader(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String requestURI = request.getRequestURI();
         if (requestURI.equals(authProperties.getChatEventURL())) {
-            response.setContentType("application/json");
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             ApiErrorResponse errorResponse = new ApiErrorResponse(
                     ErrorCode.ERROR_UNAUTHORIZED,

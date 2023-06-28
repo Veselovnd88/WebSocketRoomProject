@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
@@ -28,7 +29,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
                 "Something went wrong with authentication");
         String mappedMessage = objectMapper.writeValueAsString(errorMessage);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.setContentType("application/json");
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.getWriter().println(mappedMessage);
         log.error("Error occurred during authentication through jwt");
     }

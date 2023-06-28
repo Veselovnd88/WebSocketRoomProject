@@ -20,9 +20,11 @@ import ru.veselov.websocketroomproject.entity.PlayerType;
 import ru.veselov.websocketroomproject.entity.RoomEntity;
 import ru.veselov.websocketroomproject.exception.error.ErrorCode;
 import ru.veselov.websocketroomproject.model.Room;
+import ru.veselov.websocketroomproject.model.Tag;
 import ru.veselov.websocketroomproject.repository.RoomRepository;
 
 import java.time.ZonedDateTime;
+import java.util.Set;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
@@ -78,6 +80,7 @@ public class ErrorResponseIntegrationTest extends PostgresContainersConfig {
         roomRepository.save(roomEntity);
         Room roomToSave = Room.builder()
                 .name(roomEntity.getName())
+                .tags(Set.of(new Tag("Other")))
                 .isPrivate(true)
                 .playerType(PlayerType.YOUTUBE).build();
 
@@ -93,6 +96,7 @@ public class ErrorResponseIntegrationTest extends PostgresContainersConfig {
     void shouldReturnValidationErrorWhenCreatingRoomWithoutName() {
         Room transferedRoom = Room.builder()
                 .isPrivate(true)
+                .tags(Set.of(new Tag("Other")))
                 .playerType(PlayerType.YOUTUBE).build();
 
         webTestClient.post().uri(
@@ -105,12 +109,30 @@ public class ErrorResponseIntegrationTest extends PostgresContainersConfig {
                 .jsonPath("$.violations[0].fieldName").isEqualTo("name");
     }
 
+    @Test
+    void shouldReturnValidationErrorWhenCreatingRoomWithoutTags() {
+        Room transferedRoom = Room.builder()
+                .isPrivate(true)
+                .name("name")
+                .playerType(PlayerType.YOUTUBE).build();
+
+        webTestClient.post().uri(
+                        uriBuilder -> uriBuilder.path(URL_PREFIX).path("create").build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .bodyValue(transferedRoom)
+                .exchange().expectStatus().isBadRequest().expectBody()
+                .jsonPath("$.error").isEqualTo(ErrorCode.ERROR_VALIDATION.toString())
+                .jsonPath("$.violations").isArray()
+                .jsonPath("$.violations[0].fieldName").isEqualTo("tags");
+    }
+
     @ParameterizedTest
     @ValueSource(strings = {"aa", "moreThanThirtyCharacters26283032"})
     void shouldReturnValidationErrorWhenCreatingRoomWithIncorrectName(String name) {
         Room transferedRoom = Room.builder()
                 .isPrivate(true)
                 .name(name)
+                .tags(Set.of(new Tag("Other")))
                 .playerType(PlayerType.YOUTUBE).build();
 
         webTestClient.post().uri(
@@ -127,6 +149,7 @@ public class ErrorResponseIntegrationTest extends PostgresContainersConfig {
     void shouldReturnValidationErrorWhenCreatingRoomWithoutPlayer() {
         Room transferedRoom = Room.builder()
                 .isPrivate(true)
+                .tags(Set.of(new Tag("Other")))
                 .name(faker.elderScrolls().lastName()).build();
 
         webTestClient.post().uri(
@@ -222,6 +245,18 @@ public class ErrorResponseIntegrationTest extends PostgresContainersConfig {
                 .exchange().expectStatus().isBadRequest()
                 .expectBody().jsonPath("$.error").isEqualTo(ErrorCode.ERROR_VALIDATION.toString())
                 .jsonPath("$.violations[0].fieldName").isEqualTo("url");
+    }
+
+    @Test
+    void shouldReturnValidationErrorWhenRoomIdIsNotUUID() {
+        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("NotUUID")
+                        .queryParam("token", "abc")
+                        .build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .exchange().expectStatus().isEqualTo(HttpStatus.BAD_REQUEST)
+                .expectBody().jsonPath("$.error").isEqualTo(ErrorCode.ERROR_VALIDATION.toString())
+                .jsonPath("$.violations").isArray()
+                .jsonPath("$.violations[0].fieldName").isEqualTo("id");
     }
 
     private RoomEntity saveRoomToRepo() {

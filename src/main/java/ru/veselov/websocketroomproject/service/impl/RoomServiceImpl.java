@@ -14,12 +14,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.veselov.websocketroomproject.dto.request.RoomSettingsDTO;
 import ru.veselov.websocketroomproject.entity.RoomEntity;
+import ru.veselov.websocketroomproject.entity.TagEntity;
 import ru.veselov.websocketroomproject.entity.UrlEntity;
 import ru.veselov.websocketroomproject.event.handler.RoomUpdateHandler;
 import ru.veselov.websocketroomproject.exception.RoomNotFoundException;
 import ru.veselov.websocketroomproject.mapper.RoomMapper;
 import ru.veselov.websocketroomproject.model.Room;
+import ru.veselov.websocketroomproject.model.Tag;
 import ru.veselov.websocketroomproject.repository.RoomRepository;
+import ru.veselov.websocketroomproject.repository.TagRepository;
 import ru.veselov.websocketroomproject.service.RoomService;
 import ru.veselov.websocketroomproject.service.RoomSettingsService;
 import ru.veselov.websocketroomproject.validation.RoomValidator;
@@ -46,6 +49,8 @@ public class RoomServiceImpl implements RoomService {
 
     private final RoomRepository roomRepository;
 
+    private final TagRepository tagRepository;
+
     private final RoomSettingsService roomSettingsService;
 
     private final RoomValidator roomValidator;
@@ -65,9 +70,8 @@ public class RoomServiceImpl implements RoomService {
         RoomEntity roomEntity = roomMapper.toEntity(room);
         roomEntity.setCreatedAt(ZonedDateTime.now(zone));
         roomEntity.setOwnerName(ownerName);
-        if (Boolean.TRUE.equals(roomEntity.getIsPrivate())) {
-            roomEntity.setRoomToken(RandomStringUtils.randomAlphanumeric(10));
-        }
+        setRoomTokenIfPrivate(roomEntity);
+        setRoomTags(room, roomEntity);
         RoomEntity saved = roomRepository.save(roomEntity);
         log.info("[Saved room {}]", saved);
         return roomMapper.entityToRoom(saved);
@@ -143,6 +147,19 @@ public class RoomServiceImpl implements RoomService {
                     throw new RoomNotFoundException(String.format("No room found with id [%s]", id));
                 }
         );
+    }
+
+    private void setRoomTokenIfPrivate(RoomEntity roomEntity) {
+        if (Boolean.TRUE.equals(roomEntity.getIsPrivate())) {
+            roomEntity.setRoomToken(RandomStringUtils.randomAlphanumeric(10));
+        }
+    }
+
+    private void setRoomTags(Room room, RoomEntity roomEntity) {
+        for (Tag t : room.getTags()) {
+            Optional<TagEntity> tagOptional = tagRepository.findByName(t.getName());
+            tagOptional.ifPresent(roomEntity::addTag);
+        }
     }
 
 }

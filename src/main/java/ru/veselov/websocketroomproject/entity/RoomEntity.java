@@ -8,6 +8,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
@@ -17,8 +18,10 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import java.time.ZonedDateTime;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -62,9 +65,23 @@ public class RoomEntity {
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UrlEntity> urls = new LinkedList<>();
 
+    @ManyToMany(mappedBy = "rooms", fetch = FetchType.LAZY,
+            cascade = {CascadeType.REFRESH, CascadeType.MERGE, CascadeType.PERSIST})
+    private Set<TagEntity> tags = new HashSet<>();
+
     public void addUrl(UrlEntity url) {
         url.setRoom(this);
         this.urls.add(url);
+    }
+
+    public void addTag(TagEntity tagEntity) {
+        this.tags.add(tagEntity);
+        tagEntity.getRooms().add(this);
+    }
+
+    public void removeTag(TagEntity tagEntity) {
+        this.tags.remove(tagEntity);
+        tagEntity.getRooms().remove(this);
     }
 
 }
