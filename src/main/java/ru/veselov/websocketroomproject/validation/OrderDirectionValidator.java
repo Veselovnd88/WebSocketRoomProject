@@ -23,4 +23,5 @@ public class OrderDirectionValidator implements ConstraintValidator<OrderDirecti
         String field = (String) value;
         return availableOrderDirections.contains(field);
     }
+
 }

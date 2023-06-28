@@ -23,4 +23,5 @@ public class SortByFieldValidator implements ConstraintValidator<SortBy, Object>
         String field = (String) value;
         return availableSortFields.contains(field);
     }
+
 }
