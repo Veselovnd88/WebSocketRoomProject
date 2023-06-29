@@ -7,8 +7,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
@@ -42,13 +40,8 @@ public class TagEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private ZonedDateTime createdAt;
 
-    @ManyToMany(fetch = FetchType.LAZY,
+    @ManyToMany(mappedBy = "tags", fetch = FetchType.LAZY,
             cascade = {CascadeType.REFRESH, CascadeType.MERGE, CascadeType.PERSIST})
-    @JoinTable(
-            name = "room_tag",
-            joinColumns = {@JoinColumn(name = "tag_id")},
-            inverseJoinColumns = {@JoinColumn(name = "room_id")}
-    )
     private Set<RoomEntity> rooms = new HashSet<>();
 
     public TagEntity(String name) {

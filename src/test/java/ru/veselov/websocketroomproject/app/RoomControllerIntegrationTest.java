@@ -51,8 +51,8 @@ class RoomControllerIntegrationTest extends PostgresContainersConfig {
 
     @AfterEach
     void clearAll() {
-        tagRepository.deleteAll();
         roomRepository.deleteAll();
+        tagRepository.deleteAll();
     }
 
     @Test

@@ -55,8 +55,8 @@ class RoomSettingsControllerIntegrationTest extends PostgresContainersConfig {
 
     @AfterEach
     void clearAll() {
-        tagRepository.deleteAll();
         roomRepository.deleteAll();
+        tagRepository.deleteAll();
     }
 
     @Test
@@ -134,9 +134,6 @@ class RoomSettingsControllerIntegrationTest extends PostgresContainersConfig {
                         new Tag("Movie"))
                 )
                 .build();
-        Optional<TagEntity> cartoon = tagRepository.findByName("Cartoon");
-        Assertions.assertThat(cartoon).isPresent();
-        Assertions.assertThat(cartoon.get().getRooms()).hasSize(1);
 
         //when
         webTestClient.put().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path(saved.getId().toString())
@@ -149,10 +146,10 @@ class RoomSettingsControllerIntegrationTest extends PostgresContainersConfig {
                 .jsonPath("$.tags.size()").isEqualTo(2)
                 .jsonPath("$.tags").value(Matchers.containsInAnyOrder("Java", "Movie"));
 
-        //then
-        cartoon = tagRepository.findByName("Cartoon");
-        Assertions.assertThat(cartoon).isPresent();
-        Assertions.assertThat(cartoon.get().getRooms()).isEmpty();
+        //then, just checking if room_tag table also updated, and tag doesn't have given room
+        Optional<TagEntity> cartoonOptional = tagRepository.findByNameWithRooms("Cartoon");
+        Assertions.assertThat(cartoonOptional).isPresent();
+        Assertions.assertThat(cartoonOptional.get().getRooms()).isEmpty();
     }
 
     @Test
