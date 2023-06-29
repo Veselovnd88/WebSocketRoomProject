@@ -27,8 +27,8 @@ import java.util.UUID;
 @Entity
 @Data
 @Table(name = "room")
-@EqualsAndHashCode(exclude = {"urls", "id"})
-@ToString(exclude = {"urls"})
+@EqualsAndHashCode(exclude = {"urls", "id", "tags"})
+@ToString(exclude = {"urls", "tags"})
 public class RoomEntity {
 
     @Id

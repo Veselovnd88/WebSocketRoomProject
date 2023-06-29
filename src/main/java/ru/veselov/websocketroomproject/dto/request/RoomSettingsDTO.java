@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.veselov.websocketroomproject.entity.PlayerType;
+import ru.veselov.websocketroomproject.model.Tag;
+
+import java.util.Set;
 
 @Data
 @Builder
@@ -23,5 +26,7 @@ public class RoomSettingsDTO {
     private PlayerType playerType;
 
     private Boolean changeToken;
+
+    private Set<Tag> tags;
 
 }

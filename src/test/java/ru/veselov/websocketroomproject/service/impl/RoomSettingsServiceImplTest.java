@@ -16,6 +16,7 @@ import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.dto.request.RoomSettingsDTO;
 import ru.veselov.websocketroomproject.entity.PlayerType;
 import ru.veselov.websocketroomproject.entity.RoomEntity;
+import ru.veselov.websocketroomproject.entity.TagEntity;
 import ru.veselov.websocketroomproject.entity.UrlEntity;
 import ru.veselov.websocketroomproject.event.handler.impl.RoomUpdateHandlerImpl;
 import ru.veselov.websocketroomproject.exception.RoomNotFoundException;
@@ -24,12 +25,16 @@ import ru.veselov.websocketroomproject.mapper.RoomMapperImpl;
 import ru.veselov.websocketroomproject.mapper.TagMapper;
 import ru.veselov.websocketroomproject.mapper.TagMapperImpl;
 import ru.veselov.websocketroomproject.model.Room;
+import ru.veselov.websocketroomproject.model.Tag;
 import ru.veselov.websocketroomproject.repository.RoomRepository;
+import ru.veselov.websocketroomproject.repository.TagRepository;
 import ru.veselov.websocketroomproject.validation.RoomValidator;
 
 import java.security.Principal;
 import java.time.ZonedDateTime;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 @ExtendWith(MockitoExtension.class)
 class RoomSettingsServiceImplTest {
@@ -39,6 +44,9 @@ class RoomSettingsServiceImplTest {
 
     @Mock
     RoomRepository roomRepository;
+
+    @Mock
+    TagRepository tagRepository;
 
     @Mock
     RoomUpdateHandlerImpl roomUpdateHandler;
@@ -171,6 +179,56 @@ class RoomSettingsServiceImplTest {
         checkCallRoomRepoAndValidatorAndUpdateHandler();
         checkChangedAtTime(room);
         Assertions.assertThat(room.getRoomToken()).isNull();
+    }
+
+    @Test
+    void shouldChangeTags() {
+        //given
+        RoomSettingsDTO settings = RoomSettingsDTO.builder().tags(Set.of(
+                new Tag("Movie"),
+                new Tag("Comedy"),
+                new Tag("Java")
+        )).build();
+        RoomEntity roomEntity = new RoomEntity();
+        Set<TagEntity> tagEntities = new HashSet<>();
+        TagEntity movie = new TagEntity("Movie");
+        TagEntity spring = new TagEntity("Spring");
+        TagEntity animals = new TagEntity("Animals");
+        tagEntities.add(movie);
+        tagEntities.add(spring);
+        tagEntities.add(animals);
+        roomEntity.setTags(tagEntities);
+        setUpRoomRepo(roomEntity);
+        Mockito.when(tagRepository.findByName(ArgumentMatchers.anyString())).thenAnswer(
+                invocation -> {
+                    String argument = invocation.getArgument(0, String.class);
+                    if ("Movie".equals(argument)) {
+                        return Optional.of(movie);
+                    }
+                    if ("Spring".equals(argument)) {
+                        return Optional.of(spring);
+                    }
+                    if ("Animals".equals(argument)) {
+                        return Optional.of(animals);
+                    }
+                    if ("Comedy".equals(argument)) {
+                        return Optional.of(new TagEntity("Comedy"));
+                    }
+                    if ("Java".equals(argument)) {
+                        return Optional.of(new TagEntity("Java"));
+                    }
+                    return Optional.empty();
+                }
+        );
+
+        //when
+        Room room = roomSettingsService.changeSettings(TestConstants.ROOM_ID, settings, principal);
+
+        //then
+        checkCallRoomRepoAndValidatorAndUpdateHandler();
+        checkChangedAtTime(room);
+        Assertions.assertThat(room.getTags()).hasSize(3)
+                .allMatch(x -> Set.of("Java", "Movie", "Comedy").contains(x.getName()));
     }
 
     @Test

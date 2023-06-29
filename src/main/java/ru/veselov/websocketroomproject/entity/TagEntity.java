@@ -60,5 +60,4 @@ public class TagEntity {
         this.createdAt = createdAt;
     }
 
-
 }
