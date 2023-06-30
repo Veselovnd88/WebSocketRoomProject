@@ -10,6 +10,7 @@ import ru.veselov.websocketroomproject.entity.RoomEntity;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Repository
@@ -22,7 +23,10 @@ public interface RoomRepository extends JpaRepository<RoomEntity, UUID> {
     List<RoomEntity> findAllPublicRooms();
 
     @Query("SELECT r FROM RoomEntity r where r.isPrivate=false ")
-//FIXME think may be show all rooms
+    @NonNull
     Page<RoomEntity> findAll(@NonNull Pageable pageable);
+
+    @Query("select r FROM RoomEntity r left join fetch  r.tags t where  t.name= ?1 order by r.createdAt DESC")
+    Set<RoomEntity> getAllByTag(String name);//Pageable
 
 }
