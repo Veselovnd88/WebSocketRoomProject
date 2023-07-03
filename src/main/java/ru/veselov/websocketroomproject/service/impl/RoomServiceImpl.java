@@ -92,16 +92,19 @@ public class RoomServiceImpl implements RoomService {
         return roomMapper.entityToRoom(roomEntity);
     }
 
-    public List<Room> findAll(int page, String sorting, String order) {
-        Sort sortOrder;
-        if (StringUtils.equals(order, "asc")) {
-            sortOrder = Sort.by(sorting).ascending();
-        } else {
-            sortOrder = Sort.by(sorting).descending();
-        }
-        Pageable pageable = PageRequest.of(page, 6).withSort(sortOrder);
+    @Override
+    public List<Room> findAll(int page, String sort, String order) {
+        Pageable pageable = createPageable(page, sort, order);
         Page<RoomEntity> found = roomRepository.findAll(pageable);
-        log.info("Found [{} rooms] on {} page and {} sorting", found.getNumber(), page, sorting);
+        log.info("Found [{} rooms] on {} page and {} sort", found.getNumber(), page, sort);
+        return roomMapper.entitiesToRooms(found.getContent());
+    }
+
+    @Override
+    public List<Room> findAllByTag(String tag, int page, String sort, String order) {
+        Pageable pageable = createPageable(page, sort, order);
+        Page<RoomEntity> found = roomRepository.findAllByTag(tag, pageable);
+        log.info("Found [{} rooms] on {} page and {} sorting and tag {}", found.getContent().size(), page, sort, tag);
         return roomMapper.entitiesToRooms(found.getContent());
     }
 
@@ -127,6 +130,16 @@ public class RoomServiceImpl implements RoomService {
             Optional<TagEntity> tagOptional = tagRepository.findByName(t.getName());
             tagOptional.ifPresent(roomEntity::addTag);
         }
+    }
+
+    private Pageable createPageable(int page, String sort, String order) {
+        Sort sortOrder;
+        if (StringUtils.equals(order, "asc")) {
+            sortOrder = Sort.by(sort).ascending();
+        } else {
+            sortOrder = Sort.by(sort).descending();
+        }
+        return PageRequest.of(page, 6).withSort(sortOrder);
     }
 
 }

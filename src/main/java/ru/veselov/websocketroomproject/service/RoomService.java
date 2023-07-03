@@ -15,4 +15,6 @@ public interface RoomService {
 
     List<Room> findAll(int page, String sort, String order);
 
+    List<Room> findAllByTag(String tag, int page, String sort, String order);
+
 }

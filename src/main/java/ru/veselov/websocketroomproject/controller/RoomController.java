@@ -48,4 +48,9 @@ public class RoomController {
         return roomService.findAll(parameters.getPage(), parameters.getSort(), parameters.getOrder());
     }
 
+    @GetMapping("/all/{tag}")
+    public List<Room> getRoomsByTag(@PathVariable String tag, @Valid @SortingParam SortParameters parameters) {
+        return roomService.findAllByTag(tag, parameters.getPage(), parameters.getSort(), parameters.getOrder());
+    }
+
 }
