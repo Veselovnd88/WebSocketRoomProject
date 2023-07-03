@@ -18,7 +18,8 @@ public interface RoomRepository extends JpaRepository<RoomEntity, UUID> {
     @Query("SELECT r FROM RoomEntity r left join fetch r.tags where r.name= :name")
     Optional<RoomEntity> findByName(@Param("name") String name);
 
-    @Query("SELECT r FROM RoomEntity r left join fetch  r.tags where r.isPrivate=false ")
+    @Query(value = "SELECT r FROM RoomEntity r left join fetch  r.tags where r.isPrivate=false",
+    countQuery ="SELECT COUNT(r) FROM RoomEntity r left join r.tags where r.isPrivate=false")
     @NonNull
     Page<RoomEntity> findAllPublicRooms(@NonNull Pageable pageable);
 
