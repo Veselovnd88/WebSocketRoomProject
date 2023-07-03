@@ -39,6 +39,9 @@ public class RoomServiceImpl implements RoomService {
     @Value("${server.zoneId}")
     private String zoneId;
 
+    @Value("${room.rooms-per-page}")
+    private int roomsPerPage;
+
     private ZoneId zone;
 
     private final RoomMapper roomMapper;
@@ -139,7 +142,7 @@ public class RoomServiceImpl implements RoomService {
         } else {
             sortOrder = Sort.by(sort).descending();
         }
-        return PageRequest.of(page, 6).withSort(sortOrder);
+        return PageRequest.of(page, roomsPerPage).withSort(sortOrder);
     }
 
 }

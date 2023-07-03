@@ -23,6 +23,9 @@ spring:
     locations: db/migration
     enabled: true
 
+room:
+  rooms-per-page: 6
+
 
 socket:
   dest-prefixes: /topic, /queue
