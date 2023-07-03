@@ -4,24 +4,30 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.transaction.annotation.Transactional;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.app.containers.PostgresContainersConfig;
 import ru.veselov.websocketroomproject.entity.PlayerType;
 import ru.veselov.websocketroomproject.entity.RoomEntity;
+import ru.veselov.websocketroomproject.entity.TagEntity;
 import ru.veselov.websocketroomproject.exception.error.ErrorCode;
 import ru.veselov.websocketroomproject.repository.RoomRepository;
+import ru.veselov.websocketroomproject.repository.TagRepository;
 
 import java.time.ZonedDateTime;
+import java.util.Optional;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
 @ActiveProfiles("test")
 @DirtiesContext
+@Transactional
 class RoomControllerIntegrationSortAndValidationTest extends PostgresContainersConfig {
 
     public static final String URL_PREFIX = "/api/v1/room/";
@@ -32,6 +38,9 @@ class RoomControllerIntegrationSortAndValidationTest extends PostgresContainersC
     @Autowired
     private RoomRepository roomRepository;
 
+    @Autowired
+    private TagRepository tagRepository;
+
     @BeforeEach
     void setUp() {
         fillRepoWithRooms();
@@ -40,6 +49,7 @@ class RoomControllerIntegrationSortAndValidationTest extends PostgresContainersC
     @AfterEach
     void clear() {
         roomRepository.deleteAll();
+        tagRepository.deleteAll();
     }
 
     @Test
@@ -55,6 +65,7 @@ class RoomControllerIntegrationSortAndValidationTest extends PostgresContainersC
                 .expectBody().jsonPath("$").isArray()
                 .jsonPath("$.size()").isEqualTo(3)
                 .jsonPath("$[0].name").isEqualTo("aaa");
+        //FIX ME doesnt see all
     }
 
     @Test
@@ -203,7 +214,16 @@ class RoomControllerIntegrationSortAndValidationTest extends PostgresContainersC
                 .jsonPath("$.violations[0].fieldName").isEqualTo("order");
     }
 
-    private void fillRepoWithRooms() {
+
+    public void fillTags() {
+        tagRepository.deleteAll();
+        tagRepository.save(new TagEntity("Java", ZonedDateTime.now()));
+        tagRepository.save(new TagEntity("Stupid Video", ZonedDateTime.now()));
+        tagRepository.save(new TagEntity("Funny Animals", ZonedDateTime.now()));
+    }
+
+    public void fillRepoWithRooms() {
+        fillTags();
         roomRepository.deleteAll();
         RoomEntity room1 = new RoomEntity();
         room1.setPlayerType(PlayerType.YOUTUBE);
@@ -211,6 +231,8 @@ class RoomControllerIntegrationSortAndValidationTest extends PostgresContainersC
         room1.setIsPrivate(false);
         room1.setOwnerName("xxx");
         room1.setCreatedAt(ZonedDateTime.now());
+        tagRepository.findByName("Java").ifPresent(room1::addTag);
+        tagRepository.findByName("Funny Animals").ifPresent(room1::addTag);
         roomRepository.save(room1);
         RoomEntity room2 = new RoomEntity();
         room2.setPlayerType(PlayerType.RUTUBE);
