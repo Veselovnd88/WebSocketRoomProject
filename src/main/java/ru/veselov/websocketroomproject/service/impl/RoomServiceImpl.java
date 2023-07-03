@@ -98,7 +98,7 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public List<Room> findAll(int page, String sort, String order) {
         Pageable pageable = createPageable(page, sort, order);
-        Page<RoomEntity> found = roomRepository.findAll(pageable);
+        Page<RoomEntity> found = roomRepository.findAllPublicRooms(pageable);
         log.info("Found [{} rooms] on {} page and {} sort", found.getNumber(), page, sort);
         return roomMapper.entitiesToRooms(found.getContent());
     }

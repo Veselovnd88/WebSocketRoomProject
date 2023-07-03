@@ -64,6 +64,7 @@ class RoomServiceImplTest {
         ReflectionTestUtils.setField(roomService, "zoneId", "Europe/Moscow", String.class);
         ReflectionTestUtils.setField(roomService, "zone", ZoneId.of("Europe/Moscow"), ZoneId.class);
         ReflectionTestUtils.setField(roomService, "roomMapper", roomMapper, RoomMapper.class);
+        ReflectionTestUtils.setField(roomService, "roomsPerPage", 6);
         ReflectionTestUtils.setField(roomMapper, "tagMapper", new TagMapperImpl(), TagMapper.class);
     }
 
