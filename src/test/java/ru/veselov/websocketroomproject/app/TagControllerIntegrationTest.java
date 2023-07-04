@@ -45,7 +45,7 @@ public class TagControllerIntegrationTest extends PostgresContainersConfig {
                 .expectBody()
                 .jsonPath("$").isArray()
                 .jsonPath("$.size()").isEqualTo(3)
-                .jsonPath("$.[0]").value(Matchers.containsInAnyOrder("Movie","Cartoon","Java"));//FIXME
+                .jsonPath("$").value(Matchers.containsInAnyOrder("Movie", "Cartoon", "Java"));
     }
 
 }

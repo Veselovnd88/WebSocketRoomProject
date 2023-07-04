@@ -51,7 +51,10 @@ public class ApiExceptionHandler {
     @ExceptionHandler({PageExceedsMaximumValueException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ApiErrorResponse handlePageExceedMaximumValueException(RuntimeException exception) {
-        return new ApiErrorResponse(ErrorCode.ERROR_BAD_REQUEST, HttpStatus.BAD_REQUEST.value(), exception.getMessage());
+        return new ApiErrorResponse(
+                ErrorCode.ERROR_PAGE_NUM_EXCEED,
+                HttpStatus.BAD_REQUEST.value(),
+                exception.getMessage());
     }
 
     @ExceptionHandler(ConstraintViolationException.class)

@@ -15,7 +15,6 @@ import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.app.containers.PostgresContainersConfig;
 import ru.veselov.websocketroomproject.entity.PlayerType;
 import ru.veselov.websocketroomproject.entity.TagEntity;
-import ru.veselov.websocketroomproject.exception.error.ErrorCode;
 import ru.veselov.websocketroomproject.model.Room;
 import ru.veselov.websocketroomproject.model.Tag;
 import ru.veselov.websocketroomproject.repository.RoomRepository;
@@ -178,45 +177,6 @@ class RoomControllerIntegrationSortAndValidationTest extends PostgresContainersC
                 .expectBody().jsonPath("$").isArray()
                 .jsonPath("$.size()").isEqualTo(3)
                 .jsonPath("$[0].name").isEqualTo("ccc");
-    }
-
-    @Test
-    void shouldReturnValidationErrorWhenPassNegativePage() {
-        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
-                        .queryParam("page", -1)
-                        .queryParam("sort", "ownerName")
-                        .queryParam("order", "desc")
-                        .build())
-                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
-                .exchange().expectStatus().isBadRequest()
-                .expectBody().jsonPath("$.error").isEqualTo(ErrorCode.ERROR_VALIDATION.toString())
-                .jsonPath("$.violations[0].fieldName").isEqualTo("page");
-    }
-
-    @Test
-    void shouldReturnValidationErrorWhenPassNotCorrectSortField() {
-        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
-                        .queryParam("page", 0)
-                        .queryParam("sort", "Not a sort parameter")
-                        .queryParam("order", "desc")
-                        .build())
-                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
-                .exchange().expectStatus().isBadRequest()
-                .expectBody().jsonPath("$.error").isEqualTo(ErrorCode.ERROR_VALIDATION.toString())
-                .jsonPath("$.violations[0].fieldName").isEqualTo("sort");
-    }
-
-    @Test
-    void shouldReturnValidationErrorWhenPassNotCorrectSortingOrder() {
-        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
-                        .queryParam("page", 0)
-                        .queryParam("sort", "name")
-                        .queryParam("order", "not an order parameter")
-                        .build())
-                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
-                .exchange().expectStatus().isBadRequest()
-                .expectBody().jsonPath("$.error").isEqualTo(ErrorCode.ERROR_VALIDATION.toString())
-                .jsonPath("$.violations[0].fieldName").isEqualTo("order");
     }
 
     @Test

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,7 +23,9 @@ import ru.veselov.websocketroomproject.exception.error.ErrorCode;
 import ru.veselov.websocketroomproject.model.Room;
 import ru.veselov.websocketroomproject.model.Tag;
 import ru.veselov.websocketroomproject.repository.RoomRepository;
+import ru.veselov.websocketroomproject.service.RoomService;
 
+import java.security.Principal;
 import java.time.ZonedDateTime;
 import java.util.Set;
 
@@ -43,6 +46,9 @@ public class ErrorResponseIntegrationTest extends PostgresContainersConfig {
 
     @Autowired
     RoomRepository roomRepository;
+
+    @Autowired
+    RoomService roomService;
 
     Faker faker = new Faker();
 
@@ -174,7 +180,7 @@ public class ErrorResponseIntegrationTest extends PostgresContainersConfig {
 
     @Test
     void shouldReturnForbiddenMessageWhenTryingToGetPrivateRoomWithoutToken() {
-        RoomEntity saved = saveRoomToRepo();
+        Room saved = savePrivateRoomToRepo();
 
         webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path(saved.getId().toString())
                         .build())
@@ -185,7 +191,7 @@ public class ErrorResponseIntegrationTest extends PostgresContainersConfig {
 
     @Test
     void shouldReturnForbiddenMessageWhenTryingToGetPrivateRoomWithInvalidRoomToken() {
-        RoomEntity saved = saveRoomToRepo();
+        Room saved = savePrivateRoomToRepo();
 
         webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path(saved.getId().toString())
                         .queryParam("token", saved.getRoomToken() + "a")
@@ -198,7 +204,7 @@ public class ErrorResponseIntegrationTest extends PostgresContainersConfig {
     @ParameterizedTest
     @ValueSource(strings = {"aa", "moreThanThirtyCharacters26283032"})
     void shouldReturnValidationErrorWhenNotCorrectRoomNameInSettings(String name) {
-        RoomEntity saved = saveRoomToRepo();
+        Room saved = savePrivateRoomToRepo();
         RoomSettingsDTO roomSettingsDTO = RoomSettingsDTO.builder().roomName(name).build();
 
         webTestClient.put().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path(saved.getId().toString())
@@ -234,7 +240,7 @@ public class ErrorResponseIntegrationTest extends PostgresContainersConfig {
 
     @Test
     void shouldReturnValidationErrorWithUrlField() {
-        RoomEntity saved = saveRoomToRepo();
+        Room saved = savePrivateRoomToRepo();
         UrlDto urlDto = new UrlDto("NotUrl");
 
         webTestClient.post().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("/url/")
@@ -259,16 +265,73 @@ public class ErrorResponseIntegrationTest extends PostgresContainersConfig {
                 .jsonPath("$.violations[0].fieldName").isEqualTo("id");
     }
 
-    private RoomEntity saveRoomToRepo() {
-        RoomEntity roomEntity = new RoomEntity();
-        roomEntity.setPlayerType(PlayerType.YOUTUBE);
-        roomEntity.setName(faker.elderScrolls().region());
-        roomEntity.setIsPrivate(true);
-        roomEntity.setOwnerName(OWNER);
-        roomEntity.setRoomToken("abc");
-        roomEntity.setCreatedAt(ZonedDateTime.now());
-        return roomRepository.save(roomEntity);
+    @Test
+    void shouldReturnValidationErrorWhenPassNotCorrectSortingOrder() {
+        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
+                        .queryParam("page", 0)
+                        .queryParam("sort", "name")
+                        .queryParam("order", "not an order parameter")
+                        .build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .exchange().expectStatus().isBadRequest()
+                .expectBody().jsonPath("$.error").isEqualTo(ErrorCode.ERROR_VALIDATION.toString())
+                .jsonPath("$.violations[0].fieldName").isEqualTo("order");
     }
 
+    @Test
+    void shouldReturnValidationErrorWhenPassNegativePage() {
+        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
+                        .queryParam("page", -1)
+                        .queryParam("sort", "ownerName")
+                        .queryParam("order", "desc")
+                        .build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .exchange().expectStatus().isBadRequest()
+                .expectBody().jsonPath("$.error").isEqualTo(ErrorCode.ERROR_VALIDATION.toString())
+                .jsonPath("$.violations[0].fieldName").isEqualTo("page");
+    }
+
+    @Test
+    void shouldReturnValidationErrorWhenPassNotCorrectSortField() {
+        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
+                        .queryParam("page", 0)
+                        .queryParam("sort", "Not a sort parameter")
+                        .queryParam("order", "desc")
+                        .build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .exchange().expectStatus().isBadRequest()
+                .expectBody().jsonPath("$.error").isEqualTo(ErrorCode.ERROR_VALIDATION.toString())
+                .jsonPath("$.violations[0].fieldName").isEqualTo("sort");
+    }
+
+    @Test
+    void shouldReturnPageNumberExceedErrorFindAll() {
+        savePrivateRoomToRepo();
+        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all")
+                        .queryParam("page", 500)
+                        .build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .exchange().expectStatus().is4xxClientError()
+                .expectBody().jsonPath("$.error").isEqualTo(ErrorCode.ERROR_PAGE_NUM_EXCEED.toString());
+    }
+
+    @Test
+    void shouldReturnPageNumberExceedErrorFindAllWithTag() {
+        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all").path("/Java")
+                        .queryParam("page", 500)
+                        .build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .exchange().expectStatus().is4xxClientError()
+                .expectBody().jsonPath("$.error").isEqualTo(ErrorCode.ERROR_PAGE_NUM_EXCEED.toString());
+    }
+
+    private Room savePrivateRoomToRepo() {
+        Room room = Room.builder().playerType(PlayerType.YOUTUBE).name(faker.elderScrolls().region())
+                .isPrivate(true).ownerName(OWNER).tags(Set.of(new Tag("Java")))
+                .build();
+        Principal principal = Mockito.mock(Principal.class);
+        Mockito.when(principal.getName()).thenReturn(OWNER);
+        return roomService.createRoom(room, principal);
+    }
 
 }
