@@ -14,6 +14,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.app.containers.PostgresContainersConfig;
 import ru.veselov.websocketroomproject.entity.PlayerType;
+import ru.veselov.websocketroomproject.entity.TagEntity;
 import ru.veselov.websocketroomproject.exception.error.ErrorCode;
 import ru.veselov.websocketroomproject.model.Room;
 import ru.veselov.websocketroomproject.model.Tag;
@@ -236,7 +237,7 @@ class RoomControllerIntegrationSortAndValidationTest extends PostgresContainersC
 
     @Test
     void shouldReturnRoomArrayWithTagProgramming() {
-        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all").path("/Programming")
+        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all").path("/Java")
                         .queryParam("page", 0)
                         .queryParam("sort", "name")
                         .queryParam("order", "asc")
@@ -247,11 +248,16 @@ class RoomControllerIntegrationSortAndValidationTest extends PostgresContainersC
                 .jsonPath("$").isArray()
                 .jsonPath("$.size()").isEqualTo(1)
                 .jsonPath("$[0].name").isEqualTo("ccc")
-                .jsonPath("$[0].tags").value(Matchers.contains("Programming"));
+                .jsonPath("$[0].tags").value(Matchers.contains("Java"));
     }
 
     public void fillRepoWithRooms() {
         roomRepository.deleteAll();//clear
+        tagRepository.deleteAll();
+        tagRepository.save(new TagEntity("Movie"));
+        tagRepository.save(new TagEntity("Cartoon"));
+        tagRepository.save(new TagEntity("Anime"));
+        tagRepository.save(new TagEntity("Java"));
         Principal principal1 = Mockito.mock(Principal.class);
         Mockito.when(principal1.getName()).thenReturn("xxx");
         Room room1 = Room.builder().playerType(PlayerType.YOUTUBE).name("aaa").isPrivate(false).ownerName("xxx")
@@ -272,7 +278,7 @@ class RoomControllerIntegrationSortAndValidationTest extends PostgresContainersC
         Mockito.when(principal3.getName()).thenReturn("zzz");
         Room room3 = Room.builder().playerType(PlayerType.TWITCH).name("ccc").isPrivate(false).ownerName("zzz")
                 .tags(Set.of(new Tag("Anime"),
-                        new Tag("Programming")))
+                        new Tag("Java")))
                 .build();
         roomService.createRoom(room3, principal3);
     }
