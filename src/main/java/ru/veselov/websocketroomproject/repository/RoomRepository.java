@@ -23,8 +23,14 @@ public interface RoomRepository extends JpaRepository<RoomEntity, UUID> {
     @NonNull
     Page<RoomEntity> findAllPublicRooms(@NonNull Pageable pageable);
 
+    @Query("SELECT COUNT(r) FROM RoomEntity r where r.isPrivate=false")
+    long countAllPublicRooms();
+
     @Query(value = "SELECT r FROM RoomEntity r left join fetch r.tags t where t.name=:tag and r.isPrivate=false",
             countQuery = "SELECT COUNT(r) FROM RoomEntity r left join r.tags t where t.name=:tag and r.isPrivate=false")
     Page<RoomEntity> findAllByTag(@Param("tag") String tag, @NonNull Pageable pageable);
+
+    @Query("SELECT COUNT(r) FROM RoomEntity r left join r.tags t where t.name=:tag and r.isPrivate=false")
+    long countAllPublicRoomsByTag(@Param("tag") String tag);
 
 }

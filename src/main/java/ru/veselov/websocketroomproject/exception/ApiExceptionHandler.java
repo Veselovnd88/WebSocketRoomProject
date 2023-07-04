@@ -48,6 +48,12 @@ public class ApiExceptionHandler {
         return new ApiErrorResponse(ErrorCode.ERROR_NOT_FOUND, HttpStatus.NOT_FOUND.value(), exception.getMessage());
     }
 
+    @ExceptionHandler({PageExceedsMaximumValueException.class})
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiErrorResponse handlePageExceedMaximumValueException(RuntimeException exception) {
+        return new ApiErrorResponse(ErrorCode.ERROR_BAD_REQUEST, HttpStatus.BAD_REQUEST.value(), exception.getMessage());
+    }
+
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ApiErrorResponse handleConstraintViolationException(ConstraintViolationException exception) {

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.veselov.websocketroomproject.entity.RoomEntity;
 import ru.veselov.websocketroomproject.entity.TagEntity;
+import ru.veselov.websocketroomproject.exception.PageExceedsMaximumValueException;
 import ru.veselov.websocketroomproject.exception.RoomNotFoundException;
 import ru.veselov.websocketroomproject.mapper.RoomMapper;
 import ru.veselov.websocketroomproject.model.Room;
@@ -97,6 +98,8 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public List<Room> findAll(int page, String sort, String order) {
+        long roomCount = roomRepository.countAllPublicRooms();
+        validatePageNumber(page, roomCount);
         Pageable pageable = createPageable(page, sort, order);
         Page<RoomEntity> found = roomRepository.findAllPublicRooms(pageable);
         log.info("Found [{} rooms] on {} page and {} sort", found.getContent().size(), page, sort);
@@ -106,6 +109,8 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public List<Room> findAllByTag(String tag, int page, String sort, String order) {
         Pageable pageable = createPageable(page, sort, order);
+        long roomCount = roomRepository.countAllPublicRoomsByTag(tag);
+        validatePageNumber(page, roomCount);
         Page<RoomEntity> found = roomRepository.findAllByTag(tag, pageable);
         log.info("Found [{} rooms] on {} page and {} sorting and tag {}", found.getContent().size(), page, sort, tag);
         return roomMapper.entitiesToRooms(found.getContent());
@@ -143,6 +148,15 @@ public class RoomServiceImpl implements RoomService {
             sortOrder = Sort.by(sort).descending();
         }
         return PageRequest.of(page, roomsPerPage).withSort(sortOrder);
+    }
+
+    private void validatePageNumber(int page, long roomCount) {
+        long totalPages = roomCount / roomsPerPage;
+        if (page > totalPages) {
+            log.error("Page number exceeds maximum value [max: {}, was: {}}]", totalPages, page);
+            throw new PageExceedsMaximumValueException("Page number exceeds maximum value [max: %s, was: %s]"
+                    .formatted(totalPages, page));
+        }
     }
 
 }
