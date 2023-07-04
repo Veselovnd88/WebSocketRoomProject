@@ -99,7 +99,7 @@ public class RoomServiceImpl implements RoomService {
     public List<Room> findAll(int page, String sort, String order) {
         Pageable pageable = createPageable(page, sort, order);
         Page<RoomEntity> found = roomRepository.findAllPublicRooms(pageable);
-        log.info("Found [{} rooms] on {} page and {} sort", found.getNumber(), page, sort);
+        log.info("Found [{} rooms] on {} page and {} sort", found.getContent().size(), page, sort);
         return roomMapper.entitiesToRooms(found.getContent());
     }
 

@@ -1,33 +1,33 @@
 package ru.veselov.websocketroomproject.app;
 
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.transaction.annotation.Transactional;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.app.containers.PostgresContainersConfig;
 import ru.veselov.websocketroomproject.entity.PlayerType;
-import ru.veselov.websocketroomproject.entity.RoomEntity;
-import ru.veselov.websocketroomproject.entity.TagEntity;
 import ru.veselov.websocketroomproject.exception.error.ErrorCode;
+import ru.veselov.websocketroomproject.model.Room;
+import ru.veselov.websocketroomproject.model.Tag;
 import ru.veselov.websocketroomproject.repository.RoomRepository;
 import ru.veselov.websocketroomproject.repository.TagRepository;
+import ru.veselov.websocketroomproject.service.RoomService;
 
-import java.time.ZonedDateTime;
-import java.util.Optional;
+import java.security.Principal;
+import java.util.Set;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
 @ActiveProfiles("test")
 @DirtiesContext
-@Transactional
 class RoomControllerIntegrationSortAndValidationTest extends PostgresContainersConfig {
 
     public static final String URL_PREFIX = "/api/v1/room/";
@@ -40,6 +40,9 @@ class RoomControllerIntegrationSortAndValidationTest extends PostgresContainersC
 
     @Autowired
     private TagRepository tagRepository;
+
+    @Autowired
+    private RoomService roomService;
 
     @BeforeEach
     void setUp() {
@@ -62,10 +65,11 @@ class RoomControllerIntegrationSortAndValidationTest extends PostgresContainersC
                         .build())
                 .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
                 .exchange().expectStatus().isOk()
-                .expectBody().jsonPath("$").isArray()
+                .expectBody().consumeWith(System.out::println)
+                .jsonPath("$").isArray()
                 .jsonPath("$.size()").isEqualTo(3)
                 .jsonPath("$[0].name").isEqualTo("aaa");
-        //FIX ME doesnt see all
+
     }
 
     @Test
@@ -214,40 +218,63 @@ class RoomControllerIntegrationSortAndValidationTest extends PostgresContainersC
                 .jsonPath("$.violations[0].fieldName").isEqualTo("order");
     }
 
+    @Test
+    void shouldReturnRoomArrayWithTagMovie() {
+        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all").path("/Movie")
+                        .queryParam("page", 0)
+                        .queryParam("sort", "name")
+                        .queryParam("order", "asc")
+                        .build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .exchange().expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$").isArray()
+                .jsonPath("$.size()").isEqualTo(2)
+                .jsonPath("$[0].name").isEqualTo("aaa")
+                .jsonPath("$[0].tags").value(Matchers.contains("Movie"));
+    }
 
-    public void fillTags() {
-        tagRepository.deleteAll();
-        tagRepository.save(new TagEntity("Java", ZonedDateTime.now()));
-        tagRepository.save(new TagEntity("Stupid Video", ZonedDateTime.now()));
-        tagRepository.save(new TagEntity("Funny Animals", ZonedDateTime.now()));
+    @Test
+    void shouldReturnRoomArrayWithTagProgramming() {
+        webTestClient.get().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("all").path("/Programming")
+                        .queryParam("page", 0)
+                        .queryParam("sort", "name")
+                        .queryParam("order", "asc")
+                        .build())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .exchange().expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$").isArray()
+                .jsonPath("$.size()").isEqualTo(1)
+                .jsonPath("$[0].name").isEqualTo("ccc")
+                .jsonPath("$[0].tags").value(Matchers.contains("Programming"));
     }
 
     public void fillRepoWithRooms() {
-        fillTags();
-        roomRepository.deleteAll();
-        RoomEntity room1 = new RoomEntity();
-        room1.setPlayerType(PlayerType.YOUTUBE);
-        room1.setName("aaa");
-        room1.setIsPrivate(false);
-        room1.setOwnerName("xxx");
-        room1.setCreatedAt(ZonedDateTime.now());
-        tagRepository.findByName("Java").ifPresent(room1::addTag);
-        tagRepository.findByName("Funny Animals").ifPresent(room1::addTag);
-        roomRepository.save(room1);
-        RoomEntity room2 = new RoomEntity();
-        room2.setPlayerType(PlayerType.RUTUBE);
-        room2.setName("bbb");
-        room2.setIsPrivate(false);
-        room2.setOwnerName("yyy");
-        room2.setCreatedAt(ZonedDateTime.now());
-        roomRepository.save(room2);
-        RoomEntity room3 = new RoomEntity();
-        room3.setPlayerType(PlayerType.TWITCH);
-        room3.setName("ccc");
-        room3.setIsPrivate(false);
-        room3.setOwnerName("zzz");
-        room3.setCreatedAt(ZonedDateTime.now());
-        roomRepository.save(room3);
+        roomRepository.deleteAll();//clear
+        Principal principal1 = Mockito.mock(Principal.class);
+        Mockito.when(principal1.getName()).thenReturn("xxx");
+        Room room1 = Room.builder().playerType(PlayerType.YOUTUBE).name("aaa").isPrivate(false).ownerName("xxx")
+                .tags(Set.of(new Tag("Movie"),
+                        new Tag("Cartoon")))
+                .build();
+        roomService.createRoom(room1, principal1);
+
+        Principal principal2 = Mockito.mock(Principal.class);
+        Mockito.when(principal2.getName()).thenReturn("yyy");
+        Room room2 = Room.builder().playerType(PlayerType.RUTUBE).name("bbb").isPrivate(false).ownerName("yyy")
+                .tags(Set.of(new Tag("Movie"),
+                        new Tag("Anime")))
+                .build();
+        roomService.createRoom(room2, principal2);
+
+        Principal principal3 = Mockito.mock(Principal.class);
+        Mockito.when(principal3.getName()).thenReturn("zzz");
+        Room room3 = Room.builder().playerType(PlayerType.TWITCH).name("ccc").isPrivate(false).ownerName("zzz")
+                .tags(Set.of(new Tag("Anime"),
+                        new Tag("Programming")))
+                .build();
+        roomService.createRoom(room3, principal3);
     }
 
 }
