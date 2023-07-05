@@ -51,6 +51,17 @@ auth:
   chat-event-url: "/api/room/event"
   secret: "D9D323C5E55F45C206D7880329B1721A4334C00F336E5F2F1E9DAB745FF44837"
 
+cors:
+  allowed-origins:
+    - "http://localhost:8080"
+
+  allowed-methods:
+    - GET
+    - POST
+    - PUT
+  allowed-headers:
+    - "*"
+
 redis:
   master:
     port: 6379
