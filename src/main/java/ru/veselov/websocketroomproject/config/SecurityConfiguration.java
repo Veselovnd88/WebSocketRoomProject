@@ -36,6 +36,8 @@ public class SecurityConfiguration {
                         r -> r.requestMatchers("/api/room/chat/**").permitAll()
                                 .requestMatchers("/api/room/event/**").permitAll()
                                 .requestMatchers("/error").permitAll()
+                                .requestMatchers("/v3/api-docs/**").permitAll()
+                                .requestMatchers("/swagger-ui/**").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)

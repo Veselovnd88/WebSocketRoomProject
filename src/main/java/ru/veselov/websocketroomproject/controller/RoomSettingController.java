@@ -1,5 +1,6 @@
 package ru.veselov.websocketroomproject.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.UUID;
@@ -23,6 +24,7 @@ import java.security.Principal;
 @RequestMapping("/api/v1/room")
 @Validated
 @RequiredArgsConstructor
+@SecurityRequirement(name = "Bearer Authentication")
 public class RoomSettingController {
 
     private final RoomSettingsService roomSettingsService;

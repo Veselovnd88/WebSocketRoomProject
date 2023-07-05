@@ -1,5 +1,6 @@
 package ru.veselov.websocketroomproject.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -15,6 +16,7 @@ import java.security.Principal;
 @Slf4j
 @RequiredArgsConstructor
 @SuppressWarnings("rawtypes")
+@SecurityRequirement(name = "Bearer Authentication")
 public class ServerEventController {
 
     private final ChatEventService chatEventService;
