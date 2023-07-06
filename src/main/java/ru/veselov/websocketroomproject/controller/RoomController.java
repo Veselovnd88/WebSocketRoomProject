@@ -4,7 +4,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -70,7 +72,7 @@ public class RoomController {
         return roomService.getRoomById(id, token);
     }
 
-    @Operation(summary = "Create room", description = "Creating and return Room")
+    @Operation(summary = "Create room", description = "Creates and returns Room")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Room created",
                     content = @Content(
@@ -80,23 +82,21 @@ public class RoomController {
                     content = @Content(
                             schema = @Schema(implementation = ApiErrorResponse.class),
                             mediaType = MediaType.APPLICATION_JSON_VALUE
-                    )),
-            @ApiResponse(responseCode = "400", description = "Validation of fields failed",
-                    content = {@Content(
-                            schema = @Schema(implementation = ValidationErrorResponse.class),
-                            mediaType = MediaType.APPLICATION_JSON_VALUE
-                    )})
+                    ))
     })
     @PostMapping(value = "/create")
     @ResponseStatus(HttpStatus.CREATED)
     public Room createRoom(@io.swagger.v3.oas.annotations.parameters.RequestBody(content =
-    @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-            schema = @Schema(implementation = Room.class)))
+    @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(value = """
+            {  "name": "newRoomName",
+            "tags" : ["Movie","Other", "Anime"],
+            "playerType" :"YOUTUBE"}""",
+            description = "Room to create")))
                            @Valid @RequestBody Room room, Principal principal) {
         return roomService.createRoom(room, principal);
     }
 
-    @Operation(summary = "Get all public rooms", description = "Retrieve rooms from database")
+    @Operation(summary = "Get all public rooms", description = "Returns array of Rooms")
     @Parameters({@Parameter(in = ParameterIn.QUERY, name = "page", example = "0"),
             @Parameter(in = ParameterIn.QUERY, name = "sort", example = "name",
                     description = "Sorting field, createdAt by default," +
@@ -105,21 +105,23 @@ public class RoomController {
                     description = "Sorting order, desc by default, available: asc, desc")
     })
     @ApiResponses({
-            @ApiResponse(responseCode = "200",
+            @ApiResponse(responseCode = "200", description = "Success",
                     content = @Content(
-                            schema = @Schema(implementation = Room.class),
-                            mediaType = MediaType.APPLICATION_JSON_VALUE
-                    ))
+                            array = @ArraySchema(schema = @Schema(implementation = Room.class)),
+                            mediaType = MediaType.APPLICATION_JSON_VALUE))
     })
     @GetMapping("/all")
     public List<Room> getAllRooms(
-            @Schema(accessMode = Schema.AccessMode.READ_ONLY, hidden = true) @Valid @SortingParam SortParameters parameters) {
+            @Schema(accessMode = Schema.AccessMode.READ_ONLY, hidden = true)
+            @Valid @SortingParam SortParameters parameters) {
         return roomService.findAll(parameters.getPage(), parameters.getSort(), parameters.getOrder());
     }
 
     @Operation(summary = "Get Room by Tag and sorting parameters", description = "Get rooms from database")
     @GetMapping("/all/{tag}")
-    public List<Room> getRoomsByTag(@PathVariable String tag, @Valid @SortingParam SortParameters parameters) {
+    public List<Room> getRoomsByTag(@PathVariable String tag,
+                                    @Schema(accessMode = Schema.AccessMode.READ_ONLY, hidden = true)
+                                    @Valid @SortingParam SortParameters parameters) {
         return roomService.findAllByTag(tag, parameters.getPage(), parameters.getSort(), parameters.getOrder());
     }
 
