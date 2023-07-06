@@ -66,9 +66,7 @@ public class ApiExceptionHandler {
                         v.getMessage(),
                         v.getInvalidValue().toString()))
                 .toList();
-        return new ValidationErrorResponse(ErrorCode.ERROR_VALIDATION,
-                HttpStatus.BAD_REQUEST.value(),
-                exception.getMessage(), violationErrors);
+        return new ValidationErrorResponse(HttpStatus.BAD_REQUEST.value(), exception.getMessage(), violationErrors);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -78,10 +76,7 @@ public class ApiExceptionHandler {
                 .map(error -> new ViolationError(error.getField(), error.getDefaultMessage(),
                         error.getRejectedValue() != null ? (String) error.getRejectedValue() : "null"))
                 .toList();
-        return new ValidationErrorResponse(ErrorCode.ERROR_VALIDATION,
-                HttpStatus.BAD_REQUEST.value(),
-                e.getMessage(),
-                violations);
+        return new ValidationErrorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage(), violations);
     }
 
     private String fieldNameFromPath(String path) {

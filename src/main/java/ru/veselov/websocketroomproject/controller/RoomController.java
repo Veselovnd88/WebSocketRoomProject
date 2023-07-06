@@ -5,11 +5,11 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.UUID;
@@ -39,54 +39,49 @@ import java.util.List;
 @Validated
 @RequiredArgsConstructor
 @SecurityRequirement(name = "Bearer Authentication")
+@Tag(name = "room", description = "Room API")
+@ApiResponse(responseCode = "400",
+        content = @Content(
+                schema = @Schema(implementation = ValidationErrorResponse.class),
+                mediaType = MediaType.APPLICATION_JSON_VALUE
+        ))
 public class RoomController {
 
     private final RoomService roomService;
 
-    @Operation(summary = "Get room by Id (UUID)", description = "Retrieve Room by id from database")
+    @Operation(summary = "Get room by Id (UUID)", description = "Return room with ID")
     @ApiResponses({
-            @ApiResponse(responseCode = "200",
+            @ApiResponse(responseCode = "200", description = "Success",
                     content = {@Content(
                             schema = @Schema(implementation = Room.class),
                             mediaType = MediaType.APPLICATION_JSON_VALUE)}),
-            @ApiResponse(responseCode = "404",
+            @ApiResponse(responseCode = "404", description = "Room not found",
                     content = {@Content(
                             schema = @Schema(implementation = ApiErrorResponse.class),
-                            mediaType = MediaType.APPLICATION_JSON_VALUE
-                    )}),
-            @ApiResponse(responseCode = "400",
-                    content = {@Content(
-                            schema = @Schema(implementation = ValidationErrorResponse.class),
                             mediaType = MediaType.APPLICATION_JSON_VALUE
                     )})
     })
     @GetMapping("/{roomId}")
-    public Room getRoom(
-            @Parameter(description = "Room Id as UUID", required = true,
-                    example = "1bd7c828-3a5c-4fd9-a2af-78b6a127459f")
-            @PathVariable("roomId") @UUID String id,
-            @Parameter(description = "Access token for private room")
-            @RequestParam(required = false, name = "token") String token) {
+    public Room getRoom(@Parameter(description = "Room ID as UUID", required = true,
+            example = "1bd7c828-3a5c-4fd9-a2af-78b6a127459f")
+                        @PathVariable("roomId") @UUID String id,
+                        @Parameter(description = "Access token for private room")
+                        @RequestParam(required = false, name = "token") String token) {
         return roomService.getRoomById(id, token);
     }
 
-    @Operation(summary = "Create room", description = "Create room and save to database")
-    @Parameters({
-            @Parameter(in = ParameterIn.DEFAULT, name = "Room object",
-                    content = @Content(
-                            schema = @Schema(implementation = Room.class), mediaType = MediaType.APPLICATION_JSON_VALUE
-                    ))
-    })
+    @Operation(summary = "Create room", description = "Creating and return Room")
     @ApiResponses({
-            @ApiResponse(responseCode = "201",
+            @ApiResponse(responseCode = "201", description = "Room created",
                     content = @Content(
                             schema = @Schema(implementation = Room.class), mediaType = MediaType.APPLICATION_JSON_VALUE
                     )),
-            @ApiResponse(responseCode = "409",
+            @ApiResponse(responseCode = "409", description = "Room with such name already exists",
                     content = @Content(
-                            schema = @Schema(implementation = ApiErrorResponse.class), mediaType = MediaType.APPLICATION_JSON_VALUE
+                            schema = @Schema(implementation = ApiErrorResponse.class),
+                            mediaType = MediaType.APPLICATION_JSON_VALUE
                     )),
-            @ApiResponse(responseCode = "400",
+            @ApiResponse(responseCode = "400", description = "Validation of fields failed",
                     content = {@Content(
                             schema = @Schema(implementation = ValidationErrorResponse.class),
                             mediaType = MediaType.APPLICATION_JSON_VALUE
@@ -94,46 +89,31 @@ public class RoomController {
     })
     @PostMapping(value = "/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public Room createRoom(@Valid @RequestBody
-                           @io.swagger.v3.oas.annotations.parameters.RequestBody(content =
-                           @Content(examples = {
-                                   @ExampleObject(
-                                           name = "Room sample",
-                                           summary = "Room dto example",
-                                           value = """
-                                                   { "name": "nameFrom3To30Symbols",
-                                                               "isPrivate": false,
-                                                               "tags": ["Movie","Other","Cartoon", "Buba"],
-                                                               "playerType": "YOUTUBE" }
-                                                   """
-                                   )
-                           }))
-                           Room room, Principal principal) {
+    public Room createRoom(@io.swagger.v3.oas.annotations.parameters.RequestBody(content =
+    @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = Room.class)))
+                           @Valid @RequestBody Room room, Principal principal) {
         return roomService.createRoom(room, principal);
     }
 
     @Operation(summary = "Get all public rooms", description = "Retrieve rooms from database")
-    @Parameters({
-            @Parameter(in = ParameterIn.PATH, name = "page", example = "0"),
-            @Parameter(in = ParameterIn.PATH, name = "sort", example = "name",
-                    description = "If not specified: createdAt, available: name, createdAt, ownerName, changedAt, playerType"),
-            @Parameter(in = ParameterIn.PATH, name = "order", example = "asc",
-                    description = "If not specified: desc, available: asc, desc")
+    @Parameters({@Parameter(in = ParameterIn.QUERY, name = "page", example = "0"),
+            @Parameter(in = ParameterIn.QUERY, name = "sort", example = "name",
+                    description = "Sorting field, createdAt by default," +
+                            " available: name, ownerName, changedAt, playerType, createdAt"),
+            @Parameter(in = ParameterIn.QUERY, name = "order", example = "desc",
+                    description = "Sorting order, desc by default, available: asc, desc")
     })
     @ApiResponses({
             @ApiResponse(responseCode = "200",
                     content = @Content(
                             schema = @Schema(implementation = Room.class),
                             mediaType = MediaType.APPLICATION_JSON_VALUE
-                    )),
-            @ApiResponse(responseCode = "400",
-                    content = @Content(
-                            schema = @Schema(implementation = ValidationErrorResponse.class),
-                            mediaType = MediaType.APPLICATION_JSON_VALUE
                     ))
     })
     @GetMapping("/all")
-    public List<Room> getAllRooms(@Valid @SortingParam SortParameters parameters) {
+    public List<Room> getAllRooms(
+            @Schema(accessMode = Schema.AccessMode.READ_ONLY, hidden = true) @Valid @SortingParam SortParameters parameters) {
         return roomService.findAll(parameters.getPage(), parameters.getSort(), parameters.getOrder());
     }
 
