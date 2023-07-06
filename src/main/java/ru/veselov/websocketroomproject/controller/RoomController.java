@@ -40,7 +40,7 @@ import java.util.List;
 @Validated
 @RequiredArgsConstructor
 @SecurityRequirement(name = "Bearer Authentication")
-@Tag(name = "room", description = "Room API")
+@Tag(name = "Room controller", description = "API for managing room")
 public class RoomController {
 
     private final RoomService roomService;
@@ -58,7 +58,7 @@ public class RoomController {
                     )})
     })
     @GetMapping("/{roomId}")
-    public Room getRoom(@Parameter(description = "Room ID as UUID", required = true,
+    public Room getRoom(@Parameter(in = ParameterIn.PATH, description = "Room ID as UUID", required = true,
             example = "1bd7c828-3a5c-4fd9-a2af-78b6a127459f")
                         @PathVariable("roomId") @UUID String id,
                         @Parameter(description = "Access token for private room")
