@@ -15,16 +15,14 @@ public class OpenApiConfiguration {
 
     @Bean
     public OpenAPI openAPI() {
-        return new OpenAPI().addSecurityItem(new SecurityRequirement().
-                        addList("Bearer Authentication"))
-                .components(new Components().addSecuritySchemes
-                        ("Bearer Authentication", createAPIKeyScheme()))
-                .info(new Info().title("My REST API")
-                        .description("Some custom description of API.")
-                        .version("1.0").contact(new Contact().name("Veselov Nikolay")
-                                .email("veselovnd@gmail.com"))
-                        .license(new License().name("License of API")
-                                .url("Our License")));
+        return new OpenAPI().addSecurityItem(
+                        new SecurityRequirement()
+                                .addList("Bearer Authentication"))
+                .components(new Components().addSecuritySchemes("Bearer Authentication", createAPIKeyScheme()))
+                .info(new Info().title("Harvex Room API")
+                        .description("Room API")
+                        .version("1.0").contact(new Contact().name("Veselov Nikolay").email("veselovnd@gmail.com"))
+                        .license(new License().name("Apache 2.0").url("www.springdoc.com")));
     }
 
     private SecurityScheme createAPIKeyScheme() {

@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.veselov.websocketroomproject.annotation.SortingParam;
 import ru.veselov.websocketroomproject.dto.request.SortParameters;
 import ru.veselov.websocketroomproject.exception.error.ApiErrorResponse;
-import ru.veselov.websocketroomproject.exception.error.ValidationErrorResponse;
 import ru.veselov.websocketroomproject.model.Room;
 import ru.veselov.websocketroomproject.service.RoomService;
 
@@ -42,11 +41,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @SecurityRequirement(name = "Bearer Authentication")
 @Tag(name = "room", description = "Room API")
-@ApiResponse(responseCode = "400",
-        content = @Content(
-                schema = @Schema(implementation = ValidationErrorResponse.class),
-                mediaType = MediaType.APPLICATION_JSON_VALUE
-        ))
 public class RoomController {
 
     private final RoomService roomService;
@@ -81,6 +75,11 @@ public class RoomController {
             @ApiResponse(responseCode = "409", description = "Room with such name already exists",
                     content = @Content(
                             schema = @Schema(implementation = ApiErrorResponse.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "error": "ERROR_CONFLICT",
+                                      "code": 409
+                                    }"""),
                             mediaType = MediaType.APPLICATION_JSON_VALUE
                     ))
     })
@@ -104,12 +103,10 @@ public class RoomController {
             @Parameter(in = ParameterIn.QUERY, name = "order", example = "desc",
                     description = "Sorting order, desc by default, available: asc, desc")
     })
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Success",
-                    content = @Content(
-                            array = @ArraySchema(schema = @Schema(implementation = Room.class)),
-                            mediaType = MediaType.APPLICATION_JSON_VALUE))
-    })
+    @ApiResponse(responseCode = "200", description = "Success",
+            content = @Content(
+                    array = @ArraySchema(schema = @Schema(implementation = Room.class)),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE))
     @GetMapping("/all")
     public List<Room> getAllRooms(
             @Schema(accessMode = Schema.AccessMode.READ_ONLY, hidden = true)
@@ -117,7 +114,21 @@ public class RoomController {
         return roomService.findAll(parameters.getPage(), parameters.getSort(), parameters.getOrder());
     }
 
-    @Operation(summary = "Get Room by Tag and sorting parameters", description = "Get rooms from database")
+    @Operation(summary = "Get Room by Tag and sorting parameters",
+            description = "Returns array of public Rooms selected by chosen tag")
+    @Parameters({
+            @Parameter(in = ParameterIn.PATH, name = "Tag", description = "Tag name for selecting rooms"),
+            @Parameter(in = ParameterIn.QUERY, name = "page", example = "0"),
+            @Parameter(in = ParameterIn.QUERY, name = "sort", example = "name",
+                    description = "Sorting field, createdAt by default," +
+                            " available: name, ownerName, changedAt, playerType, createdAt"),
+            @Parameter(in = ParameterIn.QUERY, name = "order", example = "desc",
+                    description = "Sorting order, desc by default, available: asc, desc")
+    })
+    @ApiResponse(responseCode = "200", description = "Success",
+            content = @Content(
+                    array = @ArraySchema(schema = @Schema(implementation = Room.class)),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE))
     @GetMapping("/all/{tag}")
     public List<Room> getRoomsByTag(@PathVariable String tag,
                                     @Schema(accessMode = Schema.AccessMode.READ_ONLY, hidden = true)

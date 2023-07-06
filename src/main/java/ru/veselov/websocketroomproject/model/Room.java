@@ -46,7 +46,7 @@ public class Room implements Serializable {
     @NotNull(message = "Player type cannot be null")
     private PlayerType playerType;
 
-    @ArraySchema(schema = @Schema(description = "Tags"), minItems = 1, uniqueItems = true)
+    @ArraySchema(schema = @Schema(description = "Tags", example = "Movie"), minItems = 1, uniqueItems = true)
     @NotEmpty(message = "Room should has at least 1 tag")
     @NotNull(message = "Room should has at least 1 tag")
     private Set<Tag> tags;
