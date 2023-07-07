@@ -38,13 +38,12 @@ public class ChatUserServiceImpl implements ChatUserService {
     @Override
     public Optional<ChatUser> removeChatUser(String sessionId) {
         Optional<ChatUserEntity> chatUserEntityOptional = repository.findById(sessionId);
-        if (chatUserEntityOptional.isPresent()) {
-            ChatUserEntity chatUserEntity = chatUserEntityOptional.get();
-            repository.delete(chatUserEntity);
+        Optional<ChatUserEntity> chatUserEntity = chatUserEntityOptional.map(chatUser -> {
+            repository.delete(chatUser);
             log.info("ChatUser with [session: {}] deleted from repository", sessionId);
-            return Optional.of(chatUserEntityMapper.toChatUser(chatUserEntity));
-        }
-        return Optional.empty();
+            return chatUser;
+        });
+        return Optional.ofNullable(chatUserEntityMapper.toChatUser(chatUserEntity.orElse(null)));
     }
 
 }
