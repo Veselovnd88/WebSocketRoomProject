@@ -28,7 +28,7 @@ import java.util.Set;
 @AutoConfigureWebTestClient
 @ActiveProfiles("test")
 @DirtiesContext
-class RoomControllerIntegrationSortAndValidationTest extends PostgresContainersConfig {
+class RoomControllerIntegrationSortTest extends PostgresContainersConfig {
 
     public static final String URL_PREFIX = "/api/v1/room/";
 

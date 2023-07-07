@@ -9,6 +9,13 @@ import ru.veselov.websocketroomproject.dto.request.SortParameters;
 
 public class SortParameterRequestParamsResolver extends RequestParamMethodArgumentResolver {
 
+    private static final String SORT = "sort";
+
+    private static final String PAGE = "page";
+
+    public static final String ORDER = "order";
+
+
     public SortParameterRequestParamsResolver(boolean useDefaultResolution) {
         super(useDefaultResolution);
     }
@@ -30,17 +37,17 @@ public class SortParameterRequestParamsResolver extends RequestParamMethodArgume
     }
 
     private Integer resolvePageNumber(NativeWebRequest request) {
-        String page = request.getParameter("page");
+        String page = request.getParameter(PAGE);
         return page == null ? 0 : Integer.parseInt(page);
     }
 
     private String resolveSortingField(NativeWebRequest request) {
-        String sort = request.getParameter("sort");
+        String sort = request.getParameter(SORT);
         return sort == null ? "createdAt" : sort;
     }
 
     private String resolveOrder(NativeWebRequest request) {
-        String order = request.getParameter("order");
+        String order = request.getParameter(ORDER);
         return order == null ? "desc" : order;
     }
 
