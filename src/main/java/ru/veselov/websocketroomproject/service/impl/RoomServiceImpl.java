@@ -155,7 +155,7 @@ public class RoomServiceImpl implements RoomService {
         if (page > totalPages) {
             log.error("Page number exceeds maximum value [max: {}, was: {}}]", totalPages, page);
             throw new PageExceedsMaximumValueException("Page number exceeds maximum value [max: %s, was: %s]"
-                    .formatted(totalPages, page));
+                    .formatted(totalPages, page), page);
         }
     }
 
