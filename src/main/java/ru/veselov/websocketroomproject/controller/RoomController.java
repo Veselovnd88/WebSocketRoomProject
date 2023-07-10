@@ -83,7 +83,7 @@ public class RoomController {
                             {
                               "error": "ERROR_CONFLICT",
                               "code": 409
-                            }"""),
+                            }"""), //FIXME move examples to another file as constant
                     mediaType = MediaType.APPLICATION_JSON_VALUE
             ))
     @PostMapping(value = "/create")

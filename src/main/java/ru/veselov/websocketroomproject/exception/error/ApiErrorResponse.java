@@ -18,7 +18,7 @@ public class ApiErrorResponse implements Serializable {
     @Schema(description = "HttpStatus of error", example = "400")
     private int code;
 
-    @Schema(description = "Detailed message")
+    @Schema(description = "Detailed message", example = "Error message")
     private String message;
 
 }
