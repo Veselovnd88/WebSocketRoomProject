@@ -17,4 +17,6 @@ public interface RoomService {
 
     List<Room> findAllByTag(String tag, int page, String sort, String order);
 
+    void deleteRoom(String roomId);
+
 }

@@ -116,6 +116,12 @@ public class RoomServiceImpl implements RoomService {
         return roomMapper.entitiesToRooms(found.getContent());
     }
 
+    @Override
+    public void deleteRoom(String roomId) {
+        RoomEntity roomById = findRoomById(roomId);
+        roomRepository.delete(roomById);
+    }
+
     private RoomEntity findRoomById(String id) {
         UUID uuid = UUID.fromString(id);
         Optional<RoomEntity> foundRoom = roomRepository.findById(uuid);
