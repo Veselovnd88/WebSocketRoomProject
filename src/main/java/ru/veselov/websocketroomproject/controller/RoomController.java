@@ -2,15 +2,12 @@ package ru.veselov.websocketroomproject.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -39,24 +36,32 @@ import java.util.List;
 @RequestMapping("/api/v1/room")
 @Validated
 @RequiredArgsConstructor
-@SecurityRequirement(name = "Bearer Authentication")
 @Tag(name = "Room controller", description = "API for managing room")
 public class RoomController {
 
     private final RoomService roomService;
 
-    @Operation(summary = "Get room by Id (UUID)", description = "Return room with ID")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Success",
-                    content = {@Content(
-                            schema = @Schema(implementation = Room.class),
-                            mediaType = MediaType.APPLICATION_JSON_VALUE)}),
-            @ApiResponse(responseCode = "404", description = "Room not found",
-                    content = {@Content(
-                            schema = @Schema(implementation = ApiErrorResponse.class),
-                            mediaType = MediaType.APPLICATION_JSON_VALUE
-                    )})
-    })
+    @Operation(summary = "Get room by Id (UUID)", description = "Returns room by requested Id")
+    @ApiResponse(responseCode = "200", description = "Success",
+            content = {@Content(
+                    schema = @Schema(implementation = Room.class),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE)})
+    @ApiResponse(responseCode = "404", description = "Room with this Id doesnt exists",
+            content = {@Content(
+                    schema = @Schema(implementation = ApiErrorResponse.class),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE
+            )})
+    @ApiResponse(responseCode = "403", description = "Authorization failed",
+            content = @Content(
+                    schema = @Schema(implementation = ApiErrorResponse.class),
+                    examples = @ExampleObject(value = """
+                            {
+                              "error": "ERROR_NOT_ROOM_OWNER",
+                              "code": 403,
+                              "message": "You are not owner of room"
+                            }"""),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE
+            ))
     @GetMapping("/{roomId}")
     public Room getRoom(@Parameter(in = ParameterIn.PATH, description = "Room ID as UUID", required = true,
             example = "1bd7c828-3a5c-4fd9-a2af-78b6a127459f")
@@ -67,22 +72,20 @@ public class RoomController {
     }
 
     @Operation(summary = "Create room", description = "Creates and returns Room")
-    @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Room created",
-                    content = @Content(
-                            schema = @Schema(implementation = Room.class), mediaType = MediaType.APPLICATION_JSON_VALUE
-                    )),
-            @ApiResponse(responseCode = "409", description = "Room with such name already exists",
-                    content = @Content(
-                            schema = @Schema(implementation = ApiErrorResponse.class),
-                            examples = @ExampleObject(value = """
-                                    {
-                                      "error": "ERROR_CONFLICT",
-                                      "code": 409
-                                    }"""),
-                            mediaType = MediaType.APPLICATION_JSON_VALUE
-                    ))
-    })
+    @ApiResponse(responseCode = "201", description = "Room created",
+            content = @Content(
+                    schema = @Schema(implementation = Room.class), mediaType = MediaType.APPLICATION_JSON_VALUE
+            ))
+    @ApiResponse(responseCode = "409", description = "Room with such name already exists",
+            content = @Content(
+                    schema = @Schema(implementation = ApiErrorResponse.class),
+                    examples = @ExampleObject(value = """
+                            {
+                              "error": "ERROR_CONFLICT",
+                              "code": 409
+                            }"""),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE
+            ))
     @PostMapping(value = "/create")
     @ResponseStatus(HttpStatus.CREATED)
     public Room createRoom(@io.swagger.v3.oas.annotations.parameters.RequestBody(content =
@@ -96,13 +99,12 @@ public class RoomController {
     }
 
     @Operation(summary = "Get all public rooms", description = "Returns array of Rooms")
-    @Parameters({@Parameter(in = ParameterIn.QUERY, name = "page", example = "0"),
-            @Parameter(in = ParameterIn.QUERY, name = "sort", example = "name",
-                    description = "Sorting field, createdAt by default," +
-                            " available: name, ownerName, changedAt, playerType, createdAt"),
-            @Parameter(in = ParameterIn.QUERY, name = "order", example = "desc",
-                    description = "Sorting order, desc by default, available: asc, desc")
-    })
+    @Parameter(in = ParameterIn.QUERY, name = "page", example = "0")
+    @Parameter(in = ParameterIn.QUERY, name = "sort", example = "name",
+            description = "Sorting field, createdAt by default," +
+                    " available: name, ownerName, changedAt, playerType, createdAt")
+    @Parameter(in = ParameterIn.QUERY, name = "order", example = "desc",
+            description = "Sorting order, desc by default, available: asc, desc")
     @ApiResponse(responseCode = "200", description = "Success",
             content = @Content(
                     array = @ArraySchema(schema = @Schema(implementation = Room.class)),
@@ -116,15 +118,13 @@ public class RoomController {
 
     @Operation(summary = "Get Room by Tag and sorting parameters",
             description = "Returns array of public Rooms selected by chosen tag")
-    @Parameters({
-            @Parameter(in = ParameterIn.PATH, name = "Tag", description = "Tag name for selecting rooms"),
-            @Parameter(in = ParameterIn.QUERY, name = "page", example = "0"),
-            @Parameter(in = ParameterIn.QUERY, name = "sort", example = "name",
-                    description = "Sorting field, createdAt by default," +
-                            " available: name, ownerName, changedAt, playerType, createdAt"),
-            @Parameter(in = ParameterIn.QUERY, name = "order", example = "desc",
-                    description = "Sorting order, desc by default, available: asc, desc")
-    })
+    @Parameter(in = ParameterIn.PATH, name = "Tag", description = "Tag name for selecting rooms")
+    @Parameter(in = ParameterIn.QUERY, name = "page", example = "0")
+    @Parameter(in = ParameterIn.QUERY, name = "sort", example = "name",
+            description = "Sorting field, createdAt by default," +
+                    " available: name, ownerName, changedAt, playerType, createdAt")
+    @Parameter(in = ParameterIn.QUERY, name = "order", example = "desc",
+            description = "Sorting order, desc by default, available: asc, desc")
     @ApiResponse(responseCode = "200", description = "Success",
             content = @Content(
                     array = @ArraySchema(schema = @Schema(implementation = Room.class)),

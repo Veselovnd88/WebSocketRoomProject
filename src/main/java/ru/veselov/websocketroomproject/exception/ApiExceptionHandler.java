@@ -55,6 +55,7 @@ public class ApiExceptionHandler {
                 exception.getMessage());
     }
 
+
     @ExceptionHandler(NotCorrectOwnerException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ApiErrorResponse handleNotAuthorizedException(RuntimeException exception) {
@@ -71,11 +72,12 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler({PageExceedsMaximumValueException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ApiErrorResponse handlePageExceedMaximumValueException(RuntimeException exception) {
-        return new ApiErrorResponse(
-                ErrorCode.ERROR_PAGE_NUM_EXCEED,
+    public ApiErrorResponse handlePageExceedMaximumValueException(PageExceedsMaximumValueException exception) {
+        List<ViolationError> violationErrors = List.of(new ViolationError("Page", "Page number exceed maximum",
+                String.valueOf(exception.getCurrentPage())));
+        return new ValidationErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
-                exception.getMessage());
+                exception.getMessage(), violationErrors);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)

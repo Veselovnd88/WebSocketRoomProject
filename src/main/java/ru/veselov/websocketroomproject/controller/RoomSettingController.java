@@ -4,9 +4,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,13 +33,23 @@ import java.security.Principal;
 @RequestMapping("/api/v1/room")
 @Validated
 @RequiredArgsConstructor
-@SecurityRequirement(name = "Bearer Authentication")
 @Tag(name = "Room settings controller", description = "API for managing room settings")
 @ApiResponse(responseCode = "404", description = "Room not found",
         content = {@Content(
                 schema = @Schema(implementation = ApiErrorResponse.class),
                 mediaType = MediaType.APPLICATION_JSON_VALUE
         )})
+@ApiResponse(responseCode = "403", description = "Authorization failed",
+        content = @Content(
+                schema = @Schema(implementation = ApiErrorResponse.class),
+                examples = @ExampleObject(value = """
+                            {
+                              "error": "ERROR_NOT_ROOM_OWNER",
+                              "code": 403,
+                              "message": "You are not owner of room"
+                            }"""),
+                mediaType = MediaType.APPLICATION_JSON_VALUE
+        ))
 public class RoomSettingController {
 
     private final RoomSettingsService roomSettingsService;
