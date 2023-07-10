@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import ru.veselov.websocketroomproject.config.openapi.OpenApiExampleConstants;
 import ru.veselov.websocketroomproject.dto.request.RoomSettingsDTO;
 import ru.veselov.websocketroomproject.dto.request.UrlDto;
 import ru.veselov.websocketroomproject.exception.error.ApiErrorResponse;
@@ -42,12 +43,7 @@ import java.security.Principal;
 @ApiResponse(responseCode = "403", description = "Authorization failed",
         content = @Content(
                 schema = @Schema(implementation = ApiErrorResponse.class),
-                examples = @ExampleObject(value = """
-                            {
-                              "error": "ERROR_NOT_ROOM_OWNER",
-                              "code": 403,
-                              "message": "You are not owner of room"
-                            }"""),
+                examples = @ExampleObject(value = OpenApiExampleConstants.ERROR_NOT_ROOM_OWNER_MESSAGE),
                 mediaType = MediaType.APPLICATION_JSON_VALUE
         ))
 public class RoomSettingController {
@@ -62,12 +58,12 @@ public class RoomSettingController {
     )
     @PutMapping("/{roomId}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public Room changeSettings(@Parameter(in = ParameterIn.PATH, description = "Room ID as UUID", required = true,
-            example = "1bd7c828-3a5c-4fd9-a2af-78b6a127459f")
+    public Room changeSettings(@Parameter(in = ParameterIn.PATH, description = "Room Id as UUID", required = true,
+            example = OpenApiExampleConstants.ROOM_UUID)
                                @PathVariable("roomId") @UUID String roomId,
-                               @io.swagger.v3.oas.annotations.parameters.RequestBody(content =
-                               @Content(schema = @Schema(implementation = RoomSettingsDTO.class),
-                                       mediaType = MediaType.APPLICATION_JSON_VALUE))
+                               @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                                       content = @Content(schema = @Schema(implementation = RoomSettingsDTO.class),
+                                               mediaType = MediaType.APPLICATION_JSON_VALUE))
                                @Valid @RequestBody RoomSettingsDTO settings,
                                Principal principal) {
         return roomSettingsService.changeSettings(roomId, settings, principal);
@@ -81,11 +77,11 @@ public class RoomSettingController {
     @PostMapping(value = "/url/{roomId}")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public UrlDto processUrl(@Parameter(in = ParameterIn.PATH, description = "Room ID as UUID", required = true,
-            example = "1bd7c828-3a5c-4fd9-a2af-78b6a127459f")
+            example = OpenApiExampleConstants.ROOM_UUID)
                              @PathVariable("roomId") @UUID String roomId,
-                             @io.swagger.v3.oas.annotations.parameters.RequestBody(content =
-                             @Content(schema = @Schema(implementation = UrlDto.class),
-                                     mediaType = MediaType.APPLICATION_JSON_VALUE))
+                             @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                                     content = @Content(schema = @Schema(implementation = UrlDto.class),
+                                             mediaType = MediaType.APPLICATION_JSON_VALUE))
                              @Valid @RequestBody UrlDto urlDto,
                              Principal principal) {
         roomSettingsService.addUrl(roomId, urlDto.getUrl(), principal);

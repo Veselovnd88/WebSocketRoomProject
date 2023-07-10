@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import ru.veselov.websocketroomproject.annotation.SortingParam;
+import ru.veselov.websocketroomproject.config.openapi.OpenApiExampleConstants;
 import ru.veselov.websocketroomproject.dto.request.SortParameters;
 import ru.veselov.websocketroomproject.exception.error.ApiErrorResponse;
 import ru.veselov.websocketroomproject.model.Room;
@@ -54,17 +55,12 @@ public class RoomController {
     @ApiResponse(responseCode = "403", description = "Authorization failed",
             content = @Content(
                     schema = @Schema(implementation = ApiErrorResponse.class),
-                    examples = @ExampleObject(value = """
-                            {
-                              "error": "ERROR_NOT_ROOM_OWNER",
-                              "code": 403,
-                              "message": "You are not owner of room"
-                            }"""),
+                    examples = @ExampleObject(value = OpenApiExampleConstants.ERROR_NOT_ROOM_OWNER_MESSAGE),
                     mediaType = MediaType.APPLICATION_JSON_VALUE
             ))
     @GetMapping("/{roomId}")
     public Room getRoom(@Parameter(in = ParameterIn.PATH, description = "Room ID as UUID", required = true,
-            example = "1bd7c828-3a5c-4fd9-a2af-78b6a127459f")
+            example = OpenApiExampleConstants.ROOM_UUID)
                         @PathVariable("roomId") @UUID String id,
                         @Parameter(description = "Access token for private room")
                         @RequestParam(required = false, name = "token") String token) {
@@ -79,39 +75,31 @@ public class RoomController {
     @ApiResponse(responseCode = "409", description = "Room with such name already exists",
             content = @Content(
                     schema = @Schema(implementation = ApiErrorResponse.class),
-                    examples = @ExampleObject(value = """
-                            {
-                              "error": "ERROR_CONFLICT",
-                              "code": 409
-                            }"""), //FIXME move examples to another file as constant
+                    examples = @ExampleObject(value = OpenApiExampleConstants.ERROR_CONFLICT_MESSAGE),
                     mediaType = MediaType.APPLICATION_JSON_VALUE
             ))
     @PostMapping(value = "/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public Room createRoom(@io.swagger.v3.oas.annotations.parameters.RequestBody(content =
-    @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(value = """
-            {  "name": "newRoomName",
-            "tags" : ["Movie","Other", "Anime"],
-            "playerType" :"YOUTUBE"}""",
-            description = "Room to create")))
+    public Room createRoom(@io.swagger.v3.oas.annotations.parameters.RequestBody(
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
+                    value = OpenApiExampleConstants.CREATED_ROOM, description = "Room to create")))
                            @Valid @RequestBody Room room, Principal principal) {
         return roomService.createRoom(room, principal);
     }
 
     @Operation(summary = "Get all public rooms", description = "Returns array of Rooms")
-    @Parameter(in = ParameterIn.QUERY, name = "page", example = "0")
-    @Parameter(in = ParameterIn.QUERY, name = "sort", example = "name",
-            description = "Sorting field, createdAt by default," +
-                    " available: name, ownerName, changedAt, playerType, createdAt")
-    @Parameter(in = ParameterIn.QUERY, name = "order", example = "desc",
-            description = "Sorting order, desc by default, available: asc, desc")
+    @Parameter(in = ParameterIn.QUERY, name = OpenApiExampleConstants.PAGE, example = "0")
+    @Parameter(in = ParameterIn.QUERY, name = OpenApiExampleConstants.SORT, example = "name",
+            description = OpenApiExampleConstants.SORT_FIELD_DESCRIPTION)
+    @Parameter(in = ParameterIn.QUERY, name = OpenApiExampleConstants.ORDER, example = "desc",
+            description = OpenApiExampleConstants.SORT_ORDER_DESCRIPTION)
     @ApiResponse(responseCode = "200", description = "Success",
             content = @Content(
                     array = @ArraySchema(schema = @Schema(implementation = Room.class)),
                     mediaType = MediaType.APPLICATION_JSON_VALUE))
     @GetMapping("/all")
     public List<Room> getAllRooms(
-            @Schema(accessMode = Schema.AccessMode.READ_ONLY, hidden = true)
+            @Schema(hidden = true)
             @Valid @SortingParam SortParameters parameters) {
         return roomService.findAll(parameters.getPage(), parameters.getSort(), parameters.getOrder());
     }
@@ -119,19 +107,18 @@ public class RoomController {
     @Operation(summary = "Get Room by Tag and sorting parameters",
             description = "Returns array of public Rooms selected by chosen tag")
     @Parameter(in = ParameterIn.PATH, name = "Tag", description = "Tag name for selecting rooms")
-    @Parameter(in = ParameterIn.QUERY, name = "page", example = "0")
-    @Parameter(in = ParameterIn.QUERY, name = "sort", example = "name",
-            description = "Sorting field, createdAt by default," +
-                    " available: name, ownerName, changedAt, playerType, createdAt")
-    @Parameter(in = ParameterIn.QUERY, name = "order", example = "desc",
-            description = "Sorting order, desc by default, available: asc, desc")
+    @Parameter(in = ParameterIn.QUERY, name = OpenApiExampleConstants.PAGE, example = "0")
+    @Parameter(in = ParameterIn.QUERY, name = OpenApiExampleConstants.SORT, example = "name",
+            description = OpenApiExampleConstants.SORT_FIELD_DESCRIPTION)
+    @Parameter(in = ParameterIn.QUERY, name = OpenApiExampleConstants.ORDER, example = "desc",
+            description = OpenApiExampleConstants.SORT_ORDER_DESCRIPTION)
     @ApiResponse(responseCode = "200", description = "Success",
             content = @Content(
                     array = @ArraySchema(schema = @Schema(implementation = Room.class)),
                     mediaType = MediaType.APPLICATION_JSON_VALUE))
     @GetMapping("/all/{tag}")
     public List<Room> getRoomsByTag(@PathVariable String tag,
-                                    @Schema(accessMode = Schema.AccessMode.READ_ONLY, hidden = true)
+                                    @Schema(hidden = true)
                                     @Valid @SortingParam SortParameters parameters) {
         return roomService.findAllByTag(tag, parameters.getPage(), parameters.getSort(), parameters.getOrder());
     }

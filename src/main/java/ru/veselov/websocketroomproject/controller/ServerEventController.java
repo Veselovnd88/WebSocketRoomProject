@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
+import ru.veselov.websocketroomproject.config.openapi.OpenApiExampleConstants;
 import ru.veselov.websocketroomproject.dto.response.EventMessageDTO;
 import ru.veselov.websocketroomproject.service.ChatEventService;
 
@@ -43,7 +44,7 @@ public class ServerEventController {
                     mediaType = MediaType.TEXT_EVENT_STREAM_VALUE))
     @GetMapping(value = "/event", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ServerSentEvent> subscribe(@Parameter(in = ParameterIn.QUERY, description = "Room ID as UUID",
-            required = true, example = "1bd7c828-3a5c-4fd9-a2af-78b6a127459f")
+            required = true, example = OpenApiExampleConstants.ROOM_UUID)
                                            @RequestParam String roomId, Principal principal) {
         return chatEventService.createEventStream(principal, roomId);
     }
