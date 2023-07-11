@@ -40,11 +40,7 @@ socket:
   send-time-limit: 100000
   buffer-size-limit: 524288
 
-chat-event:
-  core-pool-size: 10
-  max-pool-size: 10
-
-timed-task-executor:
+task-executor:
   core-pool-size: 10
   max-pool-size: 10
   queue-capacity: 15

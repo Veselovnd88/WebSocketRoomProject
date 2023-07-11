@@ -1,6 +1,6 @@
 package ru.veselov.websocketroomproject.config;
 
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.NonNull;
@@ -16,22 +16,17 @@ import java.util.List;
  * Configuration class for using Flux reactive response
  */
 @Configuration
+@RequiredArgsConstructor
 public class WebMvcConfig implements WebMvcConfigurer {
-    @Value("${chat-event.core-pool-size}")
-    private int corePoolSize;
 
-    @Value("${chat-event.max-pool-size}")
-    private int maxPoolSize;
-
-    @Value("${chat-event.max-pool-size}")
-    private int queueCapacity;
+    private final ThreadTaskExecutorProperties properties;
 
     @Bean
     public ThreadPoolTaskExecutor mvcTaskExecutor() {
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-        taskExecutor.setCorePoolSize(corePoolSize);
-        taskExecutor.setMaxPoolSize(maxPoolSize);
-        taskExecutor.setQueueCapacity(queueCapacity);
+        taskExecutor.setCorePoolSize(properties.getCorePoolSize());
+        taskExecutor.setMaxPoolSize(properties.getMaxPoolSize());
+        taskExecutor.setQueueCapacity(properties.getQueueCapacity());
         return taskExecutor;
     }
 

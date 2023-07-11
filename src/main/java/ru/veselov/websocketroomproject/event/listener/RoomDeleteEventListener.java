@@ -1,18 +1,19 @@
 package ru.veselov.websocketroomproject.event.listener;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 import ru.veselov.websocketroomproject.dto.response.EventMessageDTO;
 import ru.veselov.websocketroomproject.event.EventType;
 import ru.veselov.websocketroomproject.event.RoomDeleteEvent;
 import ru.veselov.websocketroomproject.event.sender.RoomSubscriptionEventSender;
-import ru.veselov.websocketroomproject.event.task.DeleteRoomTask;
 import ru.veselov.websocketroomproject.repository.RoomRepository;
 
+import java.util.UUID;
+
 @Component
+@RequiredArgsConstructor
 @Slf4j
 public class RoomDeleteEventListener {
 
@@ -20,24 +21,20 @@ public class RoomDeleteEventListener {
 
     private final RoomRepository roomRepository;
 
-    private final ThreadPoolTaskExecutor timedTaskExecutor;
 
-    public RoomDeleteEventListener(RoomSubscriptionEventSender roomSubscriptionEventSender,
-                                   RoomRepository roomRepository,
-                                   @Qualifier("timedTaskExecutor") ThreadPoolTaskExecutor timedTaskExecutor) {
-        this.roomSubscriptionEventSender = roomSubscriptionEventSender;
-        this.roomRepository = roomRepository;
-        this.timedTaskExecutor = timedTaskExecutor;
-    }
-
+    /**
+     * Handle roomDeleteEvent, send event to EventSource, after receiving this type of event FrontEnd should
+     * close EventSource and WebSocket connection, subscriptions and chatUsers will be deleted accordingly;
+     * Then delete room from repository
+     */
     @EventListener
     public void onRoomDeleteEvent(RoomDeleteEvent roomDeleteEvent) {
         String roomId = roomDeleteEvent.getRoomId();
+        log.info("Processing RoomDeleteEvent for [room {}]", roomId);
         roomSubscriptionEventSender.sendEventToRoomSubscriptions(roomId,
-                new EventMessageDTO<>(EventType.ROOM_DELETE,
-                        "Room will be deleted in 30 seconds"));
-        timedTaskExecutor.execute(new DeleteRoomTask(roomId, roomRepository));
+                new EventMessageDTO<>(EventType.ROOM_DELETE, "Room will be deleted"));
+        roomRepository.deleteById(UUID.fromString(roomId));
+        log.info("Room [{}] deleted from repo", roomId);
     }
-
 
 }

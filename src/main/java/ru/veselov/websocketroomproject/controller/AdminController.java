@@ -56,7 +56,12 @@ public class AdminController {
         return tagService.addTag(tag);
     }
 
-    @DeleteMapping("/delete/{roomId}")
+    @Operation(summary = "Delete room", description = "Deleting room",
+            responses = @ApiResponse(responseCode = "200", description = "Successfully deleted",
+                    content = @Content(schema = @Schema(implementation = String.class),
+                            mediaType = MediaType.APPLICATION_JSON_VALUE)),
+            parameters = @Parameter(in = ParameterIn.PATH, description = "Room Id", required = true))
+    @DeleteMapping("/delete/room/{roomId}")
     public String deleteRoom(@PathVariable("roomId") @UUID String roomId) {
         roomService.deleteRoom(roomId);
         return "Room %s deleted".formatted(roomId);

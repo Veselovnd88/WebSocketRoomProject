@@ -17,6 +17,7 @@ import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.entity.PlayerType;
 import ru.veselov.websocketroomproject.entity.RoomEntity;
 import ru.veselov.websocketroomproject.entity.TagEntity;
+import ru.veselov.websocketroomproject.event.handler.impl.RoomDeleteEventHandlerImpl;
 import ru.veselov.websocketroomproject.exception.RoomNotFoundException;
 import ru.veselov.websocketroomproject.mapper.RoomMapper;
 import ru.veselov.websocketroomproject.mapper.RoomMapperImpl;
@@ -48,6 +49,9 @@ class RoomServiceImplTest {
 
     @Mock
     RoomValidator roomValidator;
+
+    @Mock
+    RoomDeleteEventHandlerImpl roomDeleteEventHandler;
 
     @Mock
     Principal principal;
@@ -145,7 +149,7 @@ class RoomServiceImplTest {
         RoomEntity roomEntity = new RoomEntity();
         roomEntity.setIsPrivate(false);
         Mockito.when(roomRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.of(roomEntity));
-        //FIXME
+
         Assertions.assertThatNoException().isThrownBy(
                 () -> roomService.getRoomById(TestConstants.ROOM_ID, null)
         );
@@ -187,6 +191,17 @@ class RoomServiceImplTest {
         ).isInstanceOf(RoomNotFoundException.class);
 
         Mockito.verify(roomRepository, Mockito.times(1)).findByName("RoomName");
+    }
+
+    @Test
+    void shouldHandleDeleteRoomEvent() {
+        RoomEntity roomEntity = new RoomEntity();
+        roomEntity.setIsPrivate(false);
+        Mockito.when(roomRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.of(roomEntity));
+
+        roomService.deleteRoom(TestConstants.ROOM_ID);
+
+        Mockito.verify(roomDeleteEventHandler, Mockito.times(1)).handleRoomDeleteEvent(TestConstants.ROOM_ID);
     }
 
     private Room getRoom(boolean isPrivate) {

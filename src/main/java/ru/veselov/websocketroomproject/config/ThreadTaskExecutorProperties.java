@@ -5,14 +5,14 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConfigurationProperties(prefix = "timed-task-executor")
+@ConfigurationProperties(prefix = "task-executor")
 @Data
-public class TimedTaskExecutorProperties {
+public class ThreadTaskExecutorProperties {
 
-    int corePoolSize;
+    private int corePoolSize;
 
-    int maxPoolSize;
+    private int maxPoolSize;
 
-    int queueCapacity;
+    private int queueCapacity;
 
 }

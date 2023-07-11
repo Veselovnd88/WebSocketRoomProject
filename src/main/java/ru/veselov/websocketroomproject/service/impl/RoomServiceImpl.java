@@ -121,7 +121,7 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public void deleteRoom(String roomId) {
-        RoomEntity roomById = findRoomById(roomId);
+        findRoomById(roomId);//checks if room exists
         roomDeleteEventHandler.handleRoomDeleteEvent(roomId);
     }
 
