@@ -6,6 +6,5 @@ public enum EventType {
     USER_LIST_REFRESH,
     ROOM_SETTING_UPDATE,
     ACTIVE_URL_UPDATE,
-
     ROOM_DELETE
 }

@@ -31,7 +31,7 @@ public class ChatUserServiceImpl implements ChatUserService {
     @Override
     public Set<ChatUser> findChatUsersByRoomId(String roomId) {
         Set<ChatUserEntity> roomUsers = repository.findAllByRoomId(roomId);
-        log.info("ChatUser of [room: {}] retrieved from repository", roomId);
+        log.info("ChatUsers of [room: {}] retrieved from repository", roomId);
         return chatUserEntityMapper.toChatUsersSet(roomUsers);
     }
 

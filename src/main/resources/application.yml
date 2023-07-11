@@ -20,6 +20,14 @@ socket:
 chat-event:
   core-pool-size: 10
   max-pool-size: 10
+  queue-capacity: 15
+
+timed-task-executor:
+  core-pool-size: 10
+  max-pool-size: 10
+  queue-capacity: 15
+
+
 
 auth:
   header: Authorization
@@ -39,6 +47,7 @@ cors:
 
   allowed-headers:
     - "*"
+  allow-credentials: true
 
 
 spring:

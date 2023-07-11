@@ -13,8 +13,8 @@ public class RoomDeleteEventPublisher {
 
     private final ApplicationEventPublisher applicationEventPublisher;
 
-    void publishEvent(RoomDeleteEvent roomDeleteEvent) {
-        log.info("Publishing event for deleting [room {}]", roomDeleteEvent.getRoomEntity().getId());
+    public void publishEvent(RoomDeleteEvent roomDeleteEvent) {
+        log.info("Publishing event for deleting [room {}]", roomDeleteEvent.getRoomId());
         applicationEventPublisher.publishEvent(roomDeleteEvent);
     }
 

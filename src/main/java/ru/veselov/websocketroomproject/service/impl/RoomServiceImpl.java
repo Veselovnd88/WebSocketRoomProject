@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.veselov.websocketroomproject.entity.RoomEntity;
 import ru.veselov.websocketroomproject.entity.TagEntity;
+import ru.veselov.websocketroomproject.event.handler.RoomDeleteEventHandler;
 import ru.veselov.websocketroomproject.exception.PageExceedsMaximumValueException;
 import ru.veselov.websocketroomproject.exception.RoomNotFoundException;
 import ru.veselov.websocketroomproject.mapper.RoomMapper;
@@ -52,6 +53,8 @@ public class RoomServiceImpl implements RoomService {
     private final TagRepository tagRepository;
 
     private final RoomValidator roomValidator;
+
+    private final RoomDeleteEventHandler roomDeleteEventHandler;
 
     @PostConstruct
     public void init() {
@@ -119,7 +122,7 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public void deleteRoom(String roomId) {
         RoomEntity roomById = findRoomById(roomId);
-        roomRepository.delete(roomById);
+        roomDeleteEventHandler.handleRoomDeleteEvent(roomId);
     }
 
     private RoomEntity findRoomById(String id) {

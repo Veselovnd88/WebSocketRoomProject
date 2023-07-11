@@ -23,11 +23,15 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Value("${chat-event.max-pool-size}")
     private int maxPoolSize;
 
+    @Value("${chat-event.max-pool-size}")
+    private int queueCapacity;
+
     @Bean
     public ThreadPoolTaskExecutor mvcTaskExecutor() {
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
         taskExecutor.setCorePoolSize(corePoolSize);
         taskExecutor.setMaxPoolSize(maxPoolSize);
+        taskExecutor.setQueueCapacity(queueCapacity);
         return taskExecutor;
     }
 

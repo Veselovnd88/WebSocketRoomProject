@@ -44,6 +44,11 @@ chat-event:
   core-pool-size: 10
   max-pool-size: 10
 
+timed-task-executor:
+  core-pool-size: 10
+  max-pool-size: 10
+  queue-capacity: 15
+
 auth:
   header: Authorization
   prefix: "Bearer "
@@ -61,6 +66,7 @@ cors:
     - PUT
   allowed-headers:
     - "*"
+  allow-credentials: true
 
 redis:
   master:
