@@ -201,7 +201,8 @@ class RoomServiceImplTest {
 
         roomService.deleteRoom(TestConstants.ROOM_ID);
 
-        Mockito.verify(roomDeleteEventHandler, Mockito.times(1)).handleRoomDeleteEvent(TestConstants.ROOM_ID);
+        Mockito.verify(roomDeleteEventHandler, Mockito.times(1))
+                .handleRoomDeleteEvent(TestConstants.ROOM_ID);
     }
 
     private Room getRoom(boolean isPrivate) {

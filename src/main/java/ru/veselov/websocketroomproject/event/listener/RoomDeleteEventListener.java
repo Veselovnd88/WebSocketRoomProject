@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import ru.veselov.websocketroomproject.dto.response.EventMessageDTO;
 import ru.veselov.websocketroomproject.event.EventType;
 import ru.veselov.websocketroomproject.event.RoomDeleteEvent;
@@ -28,6 +30,7 @@ public class RoomDeleteEventListener {
      * Then delete room from repository
      */
     @EventListener
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void onRoomDeleteEvent(RoomDeleteEvent roomDeleteEvent) {
         String roomId = roomDeleteEvent.getRoomId();
         log.info("Processing RoomDeleteEvent for [room {}]", roomId);

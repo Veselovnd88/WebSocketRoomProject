@@ -33,7 +33,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-@Transactional(readOnly = true)
 @Slf4j
 @RequiredArgsConstructor
 public class RoomServiceImpl implements RoomService {
@@ -121,7 +120,7 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public void deleteRoom(String roomId) {
-        findRoomById(roomId);//checks if room exists
+        findRoomById(roomId);//check if room exists before handling event
         roomDeleteEventHandler.handleRoomDeleteEvent(roomId);
     }
 

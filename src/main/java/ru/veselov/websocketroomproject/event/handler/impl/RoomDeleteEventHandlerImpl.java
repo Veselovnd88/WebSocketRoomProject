@@ -21,4 +21,5 @@ public class RoomDeleteEventHandlerImpl implements RoomDeleteEventHandler {
         roomDeleteEventPublisher.publishEvent(roomDeleteEvent);
 
     }
+
 }
