@@ -109,9 +109,7 @@ public class AdminControllerIntegrationTest extends PostgresContainersConfig {
 
         Optional<RoomEntity> aaa = roomRepository.findByName("aaa");
         Assertions.assertThat(aaa).isNotPresent();
-
     }
-
 
     public void fillRepoWithRooms() {
         roomRepository.deleteAll();//clear

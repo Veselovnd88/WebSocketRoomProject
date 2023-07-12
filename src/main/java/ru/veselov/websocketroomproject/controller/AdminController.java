@@ -62,7 +62,7 @@ public class AdminController {
         return tagService.addTag(tag.getName());
     }
 
-    @Operation(summary = "Delete room", description = "Deleting room",
+    @Operation(summary = "Delete room", description = "Deleting room by it's Id",
             responses = @ApiResponse(responseCode = "204", description = "Successfully deleted",
                     content = @Content(schema = @Schema(implementation = String.class),
                             mediaType = MediaType.APPLICATION_JSON_VALUE)),

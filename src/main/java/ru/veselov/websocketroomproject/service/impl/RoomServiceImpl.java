@@ -35,6 +35,7 @@ import java.util.UUID;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class RoomServiceImpl implements RoomService {
 
     @Value("${server.zoneId}")
