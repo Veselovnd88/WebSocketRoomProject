@@ -36,7 +36,7 @@ import java.util.Set;
 @AutoConfigureWebTestClient
 @ActiveProfiles("test")
 @DirtiesContext
-@SuppressWarnings("unchecked")
+@SuppressWarnings("rawtypes")
 public class AdminControllerIntegrationTest extends PostgresContainersConfig {
 
     public static final String URL_PREFIX = "/api/v1/admin/";
@@ -105,7 +105,7 @@ public class AdminControllerIntegrationTest extends PostgresContainersConfig {
     @Test
     void shouldDeleteRoomAndNotifyUserAboutDeletion() {
         Room roomAaa = roomService.getRoomByName("aaa");
-
+        //subscribe to SSE
         FluxExchangeResult<ServerSentEvent> fluxResult = webTestClient.get()
                 .uri("/api/v1/room/event?roomId=" + roomAaa.getId())
                 .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
@@ -122,10 +122,16 @@ public class AdminControllerIntegrationTest extends PostgresContainersConfig {
 
         Optional<RoomEntity> aaa = roomRepository.findByName("aaa");
         Assertions.assertThat(aaa).isNotPresent();
-
+        //checks if new SSE received
         StepVerifier.create(fluxResult.getResponseBody()).expectSubscription()
-                .expectNextMatches(x -> x.event().equals("init"))
-                .expectNextMatches(x -> x.event().equals(EventType.ROOM_DELETE.name())).
+                .expectNextMatches(x -> {
+                    assert x.event() != null;
+                    return x.event().equals("init");
+                })
+                .expectNextMatches(x -> {
+                    assert x.event() != null;
+                    return x.event().equals(EventType.ROOM_DELETE.name());
+                }).
                 thenCancel().verify();
     }
 

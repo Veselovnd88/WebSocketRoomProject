@@ -69,9 +69,8 @@ public class AdminController {
             parameters = @Parameter(in = ParameterIn.PATH, description = "Room Id", required = true))
     @DeleteMapping("/delete/room/{roomId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public String deleteRoom(@PathVariable("roomId") @UUID String roomId) {
+    public void deleteRoom(@PathVariable("roomId") @UUID String roomId) {
         roomService.deleteRoom(roomId);
-        return "Room %s deleted".formatted(roomId);
     }
 
 }
