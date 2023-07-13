@@ -23,7 +23,7 @@ import ru.veselov.websocketroomproject.service.ChatEventService;
 import java.security.Principal;
 
 @RestController
-@RequestMapping("/api/room")
+@RequestMapping("/api/v1/room")
 @Slf4j
 @RequiredArgsConstructor
 @SuppressWarnings("rawtypes")

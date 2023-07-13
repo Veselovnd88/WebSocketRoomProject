@@ -21,7 +21,7 @@ import ru.veselov.websocketroomproject.cache.SubscriptionCache;
 @SuppressWarnings("rawtypes")
 class ServerEventControllerTest {
 
-    private final static String ROOM_ID = "5";
+    private final static String ROOM_ID = TestConstants.ROOM_ID;
 
     @Autowired
     WebTestClient webTestClient;
@@ -31,7 +31,7 @@ class ServerEventControllerTest {
 
     @Test
     void shouldReturnSuccessfulCodeAndEventStream() {
-        FluxExchangeResult<ServerSentEvent> fluxResult = webTestClient.get().uri("/api/room/event?roomId=" + ROOM_ID)
+        FluxExchangeResult<ServerSentEvent> fluxResult = webTestClient.get().uri("/api/v1/room/event?roomId=" + ROOM_ID)
                 .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
                 .exchange().expectStatus().is2xxSuccessful()
                 .expectHeader().contentType(MediaType.TEXT_EVENT_STREAM_VALUE)
@@ -46,7 +46,7 @@ class ServerEventControllerTest {
 
     @Test
     void shouldReturnUnauthorizedErrorResponse() {
-        webTestClient.get().uri("/api/room/event?roomId=" + ROOM_ID)
+        webTestClient.get().uri("/api/v1/room/event?roomId=" + ROOM_ID)
                 .exchange().expectStatus().is4xxClientError();
     }
 

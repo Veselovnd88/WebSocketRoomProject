@@ -67,23 +67,26 @@ public class RoomController {
         return roomService.getRoomById(id, token);
     }
 
-    @Operation(summary = "Create room", description = "Creates and returns Room")
-    @ApiResponse(responseCode = "201", description = "Room created",
-            content = @Content(
-                    schema = @Schema(implementation = Room.class), mediaType = MediaType.APPLICATION_JSON_VALUE
-            ))
-    @ApiResponse(responseCode = "409", description = "Room with such name already exists",
-            content = @Content(
-                    schema = @Schema(implementation = ApiErrorResponse.class),
-                    examples = @ExampleObject(value = OpenApiExampleConstants.ERROR_CONFLICT_MESSAGE),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE
-            ))
+    @Operation(summary = "Create room", description = "Creates and returns Room",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Room created",
+                            content = @Content(
+                                    schema = @Schema(implementation = Room.class), mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )),
+                    @ApiResponse(responseCode = "409", description = "Room with such name already exists",
+                            content = @Content(
+                                    schema = @Schema(implementation = ApiErrorResponse.class),
+                                    examples = @ExampleObject(value = OpenApiExampleConstants.ERROR_CONFLICT_MESSAGE),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            ))
+            },
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(schema = @Schema(implementation = Room.class),
+                            mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
+                            value = OpenApiExampleConstants.CREATED_ROOM, description = "Room to create"))))
     @PostMapping(value = "/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public Room createRoom(@io.swagger.v3.oas.annotations.parameters.RequestBody(
-            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
-                    value = OpenApiExampleConstants.CREATED_ROOM, description = "Room to create")))
-                           @Valid @RequestBody Room room, Principal principal) {
+    public Room createRoom(@Valid @RequestBody Room room, Principal principal) {
         return roomService.createRoom(room, principal);
     }
 

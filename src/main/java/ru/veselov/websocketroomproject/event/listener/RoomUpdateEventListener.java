@@ -6,6 +6,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import ru.veselov.websocketroomproject.dto.request.UrlDto;
 import ru.veselov.websocketroomproject.dto.response.EventMessageDTO;
+import ru.veselov.websocketroomproject.dto.response.SseDataDto;
 import ru.veselov.websocketroomproject.event.ActiveURLUpdateEvent;
 import ru.veselov.websocketroomproject.event.RoomSettingsUpdateEvent;
 import ru.veselov.websocketroomproject.event.sender.RoomSubscriptionEventSender;
@@ -27,7 +28,8 @@ public class RoomUpdateEventListener {
         Room room = roomSettingsUpdateEvent.getRoom();
         log.info("Processing RoomSettingsUpdateEvent for [room {}]", room.getId());
         roomSubscriptionEventSender.sendEventToRoomSubscriptions(room.getId().toString(),
-                new EventMessageDTO<>(EventType.ROOM_SETTING_UPDATE, room)
+                new EventMessageDTO<>(EventType.ROOM_SETTING_UPDATE,
+                        new SseDataDto<>("Updated room", room))
         );
     }
 
@@ -37,7 +39,7 @@ public class RoomUpdateEventListener {
         UrlDto urlDto = new UrlDto(activeURLUpdateEvent.getUrl());
         log.info("Processing ActiveURLUpdateEvent for [room {}]", roomId);
         roomSubscriptionEventSender.sendEventToRoomSubscriptions(roomId,
-                new EventMessageDTO<>(EventType.ACTIVE_URL_UPDATE, urlDto)
+                new EventMessageDTO<>(EventType.ACTIVE_URL_UPDATE, new SseDataDto<>("New Url", urlDto))
         );
     }
 

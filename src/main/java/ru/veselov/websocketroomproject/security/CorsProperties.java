@@ -11,10 +11,12 @@ import java.util.List;
 @Data
 public class CorsProperties {
 
-    List<String> allowedOrigins;
+    private List<String> allowedOrigins;
 
-    List<String> allowedMethods;
+    private List<String> allowedMethods;
 
-    List<String> allowedHeaders;
+    private List<String> allowedHeaders;
+
+    private boolean allowCredentials;
 
 }

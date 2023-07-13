@@ -11,8 +11,10 @@ import ru.veselov.websocketroomproject.cache.SubscriptionData;
 import ru.veselov.websocketroomproject.service.RoomSubscriptionService;
 
 import java.util.Set;
+
 /**
- * Send Events to room subscriptions (fluxsinks) stored in cache*/
+ * Send Events to room subscriptions (fluxsinks) stored in cache
+ */
 @Component
 @Slf4j
 @RequiredArgsConstructor

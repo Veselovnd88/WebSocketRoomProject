@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.veselov.websocketroomproject.entity.RoomEntity;
 import ru.veselov.websocketroomproject.entity.TagEntity;
+import ru.veselov.websocketroomproject.event.handler.RoomDeleteEventHandler;
 import ru.veselov.websocketroomproject.exception.PageExceedsMaximumValueException;
 import ru.veselov.websocketroomproject.exception.RoomNotFoundException;
 import ru.veselov.websocketroomproject.mapper.RoomMapper;
@@ -32,9 +33,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-@Transactional(readOnly = true)
 @Slf4j
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class RoomServiceImpl implements RoomService {
 
     @Value("${server.zoneId}")
@@ -52,6 +53,8 @@ public class RoomServiceImpl implements RoomService {
     private final TagRepository tagRepository;
 
     private final RoomValidator roomValidator;
+
+    private final RoomDeleteEventHandler roomDeleteEventHandler;
 
     @PostConstruct
     public void init() {
@@ -114,6 +117,12 @@ public class RoomServiceImpl implements RoomService {
         Page<RoomEntity> found = roomRepository.findAllByTag(tag, pageable);
         log.info("Found [{} rooms] on {} page and {} sorting and tag {}", found.getContent().size(), page, sort, tag);
         return roomMapper.entitiesToRooms(found.getContent());
+    }
+
+    @Override
+    public void deleteRoom(String roomId) {
+        findRoomById(roomId);//check if room exists before handling event
+        roomDeleteEventHandler.handleRoomDeleteEvent(roomId);
     }
 
     private RoomEntity findRoomById(String id) {

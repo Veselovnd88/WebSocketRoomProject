@@ -46,7 +46,7 @@ class RoomUpdateEventListenerTest {
                 .sendEventToRoomSubscriptions(ArgumentMatchers.anyString(), eventMessageCaptor.capture());
         EventMessageDTO captured = eventMessageCaptor.getValue();
         Assertions.assertThat(captured.getEventType()).isEqualTo(EventType.ROOM_SETTING_UPDATE);
-        Assertions.assertThat(captured.getData()).isEqualTo(room);
+        Assertions.assertThat(captured.getData().getPayload()).isEqualTo(room);
     }
 
     @Test
@@ -58,7 +58,7 @@ class RoomUpdateEventListenerTest {
                 .sendEventToRoomSubscriptions(ArgumentMatchers.anyString(), eventMessageCaptor.capture());
         EventMessageDTO captured = eventMessageCaptor.getValue();
         Assertions.assertThat(captured.getEventType()).isEqualTo(EventType.ACTIVE_URL_UPDATE);
-        Assertions.assertThat(captured.getData()).isEqualTo(new UrlDto("https://url.com"));
+        Assertions.assertThat(captured.getData().getPayload()).isEqualTo(new UrlDto("https://url.com"));
     }
 
 }
