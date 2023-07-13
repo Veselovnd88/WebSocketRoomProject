@@ -24,10 +24,12 @@ public class TagController {
 
     private final TagService tagService;
 
-    @Operation(summary = "Get all tags", description = "Returns array of Tags")
-    @ApiResponse(responseCode = "200", description = "Success",
-            content = @Content(array = @ArraySchema(schema = @Schema(implementation = Room.class)),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Get all tags", description = "Returns array of Tags",
+            responses =
+            @ApiResponse(responseCode = "200", description = "Success",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Room.class)),
+                            mediaType = MediaType.APPLICATION_JSON_VALUE)
+            )
     )
     @GetMapping("/all")
     public Set<Tag> getAllTags() {

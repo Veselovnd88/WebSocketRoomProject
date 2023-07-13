@@ -51,37 +51,40 @@ public class RoomSettingController {
     private final RoomSettingsService roomSettingsService;
 
     @Operation(summary = "Apply new settings for room",
-            description = "Returns updated Room, and notify all subscriptions")
-    @ApiResponse(responseCode = "202", description = "Success",
-            content = @Content(schema = @Schema(implementation = Room.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+            description = "Returns updated Room, and notify all subscriptions",
+            responses = @ApiResponse(responseCode = "202", description = "Success",
+                    content = @Content(schema = @Schema(implementation = Room.class),
+                            mediaType = MediaType.APPLICATION_JSON_VALUE)
+            ),
+            parameters = @Parameter(in = ParameterIn.PATH, description = "Room Id as UUID", required = true,
+                    example = OpenApiExampleConstants.ROOM_UUID),
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(schema = @Schema(implementation = RoomSettingsDTO.class),
+                            mediaType = MediaType.APPLICATION_JSON_VALUE))
     )
     @PutMapping("/{roomId}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public Room changeSettings(@Parameter(in = ParameterIn.PATH, description = "Room Id as UUID", required = true,
-            example = OpenApiExampleConstants.ROOM_UUID)
-                               @PathVariable("roomId") @UUID String roomId,
-                               @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                                       content = @Content(schema = @Schema(implementation = RoomSettingsDTO.class),
-                                               mediaType = MediaType.APPLICATION_JSON_VALUE))
+    public Room changeSettings(@PathVariable("roomId") @UUID String roomId,
                                @Valid @RequestBody RoomSettingsDTO settings,
                                Principal principal) {
         return roomSettingsService.changeSettings(roomId, settings, principal);
     }
 
-    @Operation(summary = "Add new active URL to the room", description = "Return URL and refresh all subscriptions")
-    @ApiResponse(responseCode = "202", description = "Success",
-            content = @Content(schema = @Schema(implementation = UrlDto.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Add new active URL to the room", description = "Return URL and refresh all subscriptions",
+            responses =
+            @ApiResponse(responseCode = "202", description = "Success",
+                    content = @Content(schema = @Schema(implementation = UrlDto.class),
+                            mediaType = MediaType.APPLICATION_JSON_VALUE)
+            ),
+            parameters = @Parameter(in = ParameterIn.PATH, description = "Room ID as UUID", required = true,
+                    example = OpenApiExampleConstants.ROOM_UUID),
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(schema = @Schema(implementation = UrlDto.class),
+                            mediaType = MediaType.APPLICATION_JSON_VALUE))
     )
     @PostMapping(value = "/url/{roomId}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public UrlDto processUrl(@Parameter(in = ParameterIn.PATH, description = "Room ID as UUID", required = true,
-            example = OpenApiExampleConstants.ROOM_UUID)
-                             @PathVariable("roomId") @UUID String roomId,
-                             @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                                     content = @Content(schema = @Schema(implementation = UrlDto.class),
-                                             mediaType = MediaType.APPLICATION_JSON_VALUE))
+    public UrlDto processUrl(@PathVariable("roomId") @UUID String roomId,
                              @Valid @RequestBody UrlDto urlDto,
                              Principal principal) {
         roomSettingsService.addUrl(roomId, urlDto.getUrl(), principal);
