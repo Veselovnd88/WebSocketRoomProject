@@ -8,14 +8,19 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.reactive.server.FluxExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import reactor.test.StepVerifier;
 import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.app.containers.PostgresContainersConfig;
 import ru.veselov.websocketroomproject.entity.PlayerType;
 import ru.veselov.websocketroomproject.entity.RoomEntity;
 import ru.veselov.websocketroomproject.entity.TagEntity;
+import ru.veselov.websocketroomproject.event.EventType;
 import ru.veselov.websocketroomproject.model.Room;
 import ru.veselov.websocketroomproject.model.Tag;
 import ru.veselov.websocketroomproject.repository.RoomRepository;
@@ -31,6 +36,7 @@ import java.util.Set;
 @AutoConfigureWebTestClient
 @ActiveProfiles("test")
 @DirtiesContext
+@SuppressWarnings("unchecked")
 public class AdminControllerIntegrationTest extends PostgresContainersConfig {
 
     public static final String URL_PREFIX = "/api/v1/admin/";
@@ -100,6 +106,13 @@ public class AdminControllerIntegrationTest extends PostgresContainersConfig {
     void shouldDeleteRoomAndNotifyUserAboutDeletion() {
         Room roomAaa = roomService.getRoomByName("aaa");
 
+        FluxExchangeResult<ServerSentEvent> fluxResult = webTestClient.get()
+                .uri("/api/v1/room/event?roomId=" + roomAaa.getId())
+                .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
+                .exchange().expectStatus().is2xxSuccessful()
+                .expectHeader().contentType(MediaType.TEXT_EVENT_STREAM_VALUE)
+                .returnResult(ServerSentEvent.class);
+
         webTestClient.delete().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("delete")
                         .path("/room")
                         .path("/" + roomAaa.getId().toString())
@@ -109,6 +122,11 @@ public class AdminControllerIntegrationTest extends PostgresContainersConfig {
 
         Optional<RoomEntity> aaa = roomRepository.findByName("aaa");
         Assertions.assertThat(aaa).isNotPresent();
+
+        StepVerifier.create(fluxResult.getResponseBody()).expectSubscription()
+                .expectNextMatches(x -> x.event().equals("init"))
+                .expectNextMatches(x -> x.event().equals(EventType.ROOM_DELETE.name())).
+                thenCancel().verify();
     }
 
     public void fillRepoWithRooms() {

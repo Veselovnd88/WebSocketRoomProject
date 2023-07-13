@@ -9,6 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.codec.ServerSentEvent;
 import reactor.core.publisher.FluxSink;
 import ru.veselov.websocketroomproject.dto.response.EventMessageDTO;
+import ru.veselov.websocketroomproject.dto.response.SseDataDto;
 import ru.veselov.websocketroomproject.event.EventType;
 import ru.veselov.websocketroomproject.cache.SubscriptionData;
 import ru.veselov.websocketroomproject.event.sender.impl.RoomSubscriptionEventSenderImpl;
@@ -41,21 +42,21 @@ class RoomSubscriptionEventSenderImplTest {
         Mockito.when(roomSubscriptionService.findSubscriptionsByRoomId(ROOM_ID)).thenReturn(
                 fillSetWithSubscriptions(fluxSink)
         );
-        EventMessageDTO eventMessageDTO = new EventMessageDTO(EventType.USER_CONNECT, "payload");
+        EventMessageDTO eventMessageDTO = new EventMessageDTO(EventType.USER_CONNECT, new SseDataDto<>("m", "payload"));
 
         eventSender.sendEventToRoomSubscriptions(ROOM_ID, eventMessageDTO);
 
         Mockito.verify(fluxSink, Mockito.times(10)).next(sseCaptor.capture());
         ServerSentEvent captured = sseCaptor.getValue();
         Assertions.assertThat(captured.event()).isEqualTo(EventType.USER_CONNECT.name());
-        Assertions.assertThat(captured.data()).isEqualTo("payload");
+        Assertions.assertThat(captured.data()).isEqualTo(new SseDataDto<>("m", "payload"));
     }
 
     @Test
     void shouldNotSendMessageIfNoSubscriptions() {
         FluxSink fluxSink = Mockito.mock(FluxSink.class);
         Mockito.when(roomSubscriptionService.findSubscriptionsByRoomId(ROOM_ID)).thenReturn(Collections.emptySet());
-        EventMessageDTO eventMessageDTO = new EventMessageDTO(EventType.USER_CONNECT, "payload");
+        EventMessageDTO eventMessageDTO = new EventMessageDTO(EventType.USER_CONNECT, new SseDataDto<>("m", "payload"));
 
         eventSender.sendEventToRoomSubscriptions(ROOM_ID, eventMessageDTO);
 

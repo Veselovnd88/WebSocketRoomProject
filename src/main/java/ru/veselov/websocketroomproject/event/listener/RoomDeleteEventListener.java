@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.veselov.websocketroomproject.dto.response.EventMessageDTO;
+import ru.veselov.websocketroomproject.dto.response.SseDataDto;
 import ru.veselov.websocketroomproject.event.EventType;
 import ru.veselov.websocketroomproject.event.RoomDeleteEvent;
 import ru.veselov.websocketroomproject.event.sender.RoomSubscriptionEventSender;
@@ -35,7 +36,8 @@ public class RoomDeleteEventListener {
         String roomId = roomDeleteEvent.getRoomId();
         log.info("Processing RoomDeleteEvent for [room {}]", roomId);
         roomSubscriptionEventSender.sendEventToRoomSubscriptions(roomId,
-                new EventMessageDTO<>(EventType.ROOM_DELETE, "Room will be deleted"));
+                new EventMessageDTO<>(EventType.ROOM_DELETE,
+                        new SseDataDto<>("Room deleted", null)));
         roomRepository.deleteById(UUID.fromString(roomId));
         log.info("Room [{}] deleted from repo", roomId);
     }

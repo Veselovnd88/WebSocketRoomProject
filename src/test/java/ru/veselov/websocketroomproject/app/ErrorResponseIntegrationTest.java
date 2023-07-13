@@ -312,7 +312,7 @@ public class ErrorResponseIntegrationTest extends PostgresContainersConfig {
                         .build())
                 .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
                 .exchange().expectStatus().is4xxClientError()
-                .expectBody().jsonPath("$.error").isEqualTo(ErrorCode.ERROR_PAGE_NUM_EXCEED.toString());
+                .expectBody().jsonPath("$.error").isEqualTo(ErrorCode.ERROR_VALIDATION.toString());
     }
 
     @Test
@@ -322,7 +322,7 @@ public class ErrorResponseIntegrationTest extends PostgresContainersConfig {
                         .build())
                 .headers(headers -> headers.add(TestConstants.AUTH_HEADER, TestConstants.BEARER_JWT))
                 .exchange().expectStatus().is4xxClientError()
-                .expectBody().jsonPath("$.error").isEqualTo(ErrorCode.ERROR_PAGE_NUM_EXCEED.toString());
+                .expectBody().jsonPath("$.error").isEqualTo(ErrorCode.ERROR_VALIDATION.toString());
     }
 
     private Room savePrivateRoomToRepo() {
