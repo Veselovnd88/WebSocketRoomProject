@@ -32,7 +32,8 @@ import java.util.Set;
 @PreAuthorize("hasAuthority('ADMIN')")
 @Validated
 @RequiredArgsConstructor
-@io.swagger.v3.oas.annotations.tags.Tag(name = "Admin controller", description = "API for managing administrator actions")
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Admin controller",
+        description = "API for managing administrator actions")
 public class AdminController {
 
     private final TagService tagService;

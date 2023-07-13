@@ -38,14 +38,16 @@ public class ServerEventController {
      * Eventsource should be created together with websocket connection and completed with websocket disconnection
      * Subscription for events and chatUsers for WebSocket saving and removing together
      */
-    @Operation(summary = "EventSource subscriptions", description = "Return Event Stream")
-    @ApiResponse(responseCode = "200", description = "Success",
-            content = @Content(schema = @Schema(implementation = EventMessageDTO.class),
-                    mediaType = MediaType.TEXT_EVENT_STREAM_VALUE))
+    @Operation(summary = "EventSource subscriptions", description = "Return Event Stream",
+            responses =
+            @ApiResponse(responseCode = "200", description = "Success",
+                    content = @Content(schema = @Schema(implementation = EventMessageDTO.class),
+                            mediaType = MediaType.TEXT_EVENT_STREAM_VALUE)),
+            parameters = @Parameter(in = ParameterIn.QUERY, description = "Room ID as UUID",
+                    required = true, example = OpenApiExampleConstants.ROOM_UUID)
+    )
     @GetMapping(value = "/event", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<ServerSentEvent> subscribe(@Parameter(in = ParameterIn.QUERY, description = "Room ID as UUID",
-            required = true, example = OpenApiExampleConstants.ROOM_UUID)
-                                           @RequestParam String roomId, Principal principal) {
+    public Flux<ServerSentEvent> subscribe(@RequestParam String roomId, Principal principal) {
         return chatEventService.createEventStream(principal, roomId);
     }
 
