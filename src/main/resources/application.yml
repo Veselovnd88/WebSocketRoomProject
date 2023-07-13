@@ -83,6 +83,11 @@ redis:
     max-idle: 8
     min-idle: 0
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, env, metrics
 logging:
   level:
     ru.veselov: INFO
