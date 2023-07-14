@@ -43,6 +43,8 @@ dependencies {
     implementation "io.jsonwebtoken:jjwt-api:${jjwt_version}"
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator:3.1.1'
+
 
     runtimeOnly 'org.postgresql:postgresql'
     runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jjwt_version}"
