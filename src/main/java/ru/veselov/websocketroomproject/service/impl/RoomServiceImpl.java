@@ -132,6 +132,34 @@ public class RoomServiceImpl implements RoomService {
         roomDeleteEventHandler.handleRoomDeleteEvent(roomId);
     }
 
+    @Override
+    @Transactional
+    public void addUser(String roomId, String username) {//TODO TestME
+        RoomEntity roomEntity = findRoomById(roomId);
+        roomEntity.getUsers().add(username);
+        Integer currentQnt = roomEntity.getUserQnt();
+        Integer newQnt = currentQnt + 1;
+        if (newQnt > roomEntity.getMaxUserQnt()) {
+            roomEntity.setMaxUserQnt(newQnt);
+            log.info("New max quantity of users updated in room [{}]", roomId);
+        }
+        roomEntity.setUserQnt(newQnt);
+        roomRepository.save(roomEntity);
+        log.info("User quantity updated in room [{}]", roomId);
+    }
+
+    @Override
+    @Transactional
+    public void removeUser(String roomId, String username) {//TODO testMe
+        RoomEntity roomEntity = findRoomById(roomId);
+        roomEntity.getUsers().remove(username);
+        Integer currentQnt = roomEntity.getUserQnt();
+        Integer newQnt = currentQnt - 1;
+        roomEntity.setUserQnt(newQnt);
+        roomRepository.save(roomEntity);
+        log.info("User quantity updated in room [{}]", roomId);
+    }
+
     private RoomEntity findRoomById(String id) {
         UUID uuid = UUID.fromString(id);
         Optional<RoomEntity> foundRoom = roomRepository.findById(uuid);

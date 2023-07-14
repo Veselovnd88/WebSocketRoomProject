@@ -9,6 +9,7 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import ru.veselov.websocketroomproject.event.handler.UserDisconnectEventHandler;
 import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.service.ChatUserService;
+import ru.veselov.websocketroomproject.service.RoomService;
 
 import java.util.Optional;
 
@@ -21,6 +22,8 @@ public class WebSocketDisconnectListener {
 
     private final UserDisconnectEventHandler userDisconnectEventHandler;
 
+    private final RoomService roomService;
+
     @EventListener
     public void handleUserDisconnect(SessionDisconnectEvent session) {
         StompHeaderAccessor stompHeaderAccessor = StompHeaderAccessor.wrap(session.getMessage());
@@ -29,6 +32,7 @@ public class WebSocketDisconnectListener {
         if (chatUserOptional.isPresent()) {
             ChatUser chatUser = chatUserOptional.get();
             userDisconnectEventHandler.handleDisconnectEvent(chatUser);
+            roomService.removeUser(chatUser.getRoomId(), chatUser.getUsername());//TODO Test me
             log.info("[User {}] is disconnected", chatUser.getUsername());
         } else {
             log.info("[Session {}] was not connected, disconnect message after error", sessionId);
