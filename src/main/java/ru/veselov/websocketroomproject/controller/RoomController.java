@@ -15,6 +15,7 @@ import org.hibernate.validator.constraints.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -119,7 +120,7 @@ public class RoomController {
                             array = @ArraySchema(schema = @Schema(implementation = Room.class)),
                             mediaType = MediaType.APPLICATION_JSON_VALUE)),
             parameters = {
-                    @Parameter(in = ParameterIn.PATH, name = "Tag", description = "Tag name for selecting rooms"),
+                    @Parameter(in = ParameterIn.PATH, name = "tag", description = "Tag name for selecting rooms"),
                     @Parameter(in = ParameterIn.QUERY, name = OpenApiExampleConstants.PAGE, example = "0"),
                     @Parameter(in = ParameterIn.QUERY, name = OpenApiExampleConstants.SORT, example = "name",
                             description = OpenApiExampleConstants.SORT_FIELD_DESCRIPTION),
@@ -131,6 +132,15 @@ public class RoomController {
     public List<Room> getRoomsByTag(@PathVariable String tag,
                                     @Schema(hidden = true) @Valid @SortingParam SortParameters parameters) {
         return roomService.findAllByTag(tag, parameters.getPage(), parameters.getSort(), parameters.getOrder());
+    }
+
+    @Operation(summary = "Delete room by owner", description = "Owner can delete room",
+            responses = @ApiResponse(responseCode = "204", description = "Room deleted"),
+            parameters = @Parameter(in = ParameterIn.PATH, description = "Room id as UUID"))
+    @DeleteMapping("/delete/{roomId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteRoom(@PathVariable("roomId") @UUID String roomId, Principal principal) {
+        roomService.deleteRoomByOwner(roomId, principal);
     }
 
 }

@@ -19,4 +19,5 @@ public interface RoomService {
 
     void deleteRoom(String roomId);
 
+    void deleteRoomByOwner(String roomId, Principal principal);
 }

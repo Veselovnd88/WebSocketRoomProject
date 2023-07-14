@@ -88,6 +88,18 @@ class RoomControllerTest {
         Mockito.verify(roomService, Mockito.times(1)).createRoom(ArgumentMatchers.any(), ArgumentMatchers.any());
     }
 
+    @Test
+    void shouldDeleteRoom() {
+        webTestClient.delete().uri(uriBuilder -> uriBuilder.path(URL_PREFIX).path("/delete")
+                        .path("/" + UUID.randomUUID()).build())
+                .exchange().expectStatus().isNoContent();
+
+        Mockito.verify(roomService, Mockito.times(1)).deleteRoomByOwner(
+                ArgumentMatchers.anyString(),
+                ArgumentMatchers.any());
+    }
+
+
     private Room getRoom(boolean isPrivate) {
         return Room.builder()
                 .id(UUID.fromString(ROOM_ID))

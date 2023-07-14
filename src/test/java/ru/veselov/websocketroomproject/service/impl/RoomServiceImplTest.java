@@ -205,6 +205,23 @@ class RoomServiceImplTest {
                 .handleRoomDeleteEvent(TestConstants.ROOM_ID);
     }
 
+    @Test
+    void shouldDeleteRoomByOwner() {
+        RoomEntity roomEntity = new RoomEntity();
+        roomEntity.setId(UUID.randomUUID());
+        roomEntity.setIsPrivate(false);
+        Mockito.when(roomRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.of(roomEntity));
+
+        roomService.deleteRoomByOwner(roomEntity.getId().toString(), principal);
+
+        Mockito.verify(roomRepository, Mockito.times(1)).findById(roomEntity.getId());
+        Mockito.verify(roomValidator, Mockito.times(1)).validateOwner(ArgumentMatchers.any(), roomCaptor.capture());
+        Mockito.verify(roomDeleteEventHandler, Mockito.times(1)).handleRoomDeleteEvent(roomEntity.getId().toString());
+
+        RoomEntity captured = roomCaptor.getValue();
+        Assertions.assertThat(captured.getId()).isEqualTo(roomEntity.getId());
+    }
+
     private Room getRoom(boolean isPrivate) {
         return Room.builder()
                 .id(UUID.fromString(TestConstants.ROOM_ID))

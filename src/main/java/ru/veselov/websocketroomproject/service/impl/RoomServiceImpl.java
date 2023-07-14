@@ -125,6 +125,13 @@ public class RoomServiceImpl implements RoomService {
         roomDeleteEventHandler.handleRoomDeleteEvent(roomId);
     }
 
+    @Override
+    public void deleteRoomByOwner(String roomId, Principal principal) {
+        RoomEntity roomById = findRoomById(roomId);
+        roomValidator.validateOwner(principal, roomById);
+        roomDeleteEventHandler.handleRoomDeleteEvent(roomId);
+    }
+
     private RoomEntity findRoomById(String id) {
         UUID uuid = UUID.fromString(id);
         Optional<RoomEntity> foundRoom = roomRepository.findById(uuid);
