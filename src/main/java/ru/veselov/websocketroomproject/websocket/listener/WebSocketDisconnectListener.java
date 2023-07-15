@@ -32,7 +32,7 @@ public class WebSocketDisconnectListener {
         if (chatUserOptional.isPresent()) {
             ChatUser chatUser = chatUserOptional.get();
             userDisconnectEventHandler.handleDisconnectEvent(chatUser);
-            roomService.removeUser(chatUser.getRoomId(), chatUser.getUsername());//TODO Test me
+            roomService.decreaseUserCount(chatUser.getRoomId(), chatUser.getUsername());
             log.info("[User {}] is disconnected", chatUser.getUsername());
         } else {
             log.info("[Session {}] was not connected, disconnect message after error", sessionId);

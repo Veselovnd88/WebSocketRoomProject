@@ -134,27 +134,26 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     @Transactional
-    public void addUser(String roomId, String username) {//TODO TestME
+    public void addUserCount(String roomId, String username) {
         Optional<RoomEntity> roomEntityOptional = roomRepository.findById(UUID.fromString(roomId));
         if (roomEntityOptional.isEmpty()) {
             return;
         }
         RoomEntity roomEntity = roomEntityOptional.get();
         roomEntity.getUsers().add(username);
-        Integer currentQnt = roomEntity.getUserQnt();
-        Integer newQnt = currentQnt + 1;
+        Integer newQnt = roomEntity.getUsers().size();
         if (newQnt > roomEntity.getMaxUserQnt()) {
             roomEntity.setMaxUserQnt(newQnt);
             log.info("New max quantity of users updated in room [{}]", roomId);
         }
         roomEntity.setUserQnt(newQnt);
         roomRepository.save(roomEntity);
-        log.info("User quantity updated in room [{}]", roomId);
+        log.info("Total users after connect [{}] in room [{}]", newQnt, roomId);
     }
 
     @Override
     @Transactional
-    public void removeUser(String roomId, String username) {//TODO testMe
+    public void decreaseUserCount(String roomId, String username) {
         Optional<RoomEntity> roomEntityOptional = roomRepository.findById(UUID.fromString(roomId));
         if (roomEntityOptional.isEmpty()) {
             return;
@@ -165,7 +164,7 @@ public class RoomServiceImpl implements RoomService {
         Integer newQnt = currentQnt - 1;
         roomEntity.setUserQnt(newQnt);
         roomRepository.save(roomEntity);
-        log.info("User quantity updated in room [{}]", roomId);
+        log.info("Total users after disconnect [{}] in room [{}]", newQnt, roomId);
     }
 
     private RoomEntity findRoomById(String id) {

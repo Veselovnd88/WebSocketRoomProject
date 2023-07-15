@@ -32,6 +32,8 @@ import ru.veselov.websocketroomproject.validation.RoomValidator;
 import java.security.Principal;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -220,6 +222,61 @@ class RoomServiceImplTest {
 
         RoomEntity captured = roomCaptor.getValue();
         Assertions.assertThat(captured.getId()).isEqualTo(roomEntity.getId());
+    }
+
+    @Test
+    void shouldAddUserCountAndUpdateMaxCount() {
+        RoomEntity roomEntity = new RoomEntity();
+        roomEntity.setUserQnt(0);
+        roomEntity.setMaxUserQnt(0);
+        roomEntity.setId(UUID.randomUUID());
+        roomEntity.setIsPrivate(false);
+        Mockito.when(roomRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.of(roomEntity));
+
+        roomService.addUserCount(roomEntity.getId().toString(), "Username");
+
+        Mockito.verify(roomRepository, Mockito.times(1)).findById(roomEntity.getId());
+        Mockito.verify(roomRepository, Mockito.times(1)).save(roomEntity);
+        Assertions.assertThat(roomEntity.getUsers()).contains("Username");
+        Assertions.assertThat(roomEntity.getUserQnt()).isEqualTo(1);
+        Assertions.assertThat(roomEntity.getMaxUserQnt()).isEqualTo(1);
+    }
+
+    @Test
+    void shouldDecreaseUserCount() {
+        RoomEntity roomEntity = new RoomEntity();
+        roomEntity.setUserQnt(2);
+        roomEntity.setMaxUserQnt(2);
+        roomEntity.setUsers(new HashSet<>(List.of("Username", "Username 2")));
+        roomEntity.setId(UUID.randomUUID());
+        roomEntity.setIsPrivate(false);
+        Mockito.when(roomRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.of(roomEntity));
+
+        roomService.decreaseUserCount(roomEntity.getId().toString(), "Username");
+
+        Mockito.verify(roomRepository, Mockito.times(1)).findById(roomEntity.getId());
+        Mockito.verify(roomRepository, Mockito.times(1)).save(roomEntity);
+        Assertions.assertThat(roomEntity.getUsers()).doesNotContain("Username");
+        Assertions.assertThat(roomEntity.getUserQnt()).isEqualTo(1);
+        Assertions.assertThat(roomEntity.getMaxUserQnt()).isEqualTo(2);
+    }
+
+    @Test
+    void shouldDoNothingIfNotRoomInRepoWhenConnectUser() {
+        Mockito.when(roomRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.empty());
+
+        roomService.addUserCount(UUID.randomUUID().toString(), "username");
+
+        Mockito.verify(roomRepository, Mockito.never()).save(ArgumentMatchers.any());
+    }
+
+    @Test
+    void shouldDoNothingIfNotRoomInRepoWhenDisconnectUser() {
+        Mockito.when(roomRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.empty());
+
+        roomService.decreaseUserCount(UUID.randomUUID().toString(), "username");
+
+        Mockito.verify(roomRepository, Mockito.never()).save(ArgumentMatchers.any());
     }
 
     private Room getRoom(boolean isPrivate) {

@@ -21,7 +21,7 @@ public interface RoomService {
 
     void deleteRoomByOwner(String roomId, Principal principal);
 
-    void addUser(String roomId, String username);
+    void addUserCount(String roomId, String username);
 
-    void removeUser(String roomId, String username);
+    void decreaseUserCount(String roomId, String username);
 }

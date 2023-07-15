@@ -48,7 +48,7 @@ public class WebSocketConnectionListener {
         );
         chatUserService.saveChatUser(chatUser);
         userConnectEventHandler.handleConnectEvent(chatUser);
-        roomService.addUser(roomId, chatUser.getUsername());//TODO TEST ME
+        roomService.addUserCount(roomId, chatUser.getUsername());
         log.info("[User {} with session {}] is connected to room", chatUser.getUsername(), chatUser.getSession());
     }
 
