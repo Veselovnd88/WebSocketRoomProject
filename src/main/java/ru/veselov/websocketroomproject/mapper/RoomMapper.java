@@ -17,6 +17,9 @@ public interface RoomMapper {
 
     @Mapping(target = "urls", ignore = true)
     @Mapping(target = "tags", ignore = true)
+    @Mapping(target = "users", ignore = true)
+    @Mapping(target = "userQnt", ignore = true)
+    @Mapping(target = "maxUserQnt", ignore = true)
     @Mapping(target = "isPrivate", source = "isPrivate", defaultValue = "false")
     RoomEntity toEntity(Room room);
 

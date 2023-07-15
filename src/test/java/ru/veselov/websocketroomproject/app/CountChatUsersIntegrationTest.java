@@ -98,7 +98,7 @@ class CountChatUsersIntegrationTest extends PostgresAndRedisContainersConfig {
 
     @Test
     @SneakyThrows
-    void shouldAddConnectedUserToRoom() {
+    void shouldAddConnectedAndRemoveDisconnectedUserToRoom() {
         fillRepoWithRooms();
         Room roomA = roomService.getRoomByName("aaa");
         String roomId = roomA.getId().toString();
@@ -117,14 +117,14 @@ class CountChatUsersIntegrationTest extends PostgresAndRedisContainersConfig {
         session.subscribe(destination,
                 new TestStompFrameHandler<>(resultKeeper::complete, SendChatMessage.class));
 
-        Awaitility.await().pollDelay(Duration.ofMillis(1000)).until(() -> true);
+        Awaitility.await().pollDelay(Duration.ofMillis(2000)).until(() -> true);
         Optional<RoomEntity> increasedUsersRoom = roomRepository.findByName("aaa");
         Assertions.assertThat(increasedUsersRoom).isPresent();
         Assertions.assertThat(increasedUsersRoom.get().getMaxUserQnt()).isEqualTo(1);
         Assertions.assertThat(increasedUsersRoom.get().getUserQnt()).isEqualTo(1);
 
         session.disconnect();
-        Awaitility.await().pollDelay(Duration.ofMillis(1000)).until(() -> true);
+        Awaitility.await().pollDelay(Duration.ofMillis(2000)).until(() -> true);
         Optional<RoomEntity> decreasedUsersRoom = roomRepository.findByName("aaa");
         Assertions.assertThat(decreasedUsersRoom).isPresent();
         Assertions.assertThat(decreasedUsersRoom.get().getMaxUserQnt()).isEqualTo(1);
