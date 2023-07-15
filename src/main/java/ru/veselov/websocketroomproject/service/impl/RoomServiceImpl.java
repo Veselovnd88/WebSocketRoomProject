@@ -135,7 +135,11 @@ public class RoomServiceImpl implements RoomService {
     @Override
     @Transactional
     public void addUser(String roomId, String username) {//TODO TestME
-        RoomEntity roomEntity = findRoomById(roomId);
+        Optional<RoomEntity> roomEntityOptional = roomRepository.findById(UUID.fromString(roomId));
+        if (roomEntityOptional.isEmpty()) {
+            return;
+        }
+        RoomEntity roomEntity = roomEntityOptional.get();
         roomEntity.getUsers().add(username);
         Integer currentQnt = roomEntity.getUserQnt();
         Integer newQnt = currentQnt + 1;
@@ -151,7 +155,11 @@ public class RoomServiceImpl implements RoomService {
     @Override
     @Transactional
     public void removeUser(String roomId, String username) {//TODO testMe
-        RoomEntity roomEntity = findRoomById(roomId);
+        Optional<RoomEntity> roomEntityOptional = roomRepository.findById(UUID.fromString(roomId));
+        if (roomEntityOptional.isEmpty()) {
+            return;
+        }
+        RoomEntity roomEntity = roomEntityOptional.get();
         roomEntity.getUsers().remove(username);
         Integer currentQnt = roomEntity.getUserQnt();
         Integer newQnt = currentQnt - 1;
