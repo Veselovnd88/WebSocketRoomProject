@@ -63,9 +63,9 @@ dependencies {
     testImplementation 'org.testcontainers:junit-jupiter:1.18.3'
     testImplementation "org.testcontainers:postgresql:1.18.3"
     testImplementation 'com.redis.testcontainers:testcontainers-redis:1.6.4'
+    testImplementation 'org.awaitility:awaitility:4.2.0'
 
     testAnnotationProcessor 'org.projectlombok:lombok'
-
 
 }
 

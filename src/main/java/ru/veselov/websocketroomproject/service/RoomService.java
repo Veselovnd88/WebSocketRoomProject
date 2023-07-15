@@ -20,4 +20,8 @@ public interface RoomService {
     void deleteRoom(String roomId);
 
     void deleteRoomByOwner(String roomId, Principal principal);
+
+    void addUserCount(String roomId, String username);
+
+    void decreaseUserCount(String roomId, String username);
 }

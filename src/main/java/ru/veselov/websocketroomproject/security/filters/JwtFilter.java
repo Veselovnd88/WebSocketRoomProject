@@ -101,7 +101,7 @@ public class JwtFilter extends OncePerRequestFilter {
             ApiErrorResponse errorResponse = new ApiErrorResponse(
                     ErrorCode.ERROR_UNAUTHORIZED,
                     HttpStatus.UNAUTHORIZED.value(),
-                    "Cannot connect to [/api/room/event]: Authorization header not exists or has wrong prefix");
+                    "Cannot connect to [/api/v1/room/event]: Authorization header not exists or has wrong prefix");
             String mapperMessage = jsonMapper.writeValueAsString(errorResponse);
             response.getWriter().print(mapperMessage);
             log.error("Wrong authorization prefix to connect [{}], error response sent", requestURI);

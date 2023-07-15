@@ -36,7 +36,7 @@ public class SecurityConfiguration {
                 .httpBasic().disable()
                 .authorizeHttpRequests(
                         r -> r.requestMatchers("/api/room/chat/**").permitAll()
-                                .requestMatchers("/api/room/event/**").permitAll()
+                                .requestMatchers("/api/v1/room/event/**").permitAll()
                                 .requestMatchers("/error").permitAll()
                                 .requestMatchers("/v3/api-docs/**").permitAll()
                                 .requestMatchers("/swagger-ui/**").permitAll()

@@ -12,6 +12,7 @@ import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.security.AuthProperties;
 import ru.veselov.websocketroomproject.security.jwt.JwtHelper;
 import ru.veselov.websocketroomproject.service.ChatUserService;
+import ru.veselov.websocketroomproject.service.RoomService;
 
 /**
  * Handling CONNECTION command from FrontEnd
@@ -33,6 +34,8 @@ public class WebSocketConnectionListener {
 
     private final AuthProperties authProperties;
 
+    private final RoomService roomService;
+
     @EventListener
     public void handleUserConnection(SessionConnectEvent session) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(session.getMessage());
@@ -45,6 +48,7 @@ public class WebSocketConnectionListener {
         );
         chatUserService.saveChatUser(chatUser);
         userConnectEventHandler.handleConnectEvent(chatUser);
+        roomService.addUserCount(roomId, chatUser.getUsername());
         log.info("[User {} with session {}] is connected to room", chatUser.getUsername(), chatUser.getSession());
     }
 

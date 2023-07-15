@@ -13,6 +13,7 @@ import ru.veselov.websocketroomproject.TestConstants;
 import ru.veselov.websocketroomproject.event.handler.UserDisconnectEventHandler;
 import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.service.ChatUserService;
+import ru.veselov.websocketroomproject.service.RoomService;
 import ru.veselov.websocketroomproject.websocket.listener.WebSocketDisconnectListener;
 
 import java.util.Map;
@@ -22,13 +23,14 @@ import java.util.Optional;
 @SuppressWarnings({"unchecked"})
 class WebSocketDisconnectListenerTest {
 
-    private static final String ROOM_ID = "5";
-
     @Mock
     private ChatUserService chatUserService;
 
     @Mock
     private UserDisconnectEventHandler userDisconnectEventHandler;
+
+    @Mock
+    private RoomService roomService;
 
     @InjectMocks
     private WebSocketDisconnectListener webSocketDisconnectListener;
@@ -48,7 +50,7 @@ class WebSocketDisconnectListenerTest {
         Mockito.when(chatUserService.removeChatUser(TestConstants.TEST_SESSION_ID)).thenReturn(
                 Optional.of(new ChatUser(
                         TestConstants.TEST_USERNAME,
-                        ROOM_ID,
+                        TestConstants.ROOM_ID,
                         TestConstants.TEST_SESSION_ID)
                 )
         );
@@ -57,6 +59,8 @@ class WebSocketDisconnectListenerTest {
 
         Mockito.verify(chatUserService, Mockito.times(1)).removeChatUser(TestConstants.TEST_SESSION_ID);
         Mockito.verify(userDisconnectEventHandler, Mockito.times(1)).handleDisconnectEvent(chatUserCaptor.capture());
+        ChatUser captured = chatUserCaptor.getValue();
+        Mockito.verify(roomService, Mockito.times(1)).decreaseUserCount(TestConstants.ROOM_ID, captured.getUsername());
     }
 
     @Test
@@ -74,6 +78,9 @@ class WebSocketDisconnectListenerTest {
 
         Mockito.verify(chatUserService, Mockito.times(1)).removeChatUser(TestConstants.TEST_SESSION_ID);
         Mockito.verify(userDisconnectEventHandler, Mockito.never()).handleDisconnectEvent(chatUserCaptor.capture());
+        Mockito.verify(roomService, Mockito.never()).decreaseUserCount(
+                ArgumentMatchers.anyString(),
+                ArgumentMatchers.anyString());
     }
 
 }

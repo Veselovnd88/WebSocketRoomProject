@@ -1,7 +1,9 @@
 package ru.veselov.websocketroomproject.entity;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -56,6 +58,20 @@ public class RoomEntity {
     @Enumerated(EnumType.STRING)
     private PlayerType playerType;
 
+    @Column(name = "user_qnt")
+    private Integer userQnt = 0;
+
+    @Column(name = "max_user_qnt")
+    private Integer maxUserQnt = 0;
+
+    @Column(name = "users")
+    @ElementCollection(targetClass = String.class)
+    @CollectionTable(
+            name = "room_users",
+            joinColumns = @JoinColumn(name = "room_id", referencedColumnName = "id")
+    )
+    private Set<String> users = new HashSet<>();
+
     @Column(name = "created_at", updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private ZonedDateTime createdAt;
@@ -63,6 +79,7 @@ public class RoomEntity {
     @Column(name = "changed_at")
     @Temporal(TemporalType.TIMESTAMP)
     private ZonedDateTime changedAt;
+
     @Column(name = "urls")
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UrlEntity> urls = new LinkedList<>();

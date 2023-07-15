@@ -20,6 +20,7 @@ import ru.veselov.websocketroomproject.model.ChatUser;
 import ru.veselov.websocketroomproject.security.AuthProperties;
 import ru.veselov.websocketroomproject.security.jwt.impl.JwtHelperImpl;
 import ru.veselov.websocketroomproject.service.ChatUserService;
+import ru.veselov.websocketroomproject.service.RoomService;
 import ru.veselov.websocketroomproject.websocket.listener.WebSocketConnectionListener;
 
 import java.util.List;
@@ -29,8 +30,6 @@ import java.util.Map;
 @SuppressWarnings("unchecked")
 class WebSocketConnectionListenerTest {
 
-    private static final String ROOM_ID = "5";
-
     private static final String DESTINATION = "/topic/users/5";
 
     @Mock
@@ -38,6 +37,9 @@ class WebSocketConnectionListenerTest {
 
     @Mock
     UserConnectEventHandler userConnectEventHandler;
+
+    @Mock
+    RoomService roomService;
 
     WebSocketConnectionListener webSocketConnectionListener;
 
@@ -54,7 +56,8 @@ class WebSocketConnectionListenerTest {
                 userConnectEventHandler,
                 chatUserService,
                 new JwtHelperImpl(authProperties),
-                authProperties);
+                authProperties,
+                roomService);
         ReflectionTestUtils.setField(
                 webSocketConnectionListener,
                 "roomIdHeader",
@@ -69,7 +72,7 @@ class WebSocketConnectionListenerTest {
                 StompHeaderAccessor.DESTINATION_HEADER, DESTINATION,
                 StompHeaderAccessor.SESSION_ID_HEADER, TestConstants.TEST_SESSION_ID,
                 StompHeaderAccessor.NATIVE_HEADERS, Map.of(
-                        TestConstants.ROOM_ID_HEADER, List.of(ROOM_ID),
+                        TestConstants.ROOM_ID_HEADER, List.of(TestConstants.ROOM_ID),
                         TestConstants.AUTH_HEADER, List.of(TestConstants.BEARER_JWT)
                 )
         );
@@ -80,12 +83,13 @@ class WebSocketConnectionListenerTest {
 
         Mockito.verify(chatUserService, Mockito.times(1))
                 .saveChatUser(chatUserArgumentCaptor.capture());
-        ChatUser chatUserFromCaptor = chatUserArgumentCaptor.getValue();
-        Assertions.assertThat(chatUserFromCaptor).isNotNull().isInstanceOf(ChatUser.class);
-        Assertions.assertThat(chatUserFromCaptor.getSession()).isEqualTo(TestConstants.TEST_SESSION_ID);
-        Assertions.assertThat(chatUserFromCaptor.getUsername()).isNotBlank();
-        Assertions.assertThat(chatUserFromCaptor.getRoomId()).isEqualTo(ROOM_ID);
-        Mockito.verify(userConnectEventHandler, Mockito.times(1)).handleConnectEvent(chatUserFromCaptor);
+        ChatUser captured = chatUserArgumentCaptor.getValue();
+        Assertions.assertThat(captured).isNotNull().isInstanceOf(ChatUser.class);
+        Assertions.assertThat(captured.getSession()).isEqualTo(TestConstants.TEST_SESSION_ID);
+        Assertions.assertThat(captured.getUsername()).isNotBlank();
+        Assertions.assertThat(captured.getRoomId()).isEqualTo(TestConstants.ROOM_ID);
+        Mockito.verify(userConnectEventHandler, Mockito.times(1)).handleConnectEvent(captured);
+        Mockito.verify(roomService, Mockito.times(1)).addUserCount(TestConstants.ROOM_ID, captured.getUsername());
     }
 
 }
