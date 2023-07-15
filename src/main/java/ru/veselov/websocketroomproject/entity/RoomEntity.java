@@ -59,10 +59,10 @@ public class RoomEntity {
     private PlayerType playerType;
 
     @Column(name = "user_qnt")
-    private Integer userQnt;
+    private Integer userQnt = 0;
 
     @Column(name = "max_user_qnt")
-    private Integer maxUserQnt;
+    private Integer maxUserQnt = 0;
 
     @Column(name = "users")
     @ElementCollection(targetClass = String.class)
