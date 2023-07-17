@@ -65,6 +65,7 @@ spring:
 
 room:
   rooms-per-page: 6
+  delete-empty-room-period-cron: "@weekly"
 
 redis:
   master:
