@@ -24,4 +24,5 @@ public interface RoomService {
     void addUserCount(String roomId, String username);
 
     void decreaseUserCount(String roomId, String username);
+
 }
